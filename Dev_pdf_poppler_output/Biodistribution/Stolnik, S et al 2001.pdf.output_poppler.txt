@@ -1,0 +1,181 @@
+Page 1/19:
+---
+[See] @ ( x=39.9133 y=72.1305 w=9.12959 h=7.99826 )( fontname=SourceSansPro-Regular fontsize=5.987 wmode=0 )
+[discussions,] @ ( x=50.2503 y=72.1305 w=30.2858 h=7.99826 )( fontname=SourceSansPro-Regular fontsize=5.987 wmode=0 )
+[stats,] @ ( x=81.7434 y=72.1305 w=13.5058 h=7.99826 )( fontname=SourceSansPro-Regular fontsize=5.987 wmode=0 )
+[and] @ ( x=96.4566 y=72.1305 w=9.65871 h=7.99826 )( fontname=SourceSansPro-Regular fontsize=5.987 wmode=0 )
+[author] @ ( x=107.323 y=72.1305 w=16.9203 h=7.99826 )( fontname=SourceSansPro-Regular fontsize=5.987 wmode=0 )
+[profiles] @ ( x=125.45 y=72.1305 w=18.8029 h=7.99826 )( fontname=SourceSansPro-Regular fontsize=5.987 wmode=0 )
+[for] @ ( x=145.46 y=72.1305 w=7.01017 h=7.99826 )( fontname=SourceSansPro-Regular fontsize=5.987 wmode=0 )
+[this] @ ( x=153.678 y=72.1305 w=9.25822 h=7.99826 )( fontname=SourceSansPro-Regular fontsize=5.987 wmode=0 )
+[publication] @ ( x=164.144 y=72.1305 w=28.64 h=7.99826 )( fontname=SourceSansPro-Regular fontsize=5.987 wmode=0 )
+[at:] @ ( x=193.991 y=72.1305 w=6.65937 h=7.99826 )( fontname=SourceSansPro-Regular fontsize=5.987 wmode=0 )
+[https://www.researchgate.net/publication/11586551] @ ( x=201.853 y=72.1305 w=131.658 h=7.99826 )( fontname=SourceSansPro-Regular fontsize=5.987 wmode=0 )
+[Polylactide-poly(ethylene] @ ( x=39.9133 y=91.138 w=173.159 h=21.4378 )( fontname=Martel-Regular fontsize=13.3044 wmode=0 )
+[Glycol)] @ ( x=216.145 y=91.138 w=46.6565 h=21.4378 )( fontname=Martel-Regular fontsize=13.3044 wmode=0 )
+[Micellar-like] @ ( x=265.874 y=91.138 w=86.8102 h=21.4378 )( fontname=Martel-Regular fontsize=13.3044 wmode=0 )
+[Particles] @ ( x=355.757 y=91.138 w=57.5248 h=21.4378 )( fontname=Martel-Regular fontsize=13.3044 wmode=0 )
+[as] @ ( x=416.355 y=91.138 w=14.2529 h=21.4378 )( fontname=Martel-Regular fontsize=13.3044 wmode=0 )
+[Potential] @ ( x=433.681 y=91.138 w=60.6106 h=21.4378 )( fontname=Martel-Regular fontsize=13.3044 wmode=0 )
+[Drug] @ ( x=497.364 y=91.138 w=32.5595 h=21.4378 )( fontname=Martel-Regular fontsize=13.3044 wmode=0 )
+[Carriers:] @ ( x=39.9133 y=109.764 w=57.8951 h=21.4378 )( fontname=Martel-Regular fontsize=13.3044 wmode=0 )
+[Production,] @ ( x=100.881 y=109.764 w=77.527 h=21.4378 )( fontname=Martel-Regular fontsize=13.3044 wmode=0 )
+[Colloidal] @ ( x=181.481 y=109.764 w=58.9215 h=21.4378 )( fontname=Martel-Regular fontsize=13.3044 wmode=0 )
+[Properties] @ ( x=243.475 y=109.764 w=68.7764 h=21.4378 )( fontname=Martel-Regular fontsize=13.3044 wmode=0 )
+[and] @ ( x=315.324 y=109.764 w=24.7834 h=21.4378 )( fontname=Martel-Regular fontsize=13.3044 wmode=0 )
+[Biological] @ ( x=343.181 y=109.764 w=65.2554 h=21.4378 )( fontname=Martel-Regular fontsize=13.3044 wmode=0 )
+[Performance] @ ( x=411.509 y=109.764 w=85.5629 h=21.4378 )( fontname=Martel-Regular fontsize=13.3044 wmode=0 )
+[Article] @ ( x=39.9133 y=145.265 w=18.5762 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[in] @ ( x=61.1692 y=145.363 w=5.06712 h=8.92268 )( fontname=SourceSansPro-It fontsize=6.65222 wmode=0 )
+[Journal] @ ( x=68.9129 y=145.337 w=21.4606 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[of] @ ( x=91.7149 y=145.337 w=5.54785 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[Drug] @ ( x=98.6042 y=145.337 w=13.3662 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[Targeting] @ ( x=113.312 y=145.337 w=26.0534 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[Â·] @ ( x=140.706 y=145.337 w=1.65331 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[February] @ ( x=143.7 y=145.337 w=25.0433 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[2001] @ ( x=170.085 y=145.337 w=13.2135 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[DOI:] @ ( x=39.9133 y=157.215 w=8.33314 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[10.3109/10611860108998772] @ ( x=49.1855 y=157.215 w=55.9696 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[Â·] @ ( x=106.086 y=157.215 w=1.15732 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[Source:] @ ( x=108.182 y=157.215 w=14.5995 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[PubMed] @ ( x=123.72 y=157.215 w=16.0706 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[CITATIONS] @ ( x=39.9133 y=175.873 w=23.8181 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[READS] @ ( x=306.667 y=175.873 w=14.8999 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[58] @ ( x=39.9133 y=183.983 w=7.9281 h=10.6643 )( fontname=SourceSansPro-Regular fontsize=7.98267 wmode=0 )
+[85] @ ( x=306.667 y=183.983 w=7.9281 h=10.6643 )( fontname=SourceSansPro-Regular fontsize=7.98267 wmode=0 )
+[9] @ ( x=39.9133 y=203.805 w=3.41056 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[authors,] @ ( x=44.6849 y=203.805 w=23.8648 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[including:] @ ( x=69.8912 y=203.876 w=27.5833 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[Snow] @ ( x=66.5222 y=221.837 w=15.5424 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[Stolnik] @ ( x=83.4061 y=221.837 w=19.5961 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[Paul] @ ( x=333.941 y=221.837 w=12.2618 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[R.] @ ( x=347.545 y=221.837 w=5.51537 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[Gellert] @ ( x=354.402 y=221.837 w=18.6412 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[University] @ ( x=66.5222 y=232.481 w=27.9504 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[of] @ ( x=95.8141 y=232.481 w=5.54785 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[Nottingham] @ ( x=102.703 y=232.481 w=33.5632 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[AstraZeneca] @ ( x=333.941 y=232.481 w=34.242 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[135] @ ( x=66.5222 y=245.024 w=9.20852 h=7.99533 )( fontname=SourceSansPro-Semibold fontsize=5.987 wmode=0 )
+[PUBLICATIONS] @ ( x=77.0618 y=245.722 w=33.3884 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[6,254] @ ( x=114.47 y=245.024 w=13.9239 h=7.99533 )( fontname=SourceSansPro-Semibold fontsize=5.987 wmode=0 )
+[CITATIONS] @ ( x=129.729 y=245.722 w=23.8181 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[38] @ ( x=333.941 y=245.024 w=6.13901 h=7.99533 )( fontname=SourceSansPro-Semibold fontsize=5.987 wmode=0 )
+[PUBLICATIONS] @ ( x=341.415 y=245.722 w=33.3884 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[952] @ ( x=378.823 y=245.024 w=9.20852 h=7.99533 )( fontname=SourceSansPro-Semibold fontsize=5.987 wmode=0 )
+[CITATIONS] @ ( x=389.363 y=245.722 w=23.8181 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[SEE] @ ( x=73.8397 y=261.687 w=8.4478 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[PROFILE] @ ( x=83.3606 y=261.687 w=19.0991 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[SEE] @ ( x=341.259 y=261.687 w=8.4478 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[PROFILE] @ ( x=350.78 y=261.687 w=19.0991 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[Some] @ ( x=39.9133 y=292.945 w=16.2538 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[of] @ ( x=57.5281 y=292.945 w=5.73299 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[the] @ ( x=64.622 y=292.945 w=9.48136 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[authors] @ ( x=75.4644 y=292.945 w=22.2141 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[of] @ ( x=99.0395 y=292.945 w=5.73299 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[this] @ ( x=106.133 y=292.945 w=10.7157 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[publication] @ ( x=118.21 y=292.945 w=32.7446 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[are] @ ( x=152.316 y=292.945 w=9.26374 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[also] @ ( x=162.94 y=292.945 w=11.7973 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[working] @ ( x=176.099 y=292.945 w=23.4549 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[on] @ ( x=200.915 y=292.945 w=7.37331 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[these] @ ( x=209.649 y=292.945 w=15.7178 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[related] @ ( x=226.728 y=292.945 w=20.5251 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[projects:] @ ( x=248.614 y=292.945 w=25.1017 h=8.8837 )( fontname=SourceSansPro-Semibold fontsize=6.65222 wmode=0 )
+[Helicobacter] @ ( x=75.8353 y=319.625 w=35.275 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[pylori] @ ( x=112.452 y=319.625 w=16.0102 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[adhesins] @ ( x=129.803 y=319.625 w=24.8549 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[View] @ ( x=156.254 y=319.625 w=13.142 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[project] @ ( x=170.738 y=319.625 w=19.752 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[MarieCurie/iCARE] @ ( x=75.8353 y=349.56 w=48.9692 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[project:] @ ( x=126.146 y=349.56 w=21.4995 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[Redox] @ ( x=148.987 y=349.56 w=17.2412 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[responsive] @ ( x=167.57 y=349.56 w=30.0552 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[nanoparticles] @ ( x=198.966 y=349.56 w=38.2828 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[for] @ ( x=238.591 y=349.56 w=7.78908 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[synergistic] @ ( x=247.721 y=349.56 w=29.7531 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[lung] @ ( x=278.816 y=349.56 w=12.304 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[cancer] @ ( x=292.461 y=349.56 w=18.5015 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[therapy] @ ( x=312.304 y=349.56 w=21.4768 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[View] @ ( x=335.376 y=349.56 w=13.142 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[project] @ ( x=349.859 y=349.56 w=19.752 h=8.88695 )( fontname=SourceSansPro-Regular fontsize=6.65222 wmode=0 )
+[All] @ ( x=43.2394 y=756.58 w=4.90666 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[content] @ ( x=49.0851 y=756.58 w=15.0497 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[following] @ ( x=65.0739 y=756.58 w=18.0964 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[this] @ ( x=84.1093 y=756.58 w=7.20083 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[page] @ ( x=92.2492 y=756.58 w=9.48818 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[was] @ ( x=102.676 y=756.58 w=7.63057 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[uploaded] @ ( x=111.246 y=756.58 w=18.6171 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[by] @ ( x=130.802 y=756.58 w=4.73841 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[Snow] @ ( x=136.474 y=756.58 w=10.8797 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[Stolnik] @ ( x=148.293 y=756.58 w=13.7173 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[on] @ ( x=162.941 y=756.58 w=5.07037 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[03] @ ( x=168.951 y=756.58 w=4.62472 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[June] @ ( x=174.515 y=756.58 w=9.62233 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[2014.] @ ( x=185.076 y=756.58 w=10.4068 h=6.22087 )( fontname=SourceSansPro-Regular fontsize=4.65655 wmode=0 )
+[The] @ ( x=43.2394 y=769.251 w=8.38284 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[user] @ ( x=52.6955 y=769.251 w=9.60674 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[has] @ ( x=63.3754 y=769.251 w=7.84754 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[requested] @ ( x=72.2961 y=769.251 w=22.4538 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[enhancement] @ ( x=95.8232 y=769.251 w=30.7821 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[of] @ ( x=127.678 y=769.251 w=4.43828 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[the] @ ( x=133.19 y=769.251 w=7.33044 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[downloaded] @ ( x=141.594 y=769.251 w=27.9757 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+[file.] @ ( x=170.642 y=769.251 w=8.17755 h=7.10956 )( fontname=SourceSansPro-Regular fontsize=5.32178 wmode=0 )
+---
+Page 2/19:
+---
+---
+Page 3/19:
+---
+---
+Page 4/19:
+---
+---
+Page 5/19:
+---
+---
+Page 6/19:
+---
+---
+Page 7/19:
+---
+---
+Page 8/19:
+---
+---
+Page 9/19:
+---
+---
+Page 10/19:
+---
+---
+Page 11/19:
+---
+---
+Page 12/19:
+---
+---
+Page 13/19:
+---
+---
+Page 14/19:
+---
+---
+Page 15/19:
+---
+---
+Page 16/19:
+---
+---
+Page 17/19:
+---
+---
+Page 18/19:
+---
+---
+Page 19/19:
+---
+[View] @ ( x=50 y=783.128 w=8.668 h=3.7 )( fontname=Helvetica fontsize=4 wmode=0 )
+[publication] @ ( x=59.78 y=783.128 w=19.12 h=3.7 )( fontname=Helvetica fontsize=4 wmode=0 )
+[stats] @ ( x=80.012 y=783.128 w=8.448 h=3.7 )( fontname=Helvetica fontsize=4 wmode=0 )
+---
