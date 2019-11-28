@@ -11,16 +11,12 @@ library(stringr)
 
 pdf_name<-"Abrams, M T et al 2010.pdf"
 
-
-#parse_pdf_and_font<- function(pdf_name) {
-#This function take a pdf name as input, and read the pdf to extract the text and the poppler output
-
-
 txt_pdf <- PDF_text(pdf_name) #works very well
 poppler_output <- read_lines(paste0(pdf_name, ".output_poppler.txt"))
 
 #this command remove the lines that indicate change of page ("page 1/5") and the "----"
 poppler_output<-poppler_output[-which(nchar(poppler_output)<12)]
+
 annotate_txt_pdf<- function(txt_pdf) {
   #This function create the adequate NLP datastructure from the text of the pdf
   txt_pdf<-paste(txt_pdf, collapse = '') 
@@ -36,11 +32,6 @@ annotate_txt_pdf<- function(txt_pdf) {
 }
 
 x<-annotate_txt_pdf(txt_pdf)
-
-#connection with following here
-#  return()
-#}
-
 
 #### Poppler reading
 
@@ -109,10 +100,6 @@ repair_df <- function(df) {
 df_poppler<-repair_df(df_poppler)
 sections_titles<-data.frame()
 
-##above, cleaned
-
-
-######################### Function for this
 identify_font <- function(df_poppler) {
   #this function identify the fonts use for the section titles
   #it first try to identify where are the words References and Acknowledgements in the poppler output
@@ -145,31 +132,29 @@ find_section_titles <- function(vector_title, font_section) {
   }
 }
 
-########
+create_section_title_df <- function(font_section, list_of_sections) {
+  #create and return a dataframe with the section, their font and the size of the font like this :
+  #Word                         Font                 Size
+  #293     Introduction VMUQDX+ITCStoneSans-Semibold 10.0
+  #1321         Results VMUQDX+ITCStoneSans-Semibold 10.0
+  section_title_df<-data.frame()
+  for (vector_title in list_of_sections) {
+    section_title_df<-rbind(section_title_df, find_section_titles(vector_title, font_section))
+  }
+  section_title_df <- section_title_df[order(as.numeric(row.names(section_title_df))),]
+  return(section_title_df)}
 
-section_title_df<-data.frame()
+list_of_sections <- list(c("Introduction"), 
+                         c("Materials", "Material"),
+                         c("Acknowledgements", "Acknowledgments"),
+                         c("References"),
+                         c("Results"),
+                         c("Discussion")
+                         )
 
-vector_title<-c("Introduction")
-section_title_df<-rbind(section_title_df, find_section_titles(vector_title, font_section))
-vector_title<-c("Materials", "Material")
-section_title_df<-rbind(section_title_df, find_section_titles(vector_title, font_section))
-vector_title<-c("Acknowledgements", "Acknowledgments")
-section_title_df<-rbind(section_title_df, find_section_titles(vector_title, font_section))
-vector_title<-c("References")
-section_title_df<-rbind(section_title_df, find_section_titles(vector_title, font_section))
-vector_title<-c("Results")
-section_title_df<-rbind(section_title_df, find_section_titles(vector_title, font_section))
-vector_title<-c("Discussion")
-section_title_df<-rbind(section_title_df, find_section_titles(vector_title, font_section))
+section_title_df<-create_section_title_df(font_section, list_of_sections)
 
-
-
-section_title_df <- section_title_df[order(as.numeric(row.names(section_title_df))),]
-
-
-############################
-
-
+##########
 filter_first_lemma <- function(index){
   #this function select lemma/tokens that are the first element of a sentence
   #x[index,] return a token and all the associated data : lemma, but also sentence and doc_id
@@ -229,3 +214,6 @@ locate_sections_position <- function(section_title_df){
 
 
 positions_sections_df<-locate_sections_position(section_title_df)
+
+
+##Extract automatically material and or method until next section 
