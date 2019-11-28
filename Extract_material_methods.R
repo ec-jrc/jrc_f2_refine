@@ -216,4 +216,13 @@ locate_sections_position <- function(section_title_df){
 positions_sections_df<-locate_sections_position(section_title_df)
 
 
-##Extract automatically material and or method until next section 
+extract_material_section <- function(x, positions_sections_df) {
+  beginning_section<-positions_sections_df[which(positions_sections_df$section=="Materials"),]$occurrences
+  end_section<-positions_sections_df[which(positions_sections_df$section=="Materials")+1,]$occurrences
+  material_section<-x[beginning_section:(end_section-1),]
+  return(material_section)
+}
+material_section<-extract_material_section(x, positions_sections_df)
+
+saveRDS(material_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
+
