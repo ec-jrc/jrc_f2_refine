@@ -1,11 +1,10 @@
 # Refine H2020
 
-Pas de doc, pas de chocolat.
 
 # Quick start
 
 
-# Dependancies
+# Dependencies
 
 * udpipe
 * readR
