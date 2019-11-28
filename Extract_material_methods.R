@@ -33,8 +33,17 @@ annotate_txt_pdf<- function(txt_pdf) {
 
 x<-annotate_txt_pdf(txt_pdf)
 
-poppler_output<-prepare_poppler_output(pdf_name)
-
+repair_df <- function(df) {
+  #the function fix the variable inside the df dataframe
+  #the unlisting is necessary because of the continuous addition of dataframe inside the global df
+  #during the sapply(poppler_output, read_outpout_poppler)
+  #also the size of the font must be converted to a numericc
+  df$Word<-unlist(df$Word)
+  df$Font<-unlist(df$Font)
+  df$Size<-unlist(df$Size)
+  df$Size<-as.numeric(df$Size)
+  return(df)
+}
 #### Poppler reading
 
 extract_word <- function(poppler_output) {
@@ -61,43 +70,33 @@ extract_font_size <- function(poppler_output) {
   return(font_size)
 }
 
-read_outpout_poppler <- function(poppler_output) {
-  #read the poppler_output
-  #read one line of poppler_output and extract word, font, size of the font
-  #data is one line of the the poppler_output variable
-  word<-extract_word(poppler_output)
-  font<-extract_font(poppler_output)
-  font_size<-extract_font_size(poppler_output)
+read_poppler_line <- function(poppler_line) {
+  #Please pay attention to the use of the "<<-"
+  #It is the way to assign global variable in R.
+  word<-extract_word(poppler_line)
+  font<-extract_font(poppler_line)
+  font_size<-extract_font_size(poppler_line)
   
   df_local<-as.data.frame(matrix(list(word, font, font_size), ncol=3, byrow=TRUE))
   colnames(df_local)<-c("Word", "Font", "Size")
-  #this line add the dataframe to a global dataframe
-  #please pay attention to the use of the "<<-" 
   df_poppler<<-rbind(df_poppler, df_local)
-  return()
 }
 
-
-#this dataframe is populated or used as a global variable in other function
-#read_output_poppler, 
-df_poppler<-data.frame()
-
-#there is no direct output to the following line
-#inside the sapply the elements are added to the df_poppler dataframe df declared above
-
-sapply(poppler_output, read_outpout_poppler) #not direct output
-
-repair_df <- function(df) {
-  #the function fix the variable inside the df dataframe
-  #the unlisting is necessary because of the continuous addition of dataframe inside the global df
-  #during the sapply(poppler_output, read_outpout_poppler)
-  #also the size of the font must be converted to a numericc
-  df$Word<-unlist(df$Word)
-  df$Font<-unlist(df$Font)
-  df$Size<-unlist(df$Size)
-  df$Size<-as.numeric(df$Size)
-  return(df)
+read_outpout_poppler <- function(pdf_name) {
+  #read the poppler_output
+  #read one line of poppler_output and extract word, font, size of the font
+  #read_poppler_line assign value to a global variable behind the scenes
+  #Please pay attention to the "<<-"
+  poppler_output<-prepare_poppler_output(pdf_name)  
+  
+  df_poppler<<-data.frame()
+  sapply(poppler_output, read_poppler_line)
+  df_poppler<<-repair_df(df_poppler)
+  return(df_poppler)
 }
+
+df_poppler<-read_outpout_poppler(pdf_name)
+
 
 df_poppler<-repair_df(df_poppler)
 sections_titles<-data.frame()
