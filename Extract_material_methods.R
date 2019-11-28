@@ -217,8 +217,8 @@ positions_sections_df<-locate_sections_position(section_title_df)
 
 
 extract_material_section <- function(x, positions_sections_df) {
-  beginning_section<-positions_sections_df[which(positions_sections_df$section=="Materials"),]$occurrences
-  end_section<-positions_sections_df[which(positions_sections_df$section=="Materials")+1,]$occurrences
+  beginning_section<-positions_sections_df[which(positions_sections_df$section %in% c("Materials")),]$occurrences
+  end_section<-positions_sections_df[which(positions_sections_df$section%in% c("Materials"))+1,]$occurrences
   material_section<-x[beginning_section:(end_section-1),]
   return(material_section)
 }
