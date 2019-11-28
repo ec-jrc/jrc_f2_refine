@@ -4,7 +4,6 @@ library(readr)
 library(Rpoppler)
 library(stringr)
 
-#for pdf/apply pdf
 #require "Abrams, M T et al 2010.pdf"
 #require "Abrams, M T et al 2010.pdf.output_poppler.txt"
 
@@ -14,9 +13,6 @@ prepare_poppler_output <- function(pdf_name) {
   #this command remove the lines that indicate change of page ("page 1/5") and the "----"
   poppler_output<-poppler_output[-which(nchar(poppler_output)<12)]
 }
-
-pdf_name<-"Abrams, M T et al 2010.pdf"
-txt_pdf <- PDF_text(pdf_name)
 annotate_txt_pdf<- function(txt_pdf) {
   #This function create the adequate NLP datastructure from the text of the pdf
   txt_pdf<-paste(txt_pdf, collapse = '') 
@@ -30,9 +26,6 @@ annotate_txt_pdf<- function(txt_pdf) {
   x <- as.data.frame(x)
   return(x)
 }
-
-x<-annotate_txt_pdf(txt_pdf)
-
 repair_df <- function(df) {
   #the function fix the variable inside the df dataframe
   #the unlisting is necessary because of the continuous addition of dataframe inside the global df
@@ -44,8 +37,6 @@ repair_df <- function(df) {
   df$Size<-as.numeric(df$Size)
   return(df)
 }
-#### Poppler reading
-
 extract_word <- function(poppler_output) {
   #read lines and ouput word and its font
   word<-str_extract(poppler_output, "\\[.*\\]")
@@ -69,7 +60,6 @@ extract_font_size <- function(poppler_output) {
   
   return(font_size)
 }
-
 read_poppler_line <- function(poppler_line) {
   #Please pay attention to the use of the "<<-"
   #It is the way to assign global variable in R.
@@ -81,7 +71,6 @@ read_poppler_line <- function(poppler_line) {
   colnames(df_local)<-c("Word", "Font", "Size")
   df_poppler<<-rbind(df_poppler, df_local)
 }
-
 read_outpout_poppler <- function(pdf_name) {
   #read the poppler_output
   #read one line of poppler_output and extract word, font, size of the font
@@ -94,12 +83,6 @@ read_outpout_poppler <- function(pdf_name) {
   df_poppler<<-repair_df(df_poppler)
   return(df_poppler)
 }
-
-df_poppler<-read_outpout_poppler(pdf_name)
-
-
-df_poppler<-repair_df(df_poppler)
-sections_titles<-data.frame()
 
 identify_font <- function(df_poppler) {
   #this function identify the fonts use for the section titles
@@ -123,8 +106,6 @@ identify_font <- function(df_poppler) {
   
   return(font_sections)
 }
-font_section<-identify_font(df_poppler)
-
 find_section_titles <- function(vector_title, font_section) {
   assumed_title_df<-df_poppler[which(df_poppler$Word %in% vector_title),]
   assumed_title_df<-assumed_title_df[which(assumed_title_df$Size==max(assumed_title_df$Size)),]
@@ -132,7 +113,6 @@ find_section_titles <- function(vector_title, font_section) {
     return(assumed_title_df)
   }
 }
-
 create_section_title_df <- function(font_section, list_of_sections) {
   #create and return a dataframe with the section, their font and the size of the font like this :
   #Word                         Font                 Size
@@ -145,17 +125,6 @@ create_section_title_df <- function(font_section, list_of_sections) {
   section_title_df <- section_title_df[order(as.numeric(row.names(section_title_df))),]
   return(section_title_df)}
 
-list_of_sections <- list(c("Introduction"), 
-                         c("Materials", "Material"),
-                         c("Acknowledgements", "Acknowledgments"),
-                         c("References"),
-                         c("Results"),
-                         c("Discussion")
-                         )
-
-section_title_df<-create_section_title_df(font_section, list_of_sections)
-
-##########
 filter_first_lemma <- function(index){
   #this function select lemma/tokens that are the first element of a sentence
   #x[index,] return a token and all the associated data : lemma, but also sentence and doc_id
@@ -167,7 +136,6 @@ filter_first_lemma <- function(index){
   if (first_lemma==lemma) {return(TRUE)} 
   return(FALSE)
 }
-
 NLP_filter_section_title <- function(occurrences){
   #this function return the first occurrence passed as input which is the first lemma of a sentence. 
   #Typically, it distinguish between sentence "northen blot as discribe in Materials and Methods" and 
@@ -176,7 +144,6 @@ NLP_filter_section_title <- function(occurrences){
   for (index in occurrences){
     if (filter_first_lemma(index)){return(index)}
   }}
-
 subset_occurrences <- function(occurrences, positions_sections_df){
   #what is going on in this function ? simply speaking, it reduce the search of section names to portion
   #of the article after the already annotated sections title
@@ -189,14 +156,12 @@ subset_occurrences <- function(occurrences, positions_sections_df){
     occurrences<-occurrences[which(occurrences > max(positions_sections_df$occurrences))]
     return(occurrences)}
   else{return(occurrences)}}
-
 reduce_occurrences<- function(occurrences, positions_sections_df){
   if (length(occurrences)>1){ #if several time the section name in the article
     occurrences<-subset_occurrences(occurrences, positions_sections_df)}
   if (length(occurrences)>1){ #if there is still several time the section name in the article
     occurrences<-NLP_filter_section_title(occurrences)}
   return(occurrences)}
-
 locate_sections_position <- function(section_title_df){
   #this function create and return the a dataframe with the name of the section and it start position inside x
   #reduce_occurrences() use the order of the sections inside the document and NLP approach to reduce the number
@@ -212,10 +177,7 @@ locate_sections_position <- function(section_title_df){
     positions_sections_df<-rbind(positions_sections_df, data.frame(section, occurrences))
   }
   return(positions_sections_df)}
-
-
 positions_sections_df<-locate_sections_position(section_title_df)
-
 
 extract_material_section <- function(x, positions_sections_df) {
   beginning_section<-positions_sections_df[which(positions_sections_df$section %in% c("Materials")),]$occurrences
@@ -223,7 +185,38 @@ extract_material_section <- function(x, positions_sections_df) {
   material_section<-x[beginning_section:(end_section-1),]
   return(material_section)
 }
+
+#######
+
+pdf_name<-"Abrams, M T et al 2010.pdf"  #for test, here apply can be used
+
+txt_pdf <- PDF_text(pdf_name)  #read the text from the pdf
+x<-annotate_txt_pdf(txt_pdf)   #create the dataframe for NLP using udpipe
+
+#read the output from poppler and create the dataframe with words, font and fontsize
+df_poppler<-read_outpout_poppler(pdf_name)
+
+#identify the font of the section, first by looking at references and then at Acknowledgement
+font_section<-identify_font(df_poppler)
+
+#the sections what the script will try to identify in the doppler output
+list_of_sections <- list(c("Introduction"), 
+                         c("Materials", "Material"),
+                         c("Acknowledgements", "Acknowledgments"),
+                         c("References"),
+                         c("Results"),
+                         c("Discussion")
+)
+
+#dataframe with Section name (word), font of the section, size of the of the font inside the poppler documents
+section_title_df<-create_section_title_df(font_section, list_of_sections)
+
+#dataframe with the Sections title in order of appereance in the article, and their position in x 
+positions_sections_df<-locate_sections_position(section_title_df)
+
 material_section<-extract_material_section(x, positions_sections_df)
+
+
 
 saveRDS(material_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
 
