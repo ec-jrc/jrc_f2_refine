@@ -8,15 +8,15 @@ library(stringr)
 #require "Abrams, M T et al 2010.pdf"
 #require "Abrams, M T et al 2010.pdf.output_poppler.txt"
 
+prepare_poppler_output <- function(pdf_name) {
+  
+  poppler_output <- read_lines(paste0(pdf_name, ".output_poppler.txt"))
+  #this command remove the lines that indicate change of page ("page 1/5") and the "----"
+  poppler_output<-poppler_output[-which(nchar(poppler_output)<12)]
+}
 
 pdf_name<-"Abrams, M T et al 2010.pdf"
-
-txt_pdf <- PDF_text(pdf_name) #works very well
-poppler_output <- read_lines(paste0(pdf_name, ".output_poppler.txt"))
-
-#this command remove the lines that indicate change of page ("page 1/5") and the "----"
-poppler_output<-poppler_output[-which(nchar(poppler_output)<12)]
-
+txt_pdf <- PDF_text(pdf_name)
 annotate_txt_pdf<- function(txt_pdf) {
   #This function create the adequate NLP datastructure from the text of the pdf
   txt_pdf<-paste(txt_pdf, collapse = '') 
@@ -32,6 +32,8 @@ annotate_txt_pdf<- function(txt_pdf) {
 }
 
 x<-annotate_txt_pdf(txt_pdf)
+
+poppler_output<-prepare_poppler_output(pdf_name)
 
 #### Poppler reading
 
