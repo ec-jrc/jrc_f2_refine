@@ -112,10 +112,15 @@ identify_font <- function(df_poppler) {
 
 find_section_titles <- function(vector_title, font_section) {
     assumed_title_df<-df_poppler[which(df_poppler$Word %in% vector_title),]
-    if (dim(assumed_title_df)[1] > 0) {#if section exist
-    assumed_title_df<-assumed_title_df[which(assumed_title_df$Size==max(assumed_title_df$Size)),]
-    if (assumed_title_df$Font==font_section){
-      return(assumed_title_df)
+    if (dim(assumed_title_df)[1] > 0) { #if section exist
+      assumed_title_df<-assumed_title_df[which(assumed_title_df$Size==max(assumed_title_df$Size)),]
+      if (dim(assumed_title_df)[1] > 1) {#if there is several words with same size
+        #like three time material with same size
+        #extract one with good font, like in Biodistribution/Al Zaki, A et al 2015.pdf
+        #remove warning
+        return()}
+      if (assumed_title_df$Font == font_section){
+        return(assumed_title_df)
     }}
 }
 
@@ -233,7 +238,17 @@ merging_section <- function(positions_sections_df) {
     }}
   return(positions_sections_df)
 }
-extract_material_section <- function(x, positions_sections_df) {
+
+clean_section_title <- function(positions_sections_df) {
+  #this function just pass to lower to help the extractions functions
+  #for example, "aterial" cannot be find in "MATERIAL".
+
+  positions_sections_df$section<-as.character(positions_sections_df$section)
+  positions_sections_df$section<-tolower(positions_sections_df$section)
+  return(positions_sections_df)
+}
+
+extract_material_and_method_section <- function(x, positions_sections_df) {
   #This function is a refunt from the previous one.
   #The problem was that the previous function to extract the material and methods was looking inside sections
   #for something named "Materials" or "Material", etc.
@@ -242,22 +257,30 @@ extract_material_section <- function(x, positions_sections_df) {
   #It was also quite bug prone, and would require to think ahead all combinaisonm especially to extend this
   #function to result.
   for (i in 1:(length(positions_sections_df$section)-1)){
-    if (grepl("aterial", positions_sections_df$section[i])){ #yolo hack
+    if (grepl("material", positions_sections_df$section[i])){ 
       idx<-i
+      break
+    }
+    if (grepl("method", positions_sections_df$section[i])){
+      idx<-i
+      break
     }
   }
   beginning_section<-positions_sections_df[idx,]$occurrences
   end_section<-positions_sections_df[idx+1,]$occurrences
-  material_section<-x[beginning_section:(end_section-1),]
-  return(material_section)
+  material_and_method_section<-x[beginning_section:(end_section-1),]
+  return(material_and_method_section)
 }
 
 
 ######
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"  #for test, here apply can be used
+pdf_name<-"Al Faraj A, Fauvelle F et al 2011.pdf"
 
-pdf_name<-"Al Zaki, A et al 2015.pdf"
+pdf_name<-"Al Zaki, A et al 2015.pdf" #seem good now
+#pdf_name<-"Al Faraj A, Fauvelle F et al 2011.pdf"
+
 
 txt_pdf <- PDF_text(pdf_name)  #read the text from the pdf
 x<-annotate_txt_pdf(txt_pdf)   #create the dataframe for NLP using udpipe
@@ -285,14 +308,16 @@ list_of_sections <- list(c("Introduction", "INTRODUCTION"),
 section_title_df<-create_section_title_df(font_section, list_of_sections)
 
 #dataframe with the Sections title in order of appereance in the article, and their position in x
-positions_sections_df<-locate_sections_position(section_title_df)
+positions_sections_df<-locate_sections_position(x, section_title_df)
 
 
 positions_sections_df<-merging_section(positions_sections_df)
+positions_sections_df<-clean_section_title(positions_sections_df)
 
-material_section<-extract_material_section(x, positions_sections_df)
 
-saveRDS(material_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
+material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
+
+saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
 
 
 
