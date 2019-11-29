@@ -4,6 +4,7 @@ library(readr)
 library(Rpoppler)
 library(stringr)
 
+
 #require "Abrams, M T et al 2010.pdf"
 #require "Abrams, M T et al 2010.pdf.output_poppler.txt"
 
@@ -177,14 +178,45 @@ locate_sections_position <- function(section_title_df){
     positions_sections_df<-rbind(positions_sections_df, data.frame(section, occurrences))
   }
   return(positions_sections_df)}
-positions_sections_df<-locate_sections_position(section_title_df)
 
+merging_section <- function(positions_sections_df) {
+  #this function aims to merge really close section in positions_section_df
+  #the problem arise from section title like "results and discussion", or even simplier, "materials and methods"
+  #the way the results of the poppler is read does not discriminate for section in the same sentence
+  #at the moment, a section "results and discussion" would create two entries in positions_sections_df
+  #this function is a patch that will gather together section in positions_sections_df that occured at a distance
+  #of two words or so.
+  #Please refer to the Toc_extraction.html document, "Exraction of the table of content of pdf files"
+  positions_sections_df$section<-as.character(positions_sections_df$section)
+  for (i in 1:(length(positions_sections_df$occurrences)-1)){
+    gap=positions_sections_df$occurrences[[i+1]]-positions_sections_df$occurrences[[i]]
+    if (gap<4){
+      new_section<-paste(positions_sections_df[i,]$section, "and", positions_sections_df[i+1,]$section)
+      positions_sections_df[i,]$section<-new_section
+      positions_sections_df<-positions_sections_df[-(i+1),]
+      return(merging_section(positions_sections_df))
+    }}
+  return(positions_sections_df)
+}
 extract_material_section <- function(x, positions_sections_df) {
-  beginning_section<-positions_sections_df[which(positions_sections_df$section %in% c("Materials")),]$occurrences
-  end_section<-positions_sections_df[which(positions_sections_df$section%in% c("Materials"))+1,]$occurrences
+  #This function is a refunt from the previous one.
+  #The problem was that the previous function to extract the material and methods was looking inside sections
+  #for something named "Materials" or "Material", etc.
+  #This introduce a problem with the merging function that combine close section into a section "X and Y"
+  #Material and Methods would not be match, or it would require to wrote all the possibility in advance
+  #It was also quite bug prone, and would require to think ahead all combinaisonm especially to extend this
+  #function to result.
+  for (i in 1:(length(positions_sections_df$section)-1)){
+    if (grepl("aterial", positions_sections_df$section[i])){ #yolo hack
+      idx<-i
+    }
+  }
+  beginning_section<-positions_sections_df[idx,]$occurrences
+  end_section<-positions_sections_df[idx+1,]$occurrences
   material_section<-x[beginning_section:(end_section-1),]
   return(material_section)
 }
+
 
 #######
 
@@ -214,9 +246,11 @@ section_title_df<-create_section_title_df(font_section, list_of_sections)
 #dataframe with the Sections title in order of appereance in the article, and their position in x 
 positions_sections_df<-locate_sections_position(section_title_df)
 
+
+positions_sections_df<-merging_section(positions_sections_df)
+
 material_section<-extract_material_section(x, positions_sections_df)
 
-
-
 saveRDS(material_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
+
 
