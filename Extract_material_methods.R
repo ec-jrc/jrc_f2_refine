@@ -14,6 +14,7 @@ prepare_poppler_output <- function(pdf_name) {
   #this command remove the lines that indicate change of page ("page 1/5") and the "----"
   poppler_output<-poppler_output[-which(nchar(poppler_output)<12)]
 }
+
 annotate_txt_pdf<- function(txt_pdf) {
   #This function create the adequate NLP datastructure from the text of the pdf
   txt_pdf<-paste(txt_pdf, collapse = '') 
@@ -27,6 +28,7 @@ annotate_txt_pdf<- function(txt_pdf) {
   x <- as.data.frame(x)
   return(x)
 }
+
 repair_df <- function(df) {
   #the function fix the variable inside the df dataframe
   #the unlisting is necessary because of the continuous addition of dataframe inside the global df
@@ -196,7 +198,7 @@ reduce_occurrences<- function(occurrences, positions_sections_df){
     occurrences<-NLP_filter_second_member_section_title(occurrences)}
   return(occurrences)}
 
-locate_sections_position <- function(section_title_df){
+locate_sections_position <- function(x, section_title_df){
   #this function create and return the a dataframe with the name of the section and it start position inside x
   #reduce_occurrences() use the order of the sections inside the document and NLP approach to reduce the number
   #of occurrences to one, i.e. to select among the different occurrences of a section title which one 
@@ -251,9 +253,11 @@ extract_material_section <- function(x, positions_sections_df) {
 }
 
 
-#######
+######
 
-pdf_name<-"Abrams, M T et al 2010.pdf"  #for test, here apply can be used
+#pdf_name<-"Abrams, M T et al 2010.pdf"  #for test, here apply can be used
+
+pdf_name<-"Al Zaki, A et al 2015.pdf"
 
 txt_pdf <- PDF_text(pdf_name)  #read the text from the pdf
 x<-annotate_txt_pdf(txt_pdf)   #create the dataframe for NLP using udpipe
@@ -280,7 +284,7 @@ list_of_sections <- list(c("Introduction", "INTRODUCTION"),
 #dataframe with Section name (word), font of the section, size of the of the font inside the poppler documents
 section_title_df<-create_section_title_df(font_section, list_of_sections)
 
-#dataframe with the Sections title in order of appereance in the article, and their position in x 
+#dataframe with the Sections title in order of appereance in the article, and their position in x
 positions_sections_df<-locate_sections_position(section_title_df)
 
 
@@ -289,5 +293,71 @@ positions_sections_df<-merging_section(positions_sections_df)
 material_section<-extract_material_section(x, positions_sections_df)
 
 saveRDS(material_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# pdf_name<-"Abrams, M T et al 2010.pdf"  #for test, here apply can be used
+# 
+# extraction_material_and_methods <- function(pdf_name) {
+#   
+#   txt_pdf <- PDF_text(pdf_name)  #read the text from the pdf
+#   x<<-annotate_txt_pdf(txt_pdf)   #create the dataframe for NLP using udpipe
+#   df_poppler<-read_outpout_poppler(pdf_name)
+#   
+#   #identify the font of the section, first by looking at references and then at Acknowledgement
+#   font_section<-identify_font(df_poppler)
+#   
+#   #the sections what the script will try to identify in the doppler output
+#   list_of_sections <- list(c("Introduction", "INTRODUCTION"),
+#                            c("Materials", "Material", "materials", "material", "MATERIALS", "MATERIAL"),
+#                            c("Methods", "Method", "methods", "method", "METHODS", "METHOD"),
+#                            c("Acknowledgements", "Acknowledgments", "ACKNOWLEDGEMENTS", "ACKNOWLDGEMENTS"),
+#                            c("References", "REFERENCES"),
+#                            c("Results", "RESULTS"),
+#                            c("Discussion", "DISCUSSION"),
+#                            c("Abstract", "ABSTRACT"),
+#                            c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"),
+#                            c("Background", "BACKGROUND")
+#   )
+#   
+#   #dataframe with Section name (word), font of the section, size of the of the font inside the poppler documents
+#   section_title_df<<-create_section_title_df(font_section, list_of_sections)
+#   
+#   #dataframe with the Sections title in order of appereance in the article, and their position in x 
+#   positions_sections_df<-locate_sections_position(x, section_title_df)
+#   
+#   positions_sections_df<-merging_section(positions_sections_df)
+#   
+#   material_section<<-extract_material_section(x, positions_sections_df)
+#   
+#   #ugly patch for demo
+#   name<-strsplit(string, "/" )[[1]] #seriously R ?
+# 
+#   saveRDS(material_section, file = paste0("Material_and_Methods_Section/" , paste0(name[3], ".rds")))
+#   
+# }
+# #extraction_material_and_methods(pdf_name) 
+# 
+# list_of_files <- list.files(path = "Dev_pdf_poppler_output", recursive = TRUE, pattern = "\\.pdf$", full.names = TRUE)
+# list_of_files <- head(list_of_files, 5)
+# sapply(list_of_files, extraction_material_and_methods)
+
+
+
 
 
