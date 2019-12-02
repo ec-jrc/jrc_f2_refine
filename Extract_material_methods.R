@@ -1,9 +1,9 @@
 library(udpipe)
 library(dplyr)
 library(readr)
-library(Rpoppler)
+#library(Rpoppler)
 library(stringr)
-
+library(tabulizer)
 
 #require "Abrams, M T et al 2010.pdf"
 #require "Abrams, M T et al 2010.pdf.output_poppler.txt"
@@ -17,8 +17,8 @@ prepare_poppler_output <- function(pdf_name) {
 
 annotate_txt_pdf<- function(txt_pdf) {
   #This function create the adequate NLP datastructure from the text of the pdf
-  txt_pdf<-paste(txt_pdf, collapse = '') 
-  #the collapse argument does the trick, otherwise you got pages in between
+  #txt_pdf<-paste(txt_pdf, collapse = '') 
+  #the collapse argument does the trick, otherwise you got pages in between #edit : for rpoppler
   #https://stackoverflow.com/questions/2098368/concatenate-a-vector-of-strings-character
   #Load the model to do the annotation of the text.
   ud_model_gum <- udpipe_load_model(file = "english-gum-ud-2.4-190531.udpipe" )
@@ -278,11 +278,11 @@ extract_material_and_method_section <- function(x, positions_sections_df) {
 #pdf_name<-"Abrams, M T et al 2010.pdf"  #for test, here apply can be used
 pdf_name<-"Al Faraj A, Fauvelle F et al 2011.pdf"
 
-pdf_name<-"Al Zaki, A et al 2015.pdf" #seem good now
-#pdf_name<-"Al Faraj A, Fauvelle F et al 2011.pdf"
+#pdf_name<-"Al Zaki, A et al 2015.pdf" #seem good now
 
+#txt_pdf <- Rpoppler::PDF_text(pdf_name)  #read the text from the pdf
+txt_pdf <-tabulizer::extract_text(pdf_name)
 
-txt_pdf <- PDF_text(pdf_name)  #read the text from the pdf
 x<-annotate_txt_pdf(txt_pdf)   #create the dataframe for NLP using udpipe
 
 #read the output from poppler and create the dataframe with words, font and fontsize
@@ -320,11 +320,9 @@ material_and_method_section<-extract_material_and_method_section(x, positions_se
 saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
 
 
+#head(unique(material_and_method_section$sentence), 10)
 
-
-
-
-
+#tail(unique(material_and_method_section$sentence), 30)
 
 
 
