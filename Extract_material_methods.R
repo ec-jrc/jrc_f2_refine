@@ -36,6 +36,7 @@ repair_df <- function(df) {
   df$Size<-as.numeric(df$Size)
   return(df)
 }
+
 extract_word <- function(poppler_output) {
   #read lines and ouput word and its font
   word<-str_extract(poppler_output, "\\[.*\\]")
@@ -43,6 +44,7 @@ extract_word <- function(poppler_output) {
   word<-str_replace_all(word, "\\]", "")
   return(word)
 }
+
 extract_font <- function(poppler_output) {
   #read lines and ouput word and its font
   font<-str_extract(poppler_output, "fontname=.* fontsize")
@@ -51,6 +53,7 @@ extract_font <- function(poppler_output) {
   
   return(font)
 }
+
 extract_font_size <- function(poppler_output) {
   #read lines and ouput word and its font
   font_size<-str_extract(poppler_output, "fontsize=.* wmode")
@@ -59,6 +62,7 @@ extract_font_size <- function(poppler_output) {
   
   return(font_size)
 }
+
 read_poppler_line <- function(poppler_line) {
   #Please pay attention to the use of the "<<-"
   #It is the way to assign global variable in R.
@@ -70,6 +74,7 @@ read_poppler_line <- function(poppler_line) {
   colnames(df_local)<-c("Word", "Font", "Size")
   df_poppler<<-rbind(df_poppler, df_local)
 }
+
 read_outpout_poppler <- function(pdf_name) {
   #read the poppler_output
   #read one line of poppler_output and extract word, font, size of the font
@@ -216,7 +221,7 @@ locate_sections_position <- function(x, section_title_df){
     occurrences<-reduce_occurrences(occurrences, positions_sections_df)
     positions_sections_df<-rbind(positions_sections_df, data.frame(section, occurrences))
   }
-  return(positions_sections_df)}
+  return(merging_section(positions_sections_df))}
 
 merging_section <- function(positions_sections_df) {
   #this function aims to merge really close section in positions_section_df
@@ -255,6 +260,7 @@ extract_material_and_method_section <- function(x, positions_sections_df) {
   #Material and Methods would not be match, or it would require to wrote all the possibility in advance
   #It was also quite bug prone, and would require to think ahead all combinaisonm especially to extend this
   #function to result.
+  positions_sections_df<-clean_section_title(positions_sections_df)
   for (i in 1:(length(positions_sections_df$section)-1)){
     if (grepl("material", positions_sections_df$section[i])){ 
       idx<-i
@@ -309,8 +315,8 @@ section_title_df<-create_section_title_df(font_section, list_of_sections)
 positions_sections_df<-locate_sections_position(x, section_title_df)
 
 
-positions_sections_df<-merging_section(positions_sections_df)
-positions_sections_df<-clean_section_title(positions_sections_df)
+#positions_sections_df<-merging_section(positions_sections_df)
+#positions_sections_df<-clean_section_title(positions_sections_df)
 
 
 material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
