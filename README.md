@@ -17,8 +17,9 @@ At the beginning of the project the content of the pdfs in txt format was alread
 Current implementation use **Tabulizer** to extract directly the text from Pdf. The reasons are :
 
 * with the use of pdf metadata (font, font size), the preferred input is now the pdf of articles.
-* it ease the simultaneous parsing of pdfs texts and of the poppler output that contain the fonts of words of the pdf. The data-structure of udpipe does not allow to retrieve easely the title of the document once processed.
+* it ease the simultaneous parsing of pdfs texts and of the poppler output that contain the fonts of words of the pdf. The data-structure of udpipe does not allow to retrieve easely the title of the document once it is processed.
 * make the library easely reusable for new articles later and remove the need for pre-processing outside R.
+* !! Tabulazer seems to introduce some gotchas in the sections of the articles, in the forms of random caps inside sections title of articles.
 
 
 # Technical debt 
