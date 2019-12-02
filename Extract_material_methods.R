@@ -151,7 +151,7 @@ filter_association_first_token <- function(index){
   sentence_id<-occurrence$sentence_id
   #the following line query the first lemma of the sentence in the good document
   first_token<-x[which(x$sentence_id==sentence_id)[1],]$token
-  if (first_token %in% section_title_df$Word) {return(TRUE)} 
+  if (tolower(first_token) %in% tolower(section_title_df$Word)) {return(TRUE)} 
   return(FALSE)
 }
 
@@ -205,11 +205,14 @@ locate_sections_position <- function(x, section_title_df){
   #of occurrences to one, i.e. to select among the different occurrences of a section title which one 
   #correspond to the section title. More description in them. For below :
   #https://stackoverflow.com/questions/13442461/populating-a-data-frame-in-r-in-a-loop/13442634
+  #Update tabulizer : after using tabulizer to read the pdf, some gotchas seem to appear in some section title :
+  #in Abrams et al 2010, "Introduction" became "IntroductIon". Token was impossible to find. 
+  #Tolower() is added to keep using token. Lemma would require playing with the plurals.
   
   positions_sections_df<-setNames(data.frame(matrix(ncol = 2, nrow = 0)), c("section", "occurrences"))
   
   for (section in section_title_df$Word){
-    occurrences<-which(x$token==section)
+    occurrences<-which(tolower(x$token) %in% tolower(section)) 
     occurrences<-reduce_occurrences(occurrences, positions_sections_df)
     positions_sections_df<-rbind(positions_sections_df, data.frame(section, occurrences))
   }
@@ -268,16 +271,15 @@ extract_material_and_method_section <- function(x, positions_sections_df) {
   return(material_and_method_section)
 }
 
+#function to send back all the combinaison of word
 
 ######
 
-#pdf_name<-"Abrams, M T et al 2010.pdf"  #for test, here apply can be used
-pdf_name<-"Al Faraj A, Fauvelle F et al 2011.pdf"
+pdf_name<-"Abrams, M T et al 2010.pdf"  #for test, here apply can be used
+#pdf_name<-"Al Faraj A, Fauvelle F et al 2011.pdf" #check
+#pdf_name<-"Al Zaki, A et al 2015.pdf" #check
 
-#pdf_name<-"Al Zaki, A et al 2015.pdf" #seem good now
-
-#txt_pdf <- Rpoppler::PDF_text(pdf_name)  #read the text from the pdf
-txt_pdf <-tabulizer::extract_text(pdf_name)
+txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
 
 x<-annotate_txt_pdf(txt_pdf)   #create the dataframe for NLP using udpipe
 
