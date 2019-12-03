@@ -157,8 +157,8 @@ filter_association_first_token <- function(x, index, section_title_df){
   sentence_id<-occurrence$sentence_id
   #the following line query the first lemma of the sentence in the good document
   first_token<-x[which(x$sentence_id==sentence_id)[1],]$token
-  if (tolower(first_token) %in% tolower(section_title_df$Word)) {return(TRUE)} 
-  if (first_token %in% section_title_df$Word) {return(TRUE)} 
+  if (first_token %in% section_title_df$Word) {return(TRUE)}
+  if (capitalize_first_letter(first_token) %in% section_title_df$Word) {return(TRUE)} 
   return(FALSE)
 }
 
@@ -221,8 +221,8 @@ locate_sections_position <- function(x, section_title_df){
     occurrences<-which(x$token %in% section)
     if (length(occurrences)>1){ #if several time the section name in the article
       occurrences<-subset_occurrences(occurrences, positions_sections_df)}
-    if (length(occurrences)==0) {#if there no hits because tabulizer funny caps in section title
-      occurrences<-which(tolower(x$token) %in% tolower(section)) #replace by a more elaborate function ?
+    if (length(occurrences)==0) {#if there no hits anym because tabulizer funny caps in section title
+      occurrences<-which(capitalize_first_letter(x$token) %in% section) #replace by a more elaborate function ?
       #to lower but not for first letter
     }
     occurrences<-reduce_occurrences(x, occurrences, positions_sections_df, section_title_df)
@@ -284,13 +284,22 @@ extract_material_and_method_section <- function(x, positions_sections_df) {
   return(material_and_method_section)
 }
 
+capitalize_first_letter <- function(section) {
+  #https://rstudio-pubs-static.s3.amazonaws.com/408658_512da947714740b99253228f084a08a9.html
+  #"MAterIAls"->"Materials" #
+  #use to correct strange behavior of tabulizer for section title
+  #must be used on x$token !
+  section<-paste0(toupper(substring(section, 1,1)), tolower(substring(section, 2)))
+  return(section)
+}
+
 
 
 #####
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"  #check, passed with tabulizer
-pdf_name<-"Al Faraj A, Fauvelle F et al 2011.pdf" #bug at conclusion
-#pdf_name<-"Al Zaki, A et al 2015.pdf" #check, work with if/tolower
+#pdf_name<-"Al Faraj A, Fauvelle F et al 2011.pdf" #bug at conclusion
+pdf_name<-"Al Zaki, A et al 2015.pdf" #check, work with if/tolower
 
 txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
 
