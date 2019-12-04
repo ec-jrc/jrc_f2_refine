@@ -154,7 +154,6 @@ filter_association_first_token <- function(x, index, section_title_df){
   sentence_id<-occurrence$sentence_id
   first_tokens<-x[which(x$sentence_id==sentence_id)[1:(token_id-1)],]$token
   for (token in first_tokens) {
-    print(token)
     if (token %in% section_title_df$Word) {return(TRUE)} 
     if (capitalize_first_letter(token) %in% section_title_df$Word) {return(TRUE)}} 
   return(FALSE)
@@ -411,8 +410,8 @@ list_of_sections <- list(c("Introduction", "INTRODUCTION"),
 section_title_df<-create_section_title_df(font_section, list_of_sections)
 
 #dataframe with the Sections title in order of appereance in the article, and their position in x
-#positions_sections_df<-locate_sections_position(x, section_title_df)
-positions_sections_df<-locate_sections_position_debug(x, section_title_df)
+positions_sections_df<-locate_sections_position(x, section_title_df)
+#positions_sections_df<-locate_sections_position_debug(x, section_title_df)
 
 material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
 
