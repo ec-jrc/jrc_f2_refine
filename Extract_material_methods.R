@@ -109,27 +109,38 @@ identify_font <- function(df_poppler) {
   return(font_sections)
 }
 
-find_section_titles <- function(vector_title, font_section) {
+find_section_titles <- function(vector_title, font_section, df_poppler) {
+  
     assumed_title_df<-df_poppler[which(df_poppler$Word %in% vector_title),]
     
-    if (dim(assumed_title_df)[1] > 0) { #if section exist #max size
+    if (dim(assumed_title_df)[1] > 0) { #if section exist #select the word with max size
       assumed_title_df<-assumed_title_df[which(assumed_title_df$Size==max(assumed_title_df$Size)),]
-      if (dim(assumed_title_df)[1] > 1) {#if there is several words with same size #which has font section
+      
+      if (dim(assumed_title_df)[1] > 1) {##if there is several words with same max size #which has font section
         assumed_title_df<-assumed_title_df[which(assumed_title_df$Font==font_section),]}
+      
       if (dim(assumed_title_df)[1] > 0){#if there were indeed a section title
         if (assumed_title_df$Font == font_section){
           return(assumed_title_df)
-    }}}
+        }}
+      
+    if (dim(assumed_title_df)[1] == 0){ #if there is nothing, retry but with the font of text removed
+        clean_df_poppler<-clean_font_txt(df_poppler)
+        rm(df_poppler)
+        df_poppler<-clean_df_poppler
+        return(find_section_titles(vector_title, font_section, df_poppler))
+        
+      }}
 }
 
-create_section_title_df <- function(font_section, list_of_sections) {
+create_section_title_df <- function(font_section, list_of_sections, df_poppler) {
   #create and return a dataframe with the section, their font and the size of the font like this :
   #Word                         Font                 Size
   #293     Introduction VMUQDX+ITCStoneSans-Semibold 10.0
   #1321         Results VMUQDX+ITCStoneSans-Semibold 10.0
   section_title_df<-data.frame()
   for (vector_title in list_of_sections) {
-    section_title_df<-rbind(section_title_df, find_section_titles(vector_title, font_section))
+    section_title_df<-rbind(section_title_df, find_section_titles(vector_title, font_section, df_poppler))
   }
   section_title_df <- section_title_df[order(as.numeric(row.names(section_title_df))),]
   return(section_title_df)}
@@ -394,13 +405,68 @@ filter_association_first_token_debug<- function(x, index, section_title_df){
   return(FALSE)
 }
 
+create_section_title_df_debug <- function(font_section, list_of_sections, df_poppler) {
+  #create and return a dataframe with the section, their font and the size of the font like this :
+  #Word                         Font                 Size
+  #293     Introduction VMUQDX+ITCStoneSans-Semibold 10.0
+  #1321         Results VMUQDX+ITCStoneSans-Semibold 10.0
+  section_title_df<-data.frame()
+  print("Font_section :")
+  print(font_section)
+  for (vector_title in list_of_sections) {
+    print(vector_title)
+    section_title_df<-rbind(section_title_df, find_section_titles_debug(vector_title, font_section, df_poppler))
+  }
+  section_title_df <- section_title_df[order(as.numeric(row.names(section_title_df))),]
+  return(section_title_df)}
+
+find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
+  assumed_title_df<-df_poppler[which(df_poppler$Word %in% vector_title),]
+  print("Entering find_section_titles_debug")
+  print(assumed_title_df)
+  
+  if (dim(assumed_title_df)[1] > 0) { #if section exist #select the word with max size
+    assumed_title_df<-assumed_title_df[which(assumed_title_df$Size==max(assumed_title_df$Size)),]
+    print(assumed_title_df)
+    
+    if (dim(assumed_title_df)[1] > 1) { #if there is several words with same max size #which has font section
+      assumed_title_df<-assumed_title_df[which(assumed_title_df$Font==font_section),]
+      print(assumed_title_df)}
+    
+    if (dim(assumed_title_df)[1] > 0){ #if there were indeed a section title
+      if (assumed_title_df$Font == font_section){
+        print(assumed_title_df)
+        return(assumed_title_df)
+      }}
+    
+    if (dim(assumed_title_df)[1] == 0){ #if there is nothing, retry but with the font of text removed
+      clean_df_poppler<-clean_font_txt(df_poppler)
+      rm(df_poppler)
+      df_poppler<-clean_df_poppler
+      print("recursive call")
+      return(find_section_titles_debug(vector_title, font_section, df_poppler))
+      
+    }}
+}
+
+clean_font_txt <- function(df_poppler) {
+  #Baker, G L et al 2008.pdf" show that the word of the section can have a size smaller than the text
+  #Probably because for differents scale is not the same
+  #Following line make a frequency of the fonts :
+  
+  fonts<-as.data.frame(table(df_poppler$Font)) #dataframe of fonts freq
+  #Fond the most abundant font, the one of the text
+  font_text<-fonts$Var1[which(fonts$Freq==max(fonts$Freq))] #font the most used
+  clean_df_poppler<-df_poppler[-which(df_poppler$Font==font_text),]
+  return(clean_df_poppler)
+  }
 
 
 #######
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"  #check, passed with tabulizer
 
-pdf_name<-"Attia, AB et al 2013.pdf"
+pdf_name<-"Baker, G L et al 2008.pdf"
 
 txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
 
@@ -427,7 +493,9 @@ list_of_sections <- list(c("Introduction", "INTRODUCTION"),
 )
 
 #dataframe with Section name (word), font of the section, size of the of the font inside the poppler documents
-section_title_df<-create_section_title_df(font_section, list_of_sections)
+#section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
+section_title_df<-create_section_title_df_debug(font_section, list_of_sections, df_poppler)
+
 
 #dataframe with the Sections title in order of appereance in the article, and their position in x
 #positions_sections_df<-locate_sections_position(x, section_title_df)
@@ -508,17 +576,7 @@ run_tests <- function(pdf_list) {
 run_tests(pdf_list)
 
 
-regex_correction <- function(x, section) {
-  #in "Attia, AB et al 2013.pdf"
-  #"Acknowledgements" became "group.Acknowledgments" 
-  #but this only occurre in the NLP data structure (UDpipe)
-  
-  #something to look for section inside tokens
-  #section = "Acknowledgments"
-  #which token has a section inside him
-  occurrences<-which(!is.na(str_extract((x$token), section)))
-  if (length(occurrences)>0){ #send back only if it exist
-    return(occurrences)}}
 
-regex_correction(x, section)
+
+
 
