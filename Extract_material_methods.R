@@ -93,6 +93,7 @@ identify_font <- function(df_poppler) {
   #if references is emptym, it will try to identify if there is a section name Acknowledgement
   
   #needed in this function, but would be redo outside
+  #addition of capitalize() to be able to identify "REFERENCES"
   reference_df<-df_poppler[which(capitalize_first_letter(df_poppler$Word) %in% c("References")),]
   ack_df<-df_poppler[which(capitalize_first_letter(df_poppler$Word) %in% c("Acknowledgements", "Acknowledgments")),]
   
@@ -218,11 +219,14 @@ locate_sections_position <- function(x, section_title_df){
   
   for (section in section_title_df$Word){
     occurrences<-which(x$token %in% section)
-    if (length(occurrences)==0){ #if several time the section name in the article
+    if (length(occurrences)==0){ #if nothing, because letter is missing
       occurrences<-Elsevier_correction(x, section)}
+    if (length(occurrences)==0){ #if nothing, because section title stuck with something, "group.Acknowledgments"
+      occurrences<-regex_correction(x, section)
+      }
     if (length(occurrences)>1){ #if several time the section name in the article
       occurrences<-subset_occurrences(occurrences, positions_sections_df)}
-    if (length(occurrences)==0) {#if there no hits anym because tabulizer funny caps in section title
+    if (length(occurrences)==0) {#if there no hits after the call of subset_occurrence because tabulizer funny caps in section title
       occurrences<-which(capitalize_first_letter(x$token) %in% section) #replace by a more elaborate function ?
       #to lower but not for first letter
     }
@@ -304,6 +308,18 @@ Elsevier_correction <- function(x, section) {
     return(occurrences)
   }}
 
+regex_correction <- function(x, section) {
+  #in "Attia, AB et al 2013.pdf"
+  #"Acknowledgements" became "group.Acknowledgments" 
+  #but this only occurre in the NLP data structure (UDpipe)
+  
+  #something to look for section inside tokens
+  #section = "Acknowledgments"
+  #which token has a section inside him
+  occurrences<-which(!is.na(str_extract((x$token), section)))
+  if (length(occurrences)>0){ #send back only if it exist
+    return(occurrences)}}
+
 ## Debug func
 
 locate_sections_position_debug<- function(x, section_title_df){
@@ -312,7 +328,7 @@ locate_sections_position_debug<- function(x, section_title_df){
   
   positions_sections_df<-setNames(data.frame(matrix(ncol = 2, nrow = 0)), c("section", "occurrences"))
   
-  for (section in section_title_df$Word){
+  for (section in section_title_df$Word) {
     occurrences<-which(x$token %in% section)
     if (length(occurrences)==0){ #if several time the section name in the article
       occurrences<-Elsevier_correction(x, section)
@@ -322,10 +338,13 @@ locate_sections_position_debug<- function(x, section_title_df){
     if (length(occurrences)>1){ #if several time the section name in the article
       occurrences<-subset_occurrences(occurrences, positions_sections_df)}
     print(occurrences)
-    if (length(occurrences)==0) {#if there no hits anym because tabulizer funny caps in section title
+    if (length(occurrences)==0) {#if there no hits anymore because tabulizer funny caps in section title
       occurrences<-which(capitalize_first_letter(x$token) %in% section) #replace by a more elaborate function ?
       #to lower but not for first letter
-    }
+      }
+    if (length(occurrences)==0) {#if there no hits because section merge with something else
+      occurrences<-regex_correction(x, section)
+      }
     print(occurrences)
     occurrences<-reduce_occurrences_debug(x, occurrences, positions_sections_df, section_title_df)
     print(occurrences)
@@ -381,7 +400,7 @@ filter_association_first_token_debug<- function(x, index, section_title_df){
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"  #check, passed with tabulizer
 
-pdf_name<-"Anselmo, A C 2015.pdf"
+pdf_name<-"Attia, AB et al 2013.pdf"
 
 txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
 
@@ -411,8 +430,8 @@ list_of_sections <- list(c("Introduction", "INTRODUCTION"),
 section_title_df<-create_section_title_df(font_section, list_of_sections)
 
 #dataframe with the Sections title in order of appereance in the article, and their position in x
-positions_sections_df<-locate_sections_position(x, section_title_df)
-#positions_sections_df<-locate_sections_position_debug(x, section_title_df)
+#positions_sections_df<-locate_sections_position(x, section_title_df)
+positions_sections_df<-locate_sections_position_debug(x, section_title_df)
 
 material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
 
@@ -487,4 +506,19 @@ run_tests <- function(pdf_list) {
   }}
 
 run_tests(pdf_list)
+
+
+regex_correction <- function(x, section) {
+  #in "Attia, AB et al 2013.pdf"
+  #"Acknowledgements" became "group.Acknowledgments" 
+  #but this only occurre in the NLP data structure (UDpipe)
+  
+  #something to look for section inside tokens
+  #section = "Acknowledgments"
+  #which token has a section inside him
+  occurrences<-which(!is.na(str_extract((x$token), section)))
+  if (length(occurrences)>0){ #send back only if it exist
+    return(occurrences)}}
+
+regex_correction(x, section)
 
