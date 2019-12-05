@@ -95,7 +95,9 @@ identify_font <- function(df_poppler) {
   #needed in this function, but would be redo outside
   #addition of capitalize() to be able to identify "REFERENCES"
   reference_df<-df_poppler[which(capitalize_first_letter(df_poppler$Word) %in% c("References")),]
-  ack_df<-df_poppler[which(capitalize_first_letter(df_poppler$Word) %in% c("Acknowledgements", "Acknowledgments")),]
+  ack_df<-df_poppler[which(capitalize_first_letter(df_poppler$Word) %in% 
+                             c("Acknowledgements", "Acknowledgments",
+                               "Acknowledgement", "Acknowledgment")),]
   
   if (dim(reference_df)[1]>0) {#if Reference exist
     reference_df<-reference_df[which(reference_df$Size==max(reference_df$Size)),]
@@ -230,11 +232,15 @@ locate_sections_position <- function(x, section_title_df){
   
   for (section in section_title_df$Word){
     occurrences<-which(x$token %in% section)
+    if (length(occurrences)==2){ #cf function description
+      occurrences<-introduction_desambiguation(section, occurrences)
+    }
     if (length(occurrences)==0){ #if nothing, because letter is missing
       occurrences<-Elsevier_correction(x, section)}
     if (length(occurrences)==0){ #if nothing, because section title stuck with something, "group.Acknowledgments"
       occurrences<-regex_correction(x, section)
-      }
+    }
+    
     if (length(occurrences)>1){ #if several time the section name in the article
       occurrences<-subset_occurrences(occurrences, positions_sections_df)}
     if (length(occurrences)==0) {#if there no hits after the call of subset_occurrence because tabulizer funny caps in section title
@@ -344,6 +350,19 @@ clean_font_txt <- function(df_poppler) {
   return(clean_df_poppler)
 }
 
+introduction_desambiguation <- function(section, occurrences) {
+  # "Berce, C et al 2016.pdf" show a problematic case when there is the a short summary in a box at the beginning
+  # of the article with sections names. For similar script can perform the extraction of the section without any
+  # problems, because the introduction is after this little box of summary and then the script look for the other
+  # section title only after the introduction and the little box is ignored.
+  if (capitalize_first_letter(section)=="Introduction") {
+    occurrences<-occurrences[2]
+    print("********   introduction_desambiguation() has been called   ************")
+  }
+  return(occurrences)
+}
+
+
 ## Debug func
 
 locate_sections_position_debug<- function(x, section_title_df){
@@ -369,6 +388,9 @@ locate_sections_position_debug<- function(x, section_title_df){
     if (length(occurrences)==0) {#if there no hits because section merge with something else
       occurrences<-regex_correction(x, section)
       }
+    if (length(occurrences)==2){ #if still several time
+      occurrences<-introduction_desambiguation(section, occurrences)
+    }
     print(occurrences)
     occurrences<-reduce_occurrences_debug(x, occurrences, positions_sections_df, section_title_df)
     print(occurrences)
@@ -466,7 +488,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"  #check, passed with tabulizer
 
-pdf_name<-"Baker, G L et al 2008.pdf"
+pdf_name<-"Berce, C et al 2016.pdf"
 
 txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
 
@@ -483,7 +505,8 @@ font_section<-identify_font(df_poppler)
 list_of_sections <- list(c("Introduction", "INTRODUCTION"),
                          c("Materials", "Material", "materials", "material", "MATERIALS", "MATERIAL"),
                          c("Methods", "Method", "methods", "method", "METHODS", "METHOD"),
-                         c("Acknowledgements", "Acknowledgments", "ACKNOWLEDGEMENTS", "ACKNOWLDGEMENTS"),
+                         c("Acknowledgements", "Acknowledgments", "ACKNOWLEDGEMENTS", "ACKNOWLDGEMENTS",
+                           "Acknowledgement", "Acknowledgment", "ACKNOWLEDGEMENT", "ACKNOWLDGEMENT"),
                          c("References", "REFERENCES"),
                          c("Results", "RESULTS"),
                          c("Discussion", "DISCUSSION"),
@@ -519,10 +542,6 @@ jgc <- function(){
   .jcall("java/lang/System", method = "gc")
 }    
 
-# pdf_list<- c("Abrams, M T et al 2010.pdf", "Al Faraj A, Fauvelle F et al 2011.pdf",
-#              "Al Zaki, A et al 2015.pdf",
-#              "Al-Bairuty, G et al 2013.pdf",
-#              "An, W et al 2017.pdf")
 
 
 #setwd(dir = "Test_env/")
@@ -566,6 +585,7 @@ extract_material_and_methods <- function(pdf_name) {
   # print(tail(unique(material_and_method_section$sentence), 15))
   }
 
+
 run_tests <- function(pdf_list) {
   for (pdf_name in pdf_list) {
     jgc()
@@ -573,9 +593,6 @@ run_tests <- function(pdf_list) {
     try(extract_material_and_methods(pdf_name))
   }}
 run_tests(pdf_list)
-
-
-
 
 
 
