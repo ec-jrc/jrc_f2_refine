@@ -124,7 +124,7 @@ find_section_titles <- function(vector_title, font_section, df_poppler) {
           return(assumed_title_df)
         }}
       
-    if (dim(assumed_title_df)[1] == 0){ #if there is nothing, retry but with the font of text removed
+      if (dim(assumed_title_df)[1] == 0){ #if there is nothing, retry but with the font of text removed
         clean_df_poppler<-clean_font_txt(df_poppler)
         rm(df_poppler)
         df_poppler<-clean_df_poppler
@@ -331,6 +331,19 @@ regex_correction <- function(x, section) {
   if (length(occurrences)>0){ #send back only if it exist
     return(occurrences)}}
 
+clean_font_txt <- function(df_poppler) {
+  #Baker, G L et al 2008.pdf" show that the word of the section can have a size smaller than the text
+  #Probably because for differents scale is not the same
+  #Following line make a frequency of the fonts :
+  
+  fonts<-as.data.frame(table(df_poppler$Font)) #dataframe of fonts freq
+  #Fond the most abundant font, the one of the text
+  font_text<-fonts$Var1[which(fonts$Freq==max(fonts$Freq))] #font the most used
+  clean_df_poppler<-df_poppler[-which(df_poppler$Font==font_text),]
+  print("***** Clean_font_txt_() has been called *****")
+  return(clean_df_poppler)
+}
+
 ## Debug func
 
 locate_sections_position_debug<- function(x, section_title_df){
@@ -449,19 +462,6 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
     }}
 }
 
-clean_font_txt <- function(df_poppler) {
-  #Baker, G L et al 2008.pdf" show that the word of the section can have a size smaller than the text
-  #Probably because for differents scale is not the same
-  #Following line make a frequency of the fonts :
-  
-  fonts<-as.data.frame(table(df_poppler$Font)) #dataframe of fonts freq
-  #Fond the most abundant font, the one of the text
-  font_text<-fonts$Var1[which(fonts$Freq==max(fonts$Freq))] #font the most used
-  clean_df_poppler<-df_poppler[-which(df_poppler$Font==font_text),]
-  return(clean_df_poppler)
-  }
-
-
 #######
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"  #check, passed with tabulizer
@@ -554,7 +554,7 @@ extract_material_and_methods <- function(pdf_name) {
                            c("Background", "BACKGROUND")
   )
 
-  section_title_df<-create_section_title_df(font_section, list_of_sections)
+  section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
   # print(section_title_df)
   positions_sections_df<-locate_sections_position(x, section_title_df)
   # print(positions_sections_df)
@@ -572,7 +572,6 @@ run_tests <- function(pdf_list) {
     print(pdf_name)
     try(extract_material_and_methods(pdf_name))
   }}
-
 run_tests(pdf_list)
 
 
