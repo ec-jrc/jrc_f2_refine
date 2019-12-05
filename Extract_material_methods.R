@@ -93,8 +93,8 @@ identify_font <- function(df_poppler) {
   #if references is emptym, it will try to identify if there is a section name Acknowledgement
   
   #needed in this function, but would be redo outside
-  reference_df<-df_poppler[which(df_poppler$Word %in% c("References")),]
-  ack_df<-df_poppler[which(df_poppler$Word %in% c("Acknowledgements", "Acknowledgments")),]
+  reference_df<-df_poppler[which(capitalize_first_letter(df_poppler$Word) %in% c("References")),]
+  ack_df<-df_poppler[which(capitalize_first_letter(df_poppler$Word) %in% c("Acknowledgements", "Acknowledgments")),]
   
   if (dim(reference_df)[1]>0) {#if Reference exist
     reference_df<-reference_df[which(reference_df$Size==max(reference_df$Size)),]
@@ -110,13 +110,15 @@ identify_font <- function(df_poppler) {
 
 find_section_titles <- function(vector_title, font_section) {
     assumed_title_df<-df_poppler[which(df_poppler$Word %in% vector_title),]
-    if (dim(assumed_title_df)[1] > 0) { #if section exist
+    
+    if (dim(assumed_title_df)[1] > 0) { #if section exist #max size
       assumed_title_df<-assumed_title_df[which(assumed_title_df$Size==max(assumed_title_df$Size)),]
-      if (dim(assumed_title_df)[1] > 1) {#if there is several words with same size
+      if (dim(assumed_title_df)[1] > 1) {#if there is several words with same size #which has font section
         assumed_title_df<-assumed_title_df[which(assumed_title_df$Font==font_section),]}
-      if (assumed_title_df$Font == font_section){
-        return(assumed_title_df)
-    }}
+      if (dim(assumed_title_df)[1] > 0){#if there were indeed a section title
+        if (assumed_title_df$Font == font_section){
+          return(assumed_title_df)
+    }}}
 }
 
 create_section_title_df <- function(font_section, list_of_sections) {
@@ -375,12 +377,11 @@ filter_association_first_token_debug<- function(x, index, section_title_df){
 
 
 
-######
+#######
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"  #check, passed with tabulizer
-#pdf_name<-"Al Faraj A, Fauvelle F et al 2011.pdf" #bug at conclusion
-#pdf_name<-"Al Zaki, A et al 2015.pdf" #check, work with if/tolower
-pdf_name<-"Al-Bairuty, G et al 2013.pdf"
+
+pdf_name<-"Anselmo, A C 2015.pdf"
 
 txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
 
@@ -431,10 +432,15 @@ jgc <- function(){
   .jcall("java/lang/System", method = "gc")
 }    
 
-pdf_list<- c("Abrams, M T et al 2010.pdf", "Al Faraj A, Fauvelle F et al 2011.pdf",
-             "Al Zaki, A et al 2015.pdf",
-             "Al-Bairuty, G et al 2013.pdf",
-             "An, W et al 2017.pdf")
+# pdf_list<- c("Abrams, M T et al 2010.pdf", "Al Faraj A, Fauvelle F et al 2011.pdf",
+#              "Al Zaki, A et al 2015.pdf",
+#              "Al-Bairuty, G et al 2013.pdf",
+#              "An, W et al 2017.pdf")
+
+
+#setwd(dir = "Test_env/")
+
+pdf_list<-list.files(pattern = "\\.pdf$")
 
 extract_material_and_methods <- function(pdf_name) {
   
@@ -462,22 +468,22 @@ extract_material_and_methods <- function(pdf_name) {
   )
 
   section_title_df<-create_section_title_df(font_section, list_of_sections)
-  print(section_title_df)
+  # print(section_title_df)
   positions_sections_df<-locate_sections_position(x, section_title_df)
-  print(positions_sections_df)
+  # print(positions_sections_df)
   material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
   #name<-strsplit(string, "/" )[[1]] #seriously R ?
   #saveRDS(material_section, file = paste0("Material_and_Methods_Section/" , paste0(name[3], ".rds")))
-  saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
-  print(head(unique(material_and_method_section$sentence), 15))
-  print(tail(unique(material_and_method_section$sentence), 15))
+  #saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
+  # print(head(unique(material_and_method_section$sentence), 15))
+  # print(tail(unique(material_and_method_section$sentence), 15))
   }
 
 run_tests <- function(pdf_list) {
   for (pdf_name in pdf_list) {
     jgc()
     print(pdf_name)
-    extract_material_and_methods(pdf_name)
+    try(extract_material_and_methods(pdf_name))
   }}
 
 run_tests(pdf_list)
