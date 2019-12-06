@@ -144,6 +144,8 @@ create_section_title_df <- function(font_section, list_of_sections, df_poppler) 
   for (vector_title in list_of_sections) {
     section_title_df<-rbind(section_title_df, find_section_titles(vector_title, font_section, df_poppler))
   }
+  
+  section_title_df <- re_identify_font_section(df_poppler, section_title_df, list_of_sections)
   section_title_df <- section_title_df[order(as.numeric(row.names(section_title_df))),]
   return(section_title_df)}
 
@@ -387,6 +389,25 @@ recursive_filter_first_lemma<- function(x, index, lemma_nb){
   return(FALSE)
 }
 
+re_identify_font_section <- function(df_poppler, section_title_df, list_of_sections) {
+  #correction made for "Campagnolo, L et al 2013.pdf"
+  #When Abstract and references has a different font than the other section
+  #This function look if the section_df is too small, and restart with the font of Introduction, and
+  #merge the two datafrane
+  
+  if (length(section_title_df$Word)<=2) {
+    introduction_df<-df_poppler[which(capitalize_first_letter(df_poppler$Word) %in% 
+                                        c("Introduction")),]
+    if (dim(introduction_df)[1]==1) {#if Introduction exist ONE time
+      new_font_section<-introduction_df$Font
+      #section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
+      for (vector_title in list_of_sections) {
+        section_title_df<-rbind(section_title_df, find_section_titles(vector_title, new_font_section, df_poppler))
+      }
+    }}
+  return(section_title_df)
+}
+
 ## Debug func
 
 locate_sections_position_debug<- function(x, section_title_df){
@@ -478,6 +499,7 @@ create_section_title_df_debug <- function(font_section, list_of_sections, df_pop
     print(vector_title)
     section_title_df<-rbind(section_title_df, find_section_titles_debug(vector_title, font_section, df_poppler))
   }
+  section_title_df <- re_identify_font_section(df_poppler, section_title_df, list_of_sections)
   section_title_df <- section_title_df[order(as.numeric(row.names(section_title_df))),]
   return(section_title_df)}
 
@@ -514,7 +536,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"  #check, passed with tabulizer
 
-pdf_name<-"Chen, Y 2018.pdf"
+pdf_name<-"Campagnolo, L et al 2013.pdf"
 
 txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
 
@@ -615,5 +637,9 @@ run_tests <- function(pdf_list) {
     try(extract_material_and_methods(pdf_name))
   }}
 run_tests(pdf_list)
+
+
+
+
 
 
