@@ -1,3 +1,2 @@
-*.html
-*.HTML
+/Rmarkdown_report/*.html linguist-vendored
 
