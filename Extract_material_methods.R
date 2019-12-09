@@ -242,7 +242,7 @@ locate_sections_position <- function(x, section_title_df){
     if (length(occurrences)>1){ #if several time the section name in the article
       occurrences<-subset_occurrences(occurrences, positions_sections_df)}
     if (length(occurrences)>1){ #if several time the section name in the article
-      occurrences<-reduce_occurrences_debug(x, occurrences, positions_sections_df, section_title_df)}
+      occurrences<-reduce_occurrences(x, occurrences, positions_sections_df, section_title_df)}
     positions_sections_df<-rbind(positions_sections_df, data.frame(section, occurrences))
   }
   return(merging_section(positions_sections_df))}
@@ -356,11 +356,10 @@ is_summary_box <- function(x, section, occurrences, section_title_df) {
   
     putative_summary_box<-x[occurrences[1]:occurrences[2],]
     
-    occur_results<-which(capitalize_first_letter(putative_summary_box$token) %in% c("Results", "RESULTS"))
     occur_conclusion<-which(capitalize_first_letter(putative_summary_box$token) %in% 
                               c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"))
   
-    if (length(occur_results)>0 | length(occur_conclusion)>0 ) {
+    if (length(occur_conclusion)==1 ) {
       if(putative_summary_box[occur_results+1,]$token == ":" |
           putative_summary_box[occur_conclusion+1,]$token == ":"){
           occurrences<-occurrences[2]
@@ -556,7 +555,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<-"Berce, C et al 2016.pdf"
+pdf_name<-"Bachler, G et al 2014.pdf"
 
 txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
 
