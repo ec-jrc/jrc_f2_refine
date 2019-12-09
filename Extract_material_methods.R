@@ -236,24 +236,13 @@ locate_sections_position <- function(x, section_title_df){
   
   for (section in section_title_df$Word) {
     occurrences<-which(x$token %in% section)
-    occurrences<-subset_occurrences(occurrences, positions_sections_df) #09/12 : why it is not default behavior ?
-    if (capitalize_first_letter(section)=="Introduction"){ #cf function description
-      occurrences<-summary_box(x, section, occurrences, section_title_df)
-    }
-    if (length(occurrences)==0){ #if the section name is missing is first letter, as describe in the function 
-      occurrences<-Elsevier_correction(x, section)
-    }
+    occurrences<-subset_occurrences(occurrences, positions_sections_df)
+    occurrences<-handle_typos(x, section, occurrences)
+    occurrences<-is_summary_box(x, section, occurrences, section_title_df)
     if (length(occurrences)>1){ #if several time the section name in the article
       occurrences<-subset_occurrences(occurrences, positions_sections_df)}
-    if (length(occurrences)==0) {#if there no hits anymore because tabulizer funny caps in section title
-      occurrences<-which(capitalize_first_letter(x$token) %in% section) #replace by a more elaborate function ?
-      #to lower but not for first letter
-    }
-    if (length(occurrences)==0) {#if there no hits because section merge with something else
-      occurrences<-regex_correction(x, section)
-    }
     if (length(occurrences)>1){ #if several time the section name in the article
-      occurrences<-reduce_occurrences(x, occurrences, positions_sections_df, section_title_df)}
+      occurrences<-reduce_occurrences_debug(x, occurrences, positions_sections_df, section_title_df)}
     positions_sections_df<-rbind(positions_sections_df, data.frame(section, occurrences))
   }
   return(merging_section(positions_sections_df))}
@@ -314,7 +303,7 @@ extract_material_and_method_section <- function(x, positions_sections_df) {
 
 capitalize_first_letter <- function(section) {
   #https://rstudio-pubs-static.s3.amazonaws.com/408658_512da947714740b99253228f084a08a9.html
-  #"MAterIAls"->"Materials" #
+  #"MAterIAls"->"Materials" 
   #use to correct strange behavior of tabulizer for section title
   #must be used on x$token !
   section<-paste0(toupper(substring(section, 1,1)), tolower(substring(section, 2)))
@@ -356,26 +345,31 @@ clean_font_txt <- function(df_poppler) {
   return(clean_df_poppler)
 }
 
-summary_box <- function(x, section, occurrences, section_title_df) {
+is_summary_box <- function(x, section, occurrences, section_title_df) {
   # "Berce, C et al 2016.pdf" show a problematic case when there is the a short summary in a box at the beginning
   # of the article with sections names. For similar script can perform the extraction of the section without any
   # problems, because the introduction is after this little box of summary and then the script look for the other
   # section title only after the introduction and the little box is ignored.
   # The goal of this function is to check if there is the signature of the a summary box
-  # Like two times the 
   
-  occur_results<-which(capitalize_first_letter(x$token) %in% c("Results", "RESULTS"))
-  occur_conclusion<-which(capitalize_first_letter(x$token) %in% 
-                            c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"))
+  if (section == "Introduction" & length(occurrences)>1) {
   
-  if (length(occurrences)>2) {
-    if(length(occur_results)==2 | length(occur_conclusion)==2){ #two times "Results" OR two times "Conclusions")
-      occurrences<-occurrences[2]
-      print("********  summary_box() has been called   ************")
+    putative_summary_box<-x[occurrences[1]:occurrences[2],]
+    
+    occur_results<-which(capitalize_first_letter(putative_summary_box$token) %in% c("Results", "RESULTS"))
+    occur_conclusion<-which(capitalize_first_letter(putative_summary_box$token) %in% 
+                              c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"))
+  
+    if (length(occur_results)>0 | length(occur_conclusion)>0 ) {
+      if(putative_summary_box[occur_results+1,]$token == ":" |
+          putative_summary_box[occur_conclusion+1,]$token == ":"){
+          occurrences<-occurrences[2]
+          print("***** is_summary_box() has been called ****")
+          return(occurrences)}
       }
-      return(occurrences)
-    }
-}
+  }
+  return(occurrences)
+  }
 
 recursive_filter_first_lemma <- function(x, index, lemma_nb){
   #lemma_nb is 1 for the first call
@@ -418,6 +412,31 @@ re_identify_font_section <- function(df_poppler, section_title_df, list_of_secti
   return(section_title_df)
 }
 
+handle_typos <- function(x, section, occurrences) {
+  # This function solve various problem encoutered in section title due to the conversion from pdf
+  # NB : this problems only occur in the in the NLP data structure (UDpipe)
+  # Please refer to each function for more details
+  
+  if (length(occurrences)==0){ #is first caps is missing
+    #When "Acknowledgements" became "cknowledgements", and "Reference", "eference"
+    occurrences<-Elsevier_correction(x, section)
+  }
+  if (length(occurrences)==0) {
+    #"MAterIAls"->"Materials", correct strange behavior of tabulizer for section title
+    occurrences<-which(capitalize_first_letter(x$token) %in% section)
+  }
+  if (length(occurrences)==0) {
+    #in "Attia, AB et al 2013.pdf" "Acknowledgements" became "group.Acknowledgments" 
+    occurrences<-regex_correction(x, section)
+  }
+  if (length(occurrences)==0) {
+    print("warning in handle_typo()")
+  }
+  
+  return(occurrences)
+}
+
+
 ## Debug func
 
 locate_sections_position_debug<- function(x, section_title_df){
@@ -427,35 +446,18 @@ locate_sections_position_debug<- function(x, section_title_df){
   positions_sections_df<-setNames(data.frame(matrix(ncol = 2, nrow = 0)), c("section", "occurrences"))
   
   for (section in section_title_df$Word) {
-    occurrences<-which(x$token %in% section)
     print(section)
+    occurrences<-which(x$token %in% section)
     print(occurrences)
     occurrences<-subset_occurrences(occurrences, positions_sections_df) #why it is not default behavior ?
-    print(occurrences)
-    if (capitalize_first_letter(section)=="Introduction"){ #cf function description
-      print("Testing summary box")
-      occurrences<-is_there_summary_box(x, section, occurrences, section_title_df)
-      }
-    print(occurrences)
-    if (length(occurrences)==0){ #if several time the section name in the article
-      occurrences<-Elsevier_correction(x, section)
-    }
-    print(section)
+    occurrences<-handle_typos(x, section, occurrences)
+    occurrences<-is_summary_box(x, section, occurrences, section_title_df)
     print(occurrences)
     if (length(occurrences)>1){ #if several time the section name in the article
       occurrences<-subset_occurrences(occurrences, positions_sections_df)}
     print(occurrences)
-    if (length(occurrences)==0) {#if there no hits anymore because tabulizer funny caps in section title
-      occurrences<-which(capitalize_first_letter(x$token) %in% section) #replace by a more elaborate function ?
-      #to lower but not for first letter
-      }
-    if (length(occurrences)==0) {#if there no hits because section merge with something else
-      occurrences<-regex_correction(x, section)
-      }
-    print(occurrences)
     if (length(occurrences)>1){ #if several time the section name in the article
       occurrences<-reduce_occurrences_debug(x, occurrences, positions_sections_df, section_title_df)}
-    print(occurrences)
     print(occurrences)
     positions_sections_df<-rbind(positions_sections_df, data.frame(section, occurrences))
   }
@@ -550,6 +552,8 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #######
 
+
+
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
 pdf_name<-"Berce, C et al 2016.pdf"
@@ -643,5 +647,15 @@ run_tests <- function(pdf_list) {
     print(pdf_name)
     try(extract_material_and_methods(pdf_name))
   }}
+
 run_tests(pdf_list)
+
+
+
+
+
+
+
+
+
 
