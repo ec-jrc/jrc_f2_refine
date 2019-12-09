@@ -238,11 +238,9 @@ locate_sections_position <- function(x, section_title_df){
     occurrences<-which(x$token %in% section)
     occurrences<-subset_occurrences(occurrences, positions_sections_df) #09/12 : why it is not default behavior ?
     if (capitalize_first_letter(section)=="Introduction"){ #cf function description
-      print("Testing summary box")
       occurrences<-is_there_summary_box(x, section, occurrences, section_title_df)
-      print(occurrences)
     }
-    if (length(occurrences)==0){ #if several time the section name in the article
+    if (length(occurrences)==0){ #if the section name is missing is first letter, as describe in the function 
       occurrences<-Elsevier_correction(x, section)
     }
     if (length(occurrences)>1){ #if several time the section name in the article
@@ -358,7 +356,7 @@ clean_font_txt <- function(df_poppler) {
   return(clean_df_poppler)
 }
 
-is_there_summary_box <- function(section, occurrences) {
+is_there_summary_box <- function(x, section, occurrences, section_title_df) {
   # "Berce, C et al 2016.pdf" show a problematic case when there is the a short summary in a box at the beginning
   # of the article with sections names. For similar script can perform the extraction of the section without any
   # problems, because the introduction is after this little box of summary and then the script look for the other
@@ -369,12 +367,11 @@ is_there_summary_box <- function(section, occurrences) {
   occur_results<-which(capitalize_first_letter(x$token) %in% c("Results", "RESULTS"))
   occur_conclusion<-which(capitalize_first_letter(x$token) %in% 
                             c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"))
-  print(occur_results)
-  print(occur_conclusion)
-    if (length(occurrences)>2) {
-      if(length(occur_results)==2 | length(occur_conclusion)==2){ #two times "Results" OR two times "Conclusions")
-        occurrences<-occurrences[2]
-        print("********  summary_box() has been called   ************")
+  
+  if (length(occurrences)>2) {
+    if(length(occur_results)==2 | length(occur_conclusion)==2){ #two times "Results" OR two times "Conclusions")
+      occurrences<-occurrences[2]
+      print("********  summary_box() has been called   ************")
       }
       return(occurrences)
     }
