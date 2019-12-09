@@ -238,7 +238,7 @@ locate_sections_position <- function(x, section_title_df){
     occurrences<-which(x$token %in% section)
     occurrences<-subset_occurrences(occurrences, positions_sections_df) #09/12 : why it is not default behavior ?
     if (capitalize_first_letter(section)=="Introduction"){ #cf function description
-      occurrences<-is_there_summary_box(x, section, occurrences, section_title_df)
+      occurrences<-summary_box(x, section, occurrences, section_title_df)
     }
     if (length(occurrences)==0){ #if the section name is missing is first letter, as describe in the function 
       occurrences<-Elsevier_correction(x, section)
@@ -356,7 +356,7 @@ clean_font_txt <- function(df_poppler) {
   return(clean_df_poppler)
 }
 
-is_there_summary_box <- function(x, section, occurrences, section_title_df) {
+summary_box <- function(x, section, occurrences, section_title_df) {
   # "Berce, C et al 2016.pdf" show a problematic case when there is the a short summary in a box at the beginning
   # of the article with sections names. For similar script can perform the extraction of the section without any
   # problems, because the introduction is after this little box of summary and then the script look for the other
