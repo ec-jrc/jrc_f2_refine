@@ -234,22 +234,25 @@ locate_sections_position <- function(x, section_title_df){
   
   positions_sections_df<-setNames(data.frame(matrix(ncol = 2, nrow = 0)), c("section", "occurrences"))
   
-  for (section in section_title_df$Word){
+  for (section in section_title_df$Word) {
     occurrences<-which(x$token %in% section)
-    if (length(occurrences)==2){ #cf function description
-      occurrences<-introduction_desambiguation(section, occurrences)
+    occurrences<-subset_occurrences(occurrences, positions_sections_df) #09/12 : why it is not default behavior ?
+    if (capitalize_first_letter(section)=="Introduction"){ #cf function description
+      print("Testing summary box")
+      occurrences<-is_there_summary_box(x, section, occurrences, section_title_df)
+      print(occurrences)
     }
-    if (length(occurrences)==0){ #if nothing, because letter is missing
-      occurrences<-Elsevier_correction(x, section)}
-    if (length(occurrences)==0){ #if nothing, because section title stuck with something, "group.Acknowledgments"
-      occurrences<-regex_correction(x, section)
+    if (length(occurrences)==0){ #if several time the section name in the article
+      occurrences<-Elsevier_correction(x, section)
     }
-    
     if (length(occurrences)>1){ #if several time the section name in the article
       occurrences<-subset_occurrences(occurrences, positions_sections_df)}
-    if (length(occurrences)==0) {#if there no hits after the call of subset_occurrence because tabulizer funny caps in section title
+    if (length(occurrences)==0) {#if there no hits anymore because tabulizer funny caps in section title
       occurrences<-which(capitalize_first_letter(x$token) %in% section) #replace by a more elaborate function ?
       #to lower but not for first letter
+    }
+    if (length(occurrences)==0) {#if there no hits because section merge with something else
+      occurrences<-regex_correction(x, section)
     }
     if (length(occurrences)>1){ #if several time the section name in the article
       occurrences<-reduce_occurrences(x, occurrences, positions_sections_df, section_title_df)}
@@ -355,19 +358,29 @@ clean_font_txt <- function(df_poppler) {
   return(clean_df_poppler)
 }
 
-introduction_desambiguation <- function(section, occurrences) {
+is_there_summary_box <- function(section, occurrences) {
   # "Berce, C et al 2016.pdf" show a problematic case when there is the a short summary in a box at the beginning
   # of the article with sections names. For similar script can perform the extraction of the section without any
   # problems, because the introduction is after this little box of summary and then the script look for the other
   # section title only after the introduction and the little box is ignored.
-  if (capitalize_first_letter(section)=="Introduction") {
-    occurrences<-occurrences[2]
-    print("********   introduction_desambiguation() has been called   ************")
-  }
-  return(occurrences)
+  # The goal of this function is to check if there is the signature of the a summary box
+  # Like two times the 
+  
+  occur_results<-which(capitalize_first_letter(x$token) %in% c("Results", "RESULTS"))
+  occur_conclusion<-which(capitalize_first_letter(x$token) %in% 
+                            c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"))
+  print(occur_results)
+  print(occur_conclusion)
+    if (length(occurrences)>2) {
+      if(length(occur_results)==2 | length(occur_conclusion)==2){ #two times "Results" OR two times "Conclusions")
+        occurrences<-occurrences[2]
+        print("********  summary_box() has been called   ************")
+      }
+      return(occurrences)
+    }
 }
 
-recursive_filter_first_lemma<- function(x, index, lemma_nb){
+recursive_filter_first_lemma <- function(x, index, lemma_nb){
   #lemma_nb is 1 for the first call
   #If =1, it correspond to a normal call of filter_first_lemma()
   #print("****** ****recursive****_filter_first_lemma_debug ********")
@@ -418,6 +431,15 @@ locate_sections_position_debug<- function(x, section_title_df){
   
   for (section in section_title_df$Word) {
     occurrences<-which(x$token %in% section)
+    print(section)
+    print(occurrences)
+    occurrences<-subset_occurrences(occurrences, positions_sections_df) #why it is not default behavior ?
+    print(occurrences)
+    if (capitalize_first_letter(section)=="Introduction"){ #cf function description
+      print("Testing summary box")
+      occurrences<-is_there_summary_box(x, section, occurrences, section_title_df)
+      }
+    print(occurrences)
     if (length(occurrences)==0){ #if several time the section name in the article
       occurrences<-Elsevier_correction(x, section)
     }
@@ -433,9 +455,6 @@ locate_sections_position_debug<- function(x, section_title_df){
     if (length(occurrences)==0) {#if there no hits because section merge with something else
       occurrences<-regex_correction(x, section)
       }
-    if (length(occurrences)==2){ #if still several time
-      occurrences<-introduction_desambiguation(section, occurrences)
-    }
     print(occurrences)
     if (length(occurrences)>1){ #if several time the section name in the article
       occurrences<-reduce_occurrences_debug(x, occurrences, positions_sections_df, section_title_df)}
@@ -534,14 +553,13 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #######
 
-#pdf_name<-"Abrams, M T et al 2010.pdf"  #check, passed with tabulizer
+#pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<-"Campagnolo, L et al 2013.pdf"
+pdf_name<-"Berce, C et al 2016.pdf"
 
 txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
 
 x<-annotate_txt_pdf(txt_pdf)   #create the dataframe for NLP using udpipe
-
 
 #read the output from poppler and create the dataframe with words, font and fontsize
 df_poppler<-read_outpout_poppler(pdf_name)
@@ -574,22 +592,14 @@ positions_sections_df<-locate_sections_position_debug(x, section_title_df)
 
 material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
 
-saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
+#saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
 
 
-print(head(unique(material_and_method_section$sentence), 15))
-print(tail(unique(material_and_method_section$sentence), 15))
+print(head(unique(material_and_method_section$sentence), 10))
+print(tail(unique(material_and_method_section$sentence), 10))
 
 ##########
 
-# pdf_name<-"Abrams, M T et al 2010.pdf"  #check, passed with tabulizer
-# pdf_name<-"Al Faraj A, Fauvelle F et al 2011.pdf" #bug at conclusion
-# pdf_name<-"Al Zaki, A et al 2015.pdf" #check, work with if/tolower
-
-# 
-# setwd(dir = "Test_env/")
-# folder<-getwd()
-print(folder)
 
 pdf_list<-list.files(pattern = "\\.pdf$")
 
@@ -637,9 +647,4 @@ run_tests <- function(pdf_list) {
     try(extract_material_and_methods(pdf_name))
   }}
 run_tests(pdf_list)
-
-
-
-
-
 
