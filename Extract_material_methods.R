@@ -3,6 +3,7 @@ library(dplyr)
 library(readr)
 library(stringr)
 library(tabulizer)
+library(tm)
 
 prepare_poppler_output <- function(pdf_name) {
   
@@ -236,8 +237,9 @@ locate_sections_position <- function(x, section_title_df){
 
   for (section in section_title_df$Word) {
     occurrences<-which(lower_but_first_letter(x$token) %in% section)
-    occurrences<-Elsevier_correction(x, section, occurrences)
+    occurrences<-missing_first_letter_section(x, section, occurrences)
     occurrences<-subset_occurrences(occurrences, positions_sections_df)
+    occurrences<-handle_typos(x, section, occurrences)
     occurrences<-is_summary_box(x, section, occurrences, section_title_df)
     if (length(occurrences)>1){ #if several time the section name in the article
       occurrences<-subset_occurrences(occurrences, positions_sections_df)}
@@ -314,9 +316,7 @@ capitalize_first_letter <- function(section) {
   return(section)
 }
 
-Elsevier_correction_deprecated <- function(x, section) {
-  #DEPRECATED
-  
+Elsevier_correction <- function(x, section) {
   #in one of article of Elsevier, "Al-Bairuty, G et al 2013.pdf"
   #"Acknowledgements" became "cknowledgements", and "Reference", "eference"
   #but this only occurre in the NLP data structure (UDpipe)
@@ -326,7 +326,7 @@ Elsevier_correction_deprecated <- function(x, section) {
     return(occurrences)
   }}
 
-Elsevier_correction <- function(x, section, occurrences) {
+missing_first_letter_section<- function(x, section, occurrences) {
   # In one of article of Elsevier, "Al-Bairuty, G et al 2013.pdf"
   #"Acknowledgements" became "cknowledgements", and "Reference", "eference"
   # This only occurre in the NLP data structure (UDpipe)
@@ -470,6 +470,10 @@ repair_txt <- function(txt_pdf) {
   #[1] "significant. Results"
   
   txt_pdf<-gsub("(?<=\\p{L})\\.(?=\\p{L})", ". ", txt_pdf, perl=TRUE)
+  
+  #remove non graphical caracter :
+  #https://stackoverflow.com/questions/9637278/r-tm-package-invalid-input-in-utf8towcs
+  txt_pdf<-str_replace_all(txt_pdf,"[^[:graph:]]", " ") 
   return(txt_pdf)
 }
 
@@ -505,10 +509,10 @@ locate_sections_position_debug<- function(x, section_title_df){
     print(section)
     occurrences<-which(lower_but_first_letter(x$token) %in% section)
     print(occurrences)
-    occurrences<-Elsevier_correction(x,section, occurrences)
+    occurrences<-missing_first_letter_section(x, section, occurrences)
     print(occurrences)
     occurrences<-subset_occurrences(occurrences, positions_sections_df)
-    #occurrences<-handle_typos(x, section, occurrences)
+    occurrences<-handle_typos(x, section, occurrences)
     occurrences<-is_summary_box(x, section, occurrences, section_title_df)
     print(occurrences)
     if (length(occurrences)>1){ #if several time the section name in the article
@@ -615,9 +619,9 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<-"Al Faraj A, Fauvelle F et al 2011.pdf"
+pdf_name<-"Correia Carreira, S et al 2015.pdf"
 
-txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
+txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
 
 x<-annotate_txt_pdf(txt_pdf)   #create the dataframe for NLP using udpipe
