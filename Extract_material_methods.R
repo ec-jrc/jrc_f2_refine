@@ -360,7 +360,7 @@ is_summary_box <- function(x, section, occurrences, section_title_df) {
                               c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"))
   
     if (length(occur_conclusion)==1 ) {
-      if(putative_summary_box[occur_results+1,]$token == ":" |
+      if(putative_summary_box[occur_conclusion+1,]$token == ":" |
           putative_summary_box[occur_conclusion+1,]$token == ":"){
           occurrences<-occurrences[2]
           print("***** is_summary_box() has been called ****")
@@ -435,6 +435,22 @@ handle_typos <- function(x, section, occurrences) {
   return(occurrences)
 }
 
+repair_txt <- function(txt_pdf) {
+  #As shown with "Chung, E J et al 2015.pdf", the section title can be merge with the dot and the prevous section.
+  #This problem was already partially addressed by regex_correction()
+  #Here the section Result is not found because merge with the end of the previous section as following :
+  #"significant.Results".
+  #Instead of solving this issue in the NLP structure when the occurrences of the section is zero, 
+  #This function repair the text to avoid any other downstrean trouble.
+  #https://stackoverflow.com/questions/58936991/how-to-split-two-words-connected-by-a-dot-in-r
+  #Example of the regex :
+  #> txt<-"significant.Results"
+  #> gsub("(?<=\\p{L})\\.(?=\\p{L})", ". ", txt, perl=TRUE)
+  #[1] "significant. Results"
+  
+  txt_pdf<-gsub("(?<=\\p{L})\\.(?=\\p{L})", ". ", txt_pdf, perl=TRUE)
+  return(txt_pdf)
+}
 
 ## Debug func
 
@@ -549,15 +565,18 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
     }}
 }
 
+
+
 #######
 
 
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<-"Bachler, G et al 2014.pdf"
+pdf_name<-"Chung, E J et al 2015.pdf"
 
 txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
+txt_pdf <- repair_txt(txt_pdf)
 
 x<-annotate_txt_pdf(txt_pdf)   #create the dataframe for NLP using udpipe
 
@@ -607,6 +626,8 @@ extract_material_and_methods <- function(pdf_name) {
   
   #txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
   txt_pdf <-extract_text(pdf_name)
+  txt_pdf <- repair_txt(txt_pdf)
+  
   x<-annotate_txt_pdf(txt_pdf)   #create the dataframe for NLP using udpipe
 
   #read the output from poppler and create the dataframe with words, font and fontsize
@@ -648,8 +669,6 @@ run_tests <- function(pdf_list) {
   }}
 
 run_tests(pdf_list)
-
-
 
 
 
