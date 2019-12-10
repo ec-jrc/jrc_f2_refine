@@ -403,7 +403,11 @@ recursive_filter_first_lemma <- function(x, index, lemma_nb){
     lemma_nb<-lemma_nb+1
     return(recursive_filter_first_lemma(x, index, lemma_nb))
   }
-  if (str_detect(first_lemma, "\\.")){
+  if (str_detect(first_lemma, "[:punct:]")){
+    lemma_nb<-lemma_nb+1
+    return(recursive_filter_first_lemma(x, index, lemma_nb))
+  }
+  if (str_detect(capitalize_first_letter(first_lemma), "Animals|Animal")){ #"De Jong, WH et al 2008.pdf"
     lemma_nb<-lemma_nb+1
     return(recursive_filter_first_lemma(x, index, lemma_nb))
   }
@@ -436,7 +440,9 @@ handle_typos <- function(x, section, occurrences) {
   # This function solve various problem encoutered in section title due to the conversion from pdf
   # NB : this problems only occur in the in the NLP data structure (UDpipe)
   # Please refer to each function for more details
-  
+  print("inside handle_typo")
+  print(occurrences)
+  print(length(occurrences)==0)
   if (length(occurrences)==0){ #is first caps is missing
     #When "Acknowledgements" became "cknowledgements", and "Reference", "eference"
     occurrences<-Elsevier_correction(x, section)
@@ -469,8 +475,12 @@ repair_txt <- function(txt_pdf) {
   #> gsub("(?<=\\p{L})\\.(?=\\p{L})", ". ", txt, perl=TRUE)
   #[1] "significant. Results"
   
-  txt_pdf<-gsub("(?<=\\p{L})\\.(?=\\p{L})", ". ", txt_pdf, perl=TRUE)
+  txt_pdf<-gsub("\\b\\.\\b", ". ", txt_pdf, perl=TRUE)
+  #https://stackoverflow.com/questions/26896971/add-space-between-two-letters-in-a-string-in-r
+  #https://stringr.tidyverse.org/articles/regular-expressions.html
+  #"methods2.1." -> "methods 2.1"
   
+  txt_pdf<-gsub("(\\w)(\\d)", "\\1 \\2", txt_pdf)
   #remove non graphical caracter :
   #https://stackoverflow.com/questions/9637278/r-tm-package-invalid-input-in-utf8towcs
   txt_pdf<-str_replace_all(txt_pdf,"[^[:graph:]]", " ") 
@@ -506,13 +516,18 @@ locate_sections_position_debug<- function(x, section_title_df){
   positions_sections_df<-setNames(data.frame(matrix(ncol = 2, nrow = 0)), c("section", "occurrences"))
   
   for (section in section_title_df$Word) {
+    print("***** New section")
     print(section)
     occurrences<-which(lower_but_first_letter(x$token) %in% section)
     print(occurrences)
     occurrences<-missing_first_letter_section(x, section, occurrences)
+    print("missing first letter section :")
     print(occurrences)
     occurrences<-subset_occurrences(occurrences, positions_sections_df)
+    print("handle typo :")
     occurrences<-handle_typos(x, section, occurrences)
+    print(occurrences)
+    print("summary box :")
     occurrences<-is_summary_box(x, section, occurrences, section_title_df)
     print(occurrences)
     if (length(occurrences)>1){ #if several time the section name in the article
@@ -533,6 +548,8 @@ reduce_occurrences_debug<- function(x, occurrences, positions_sections_df, secti
   print(occurrences)
   if (length(occurrences)>1){ #if there is still several time the section name in the article
     occurrences_NLP<-NLP_filter_section_title(x, occurrences)
+    print("NLP_filter_section_title")
+    print(occurrences_NLP)
     if (length(occurrences_NLP)>0){ #if not NULL, like for Methods in Materials and Methods
       occurrences<-occurrences_NLP}}
   print(occurrences)
@@ -619,7 +636,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<-"Correia Carreira, S et al 2015.pdf"
+pdf_name<-"De Jong, WH et al 2008.pdf"
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
@@ -708,7 +725,11 @@ extract_material_and_methods <- function(pdf_name) {
   # print(head(unique(material_and_method_section$sentence), 15))
   # print(tail(unique(material_and_method_section$sentence), 15))
   }
-
+# 
+# if (i<10) {
+#   i=i+1
+#   next
+# }
 
 run_tests <- function(pdf_list) {
   for (pdf_name in pdf_list) {
