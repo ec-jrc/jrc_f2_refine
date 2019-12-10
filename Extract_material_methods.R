@@ -238,7 +238,6 @@ locate_sections_position <- function(x, section_title_df){
     occurrences<-which(lower_but_first_letter(x$token) %in% section)
     occurrences<-Elsevier_correction(x, section, occurrences)
     occurrences<-subset_occurrences(occurrences, positions_sections_df)
-    occurrences<-handle_typos(x, section, occurrences)
     occurrences<-is_summary_box(x, section, occurrences, section_title_df)
     if (length(occurrences)>1){ #if several time the section name in the article
       occurrences<-subset_occurrences(occurrences, positions_sections_df)}
@@ -339,6 +338,7 @@ Elsevier_correction <- function(x, section, occurrences) {
   if (length(new_occurrences)>0){ #send back only if it exist
     occurrences<-c(occurrences, new_occurrences)
     return(occurrences)}
+  return(occurrences)
 }
 
 regex_correction <- function(x, section) {
@@ -508,7 +508,7 @@ locate_sections_position_debug<- function(x, section_title_df){
     occurrences<-Elsevier_correction(x,section, occurrences)
     print(occurrences)
     occurrences<-subset_occurrences(occurrences, positions_sections_df)
-    occurrences<-handle_typos(x, section, occurrences)
+    #occurrences<-handle_typos(x, section, occurrences)
     occurrences<-is_summary_box(x, section, occurrences, section_title_df)
     print(occurrences)
     if (length(occurrences)>1){ #if several time the section name in the article
@@ -615,7 +615,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<-"Al-Bairuty, G et al 2013.pdf" 
+pdf_name<-"Al Faraj A, Fauvelle F et al 2011.pdf"
 
 txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
