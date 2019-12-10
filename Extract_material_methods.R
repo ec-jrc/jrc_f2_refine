@@ -440,9 +440,6 @@ handle_typos <- function(x, section, occurrences) {
   # This function solve various problem encoutered in section title due to the conversion from pdf
   # NB : this problems only occur in the in the NLP data structure (UDpipe)
   # Please refer to each function for more details
-  print("inside handle_typo")
-  print(occurrences)
-  print(length(occurrences)==0)
   if (length(occurrences)==0){ #is first caps is missing
     #When "Acknowledgements" became "cknowledgements", and "Reference", "eference"
     occurrences<-Elsevier_correction(x, section)
@@ -479,8 +476,8 @@ repair_txt <- function(txt_pdf) {
   #https://stackoverflow.com/questions/26896971/add-space-between-two-letters-in-a-string-in-r
   #https://stringr.tidyverse.org/articles/regular-expressions.html
   #"methods2.1." -> "methods 2.1"
-  
-  txt_pdf<-gsub("(\\w)(\\d)", "\\1 \\2", txt_pdf)
+  #don't cut "2014"
+  txt_pdf<- gsub("([A-z])([1-9])", "\\1 \\2", txt_pdf)
   #remove non graphical caracter :
   #https://stackoverflow.com/questions/9637278/r-tm-package-invalid-input-in-utf8towcs
   txt_pdf<-str_replace_all(txt_pdf,"[^[:graph:]]", " ") 
@@ -636,7 +633,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<-"De Jong, WH et al 2008.pdf"
+pdf_name<-"Bachler, G et al 2014.pdf"
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
@@ -721,20 +718,26 @@ extract_material_and_methods <- function(pdf_name) {
   material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
   #name<-strsplit(string, "/" )[[1]] #seriously R ?
   #saveRDS(material_section, file = paste0("Material_and_Methods_Section/" , paste0(name[3], ".rds")))
-  #saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
+  saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
   # print(head(unique(material_and_method_section$sentence), 15))
   # print(tail(unique(material_and_method_section$sentence), 15))
   }
-# 
-# if (i<10) {
-#   i=i+1
-#   next
-# }
+
 
 run_tests <- function(pdf_list) {
-  for (pdf_name in pdf_list) {
+  error_counter<<-0
+  for (pdf_name in pdf_list){
     print(pdf_name)
-    try(extract_material_and_methods(pdf_name))
-  }}
+    res<- try(extract_material_and_methods(pdf_name))
+
+  if (class(res) == "try-error"){
+      error_counter<<-error_counter+1
+    }
+    print(error_counter)
+  }
+  print("Error on biodistribution :")
+  print(error_counter)
+  }
+
 
 run_tests(pdf_list)
