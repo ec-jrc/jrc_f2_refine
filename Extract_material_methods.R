@@ -294,6 +294,10 @@ extract_material_and_method_section <- function(x, positions_sections_df) {
       idx<-i
       break
     }
+    if (grepl("experimental", positions_sections_df$section[i])){
+      idx<-i
+      break
+    }
   }
   beginning_section<-positions_sections_df[idx,]$occurrences
   end_section<-positions_sections_df[idx+1,]$occurrences
@@ -573,7 +577,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<-"Chung, E J et al 2015.pdf"
+pdf_name<-"de Sá, A et al 2010.pdf"
 
 txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
@@ -597,7 +601,8 @@ list_of_sections <- list(c("Introduction", "INTRODUCTION"),
                          c("Discussion", "DISCUSSION", "discussion"),
                          c("Abstract", "ABSTRACT"),
                          c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"),
-                         c("Background", "BACKGROUND")
+                         c("Background", "BACKGROUND"),
+                         c("Experimental")
 )
 
 #dataframe with Section name (word), font of the section, size of the of the font inside the poppler documents
@@ -647,7 +652,8 @@ extract_material_and_methods <- function(pdf_name) {
                            c("Discussion", "DISCUSSION"),
                            c("Abstract", "ABSTRACT"),
                            c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"),
-                           c("Background", "BACKGROUND")
+                           c("Background", "BACKGROUND"),
+                           c("Experimental")
   )
   section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
   # print(section_title_df)
