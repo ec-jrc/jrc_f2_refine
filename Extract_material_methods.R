@@ -233,9 +233,9 @@ locate_sections_position <- function(x, section_title_df){
   #Tolower() is added to keep using token. Lemma would require playing with the plurals.
   
   positions_sections_df<-setNames(data.frame(matrix(ncol = 2, nrow = 0)), c("section", "occurrences"))
-  
+
   for (section in section_title_df$Word) {
-    occurrences<-which(x$token %in% section)
+    occurrences<-which(lower_but_first_letter(x$token) %in% section)
     occurrences<-subset_occurrences(occurrences, positions_sections_df)
     occurrences<-handle_typos(x, section, occurrences)
     occurrences<-is_summary_box(x, section, occurrences, section_title_df)
@@ -456,6 +456,26 @@ repair_txt <- function(txt_pdf) {
   return(txt_pdf)
 }
 
+lower_but_first_letter<- function(token) {
+  #"MAterIAls"->"Materials", correct strange behavior of tabulizer for section title
+  #The goal is to lower all the letter BUT the first one
+  #That way, looking for section titles inside token would still be discricimative
+  #For example, the token MAterIAls would be find when looking for Material 
+  #But avoid to lower case of capitalize the first letter for everything
+  #Example :
+  #token<-"MAterIAls"
+  #first_letter<-substring(token, 1,1)
+  #body_word<-tolower(substring(token, 2))
+  #token<-paste0(first_letter, body_word)
+  #> token
+  #"Materials"
+  
+  first_letter<-substring(token, 1,1)
+  body_word<-tolower(substring(token, 2))
+  token<-paste0(first_letter, body_word)
+  return(token)
+}
+
 ## Debug func
 
 locate_sections_position_debug<- function(x, section_title_df){
@@ -466,7 +486,7 @@ locate_sections_position_debug<- function(x, section_title_df){
   
   for (section in section_title_df$Word) {
     print(section)
-    occurrences<-which(x$token %in% section)
+    occurrences<-which(lower_but_first_letter(x$token) %in% section)
     print(occurrences)
     occurrences<-subset_occurrences(occurrences, positions_sections_df) #why it is not default behavior ?
     occurrences<-handle_typos(x, section, occurrences)
@@ -574,10 +594,9 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 #######
 
 
-
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<-"de Sá, A et al 2010.pdf"
+pdf_name<-"Abrams, M T et al 2010.pdf" 
 
 txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
@@ -675,11 +694,6 @@ run_tests <- function(pdf_list) {
   }}
 
 run_tests(pdf_list)
-
-
-
-
-
 
 
 
