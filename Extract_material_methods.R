@@ -236,6 +236,7 @@ locate_sections_position <- function(x, section_title_df){
 
   for (section in section_title_df$Word) {
     occurrences<-which(lower_but_first_letter(x$token) %in% section)
+    occurrences<-Elsevier_correction(section, occurrences)
     occurrences<-subset_occurrences(occurrences, positions_sections_df)
     occurrences<-handle_typos(x, section, occurrences)
     occurrences<-is_summary_box(x, section, occurrences, section_title_df)
@@ -314,7 +315,9 @@ capitalize_first_letter <- function(section) {
   return(section)
 }
 
-Elsevier_correction <- function(x, section) {
+Elsevier_correction_deprecated <- function(x, section) {
+  #DEPRECATED
+  
   #in one of article of Elsevier, "Al-Bairuty, G et al 2013.pdf"
   #"Acknowledgements" became "cknowledgements", and "Reference", "eference"
   #but this only occurre in the NLP data structure (UDpipe)
@@ -323,6 +326,20 @@ Elsevier_correction <- function(x, section) {
   if (length(occurrences)>0){ #send back only if it exist
     return(occurrences)
   }}
+
+Elsevier_correction <- function(section, occurrences) {
+  # In one of article of Elsevier, "Al-Bairuty, G et al 2013.pdf"
+  #"Acknowledgements" became "cknowledgements", and "Reference", "eference"
+  # This only occurre in the NLP data structure (UDpipe)
+  # This function send back truncated name of the section title, to find the tokens that corresponding to it.
+  # Then if there is occurrences for truncated version, send back to the main functions the new occurrences.
+  
+  section<-tolower(substring(section, 2))
+  new_occurrences<-which(x$token %in% section)
+  if (length(new_occurrences)>0){ #send back only if it exist
+    occurrences<-c(occurrences, new_occurrences)
+    return(occurrences)}
+}
 
 regex_correction <- function(x, section) {
   #in "Attia, AB et al 2013.pdf"
@@ -488,7 +505,9 @@ locate_sections_position_debug<- function(x, section_title_df){
     print(section)
     occurrences<-which(lower_but_first_letter(x$token) %in% section)
     print(occurrences)
-    occurrences<-subset_occurrences(occurrences, positions_sections_df) #why it is not default behavior ?
+    occurrences<-Elsevier_correction(section, occurrences)
+    print(occurrences)
+    occurrences<-subset_occurrences(occurrences, positions_sections_df)
     occurrences<-handle_typos(x, section, occurrences)
     occurrences<-is_summary_box(x, section, occurrences, section_title_df)
     print(occurrences)
@@ -596,7 +615,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<-"Abrams, M T et al 2010.pdf" 
+pdf_name<-"Al-Bairuty, G et al 2013.pdf" 
 
 txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
@@ -695,5 +714,19 @@ run_tests <- function(pdf_list) {
 
 run_tests(pdf_list)
 
+for (section in section_title_df$Word) {
+  print(section)
+  Elsevier_correction(section)
+}
 
-
+Elsevier_correction <- function(section, occurrences) {
+  # In one of article of Elsevier, "Al-Bairuty, G et al 2013.pdf"
+  #"Acknowledgements" became "cknowledgements", and "Reference", "eference"
+  # This only occurre in the NLP data structure (UDpipe)
+  # This function send back truncated name of the section title, to find the tokens that corresponding to it.
+  
+  section<-tolower(substring(section, 2))
+  new_occurrences<-which(x$token %in% section)
+  if (length(new_occurrences)>0){ #send back only if it exist
+    occurrences<-c(occurrences, new_occurrences)
+    return(occurrences)}}
