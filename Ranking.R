@@ -45,7 +45,7 @@ cut_word <- function(word) {
   return(res)
 }
 
-attribute_ranking_split_word <- function(x, quality_evaluation_df, technical_aspect, word) {
+attribute_ranking_split_word <- function(x, i, quality_evaluation_df, technical_aspect, word) {
   res<-cut_word(word)
   first_word<-res[1]
   second_word<-res[2]
@@ -53,54 +53,86 @@ attribute_ranking_split_word <- function(x, quality_evaluation_df, technical_asp
   
   if (length(idx)>0) { #if the word is present as lemma
     if (x[(idx+1),]$lemma==second_word) {
-      quality_evaluation_df[[technical_aspect]]<-1
+      quality_evaluation_df[i,][[technical_aspect]]<-1
+      print(first_word)
+      print(second_word)
     }
   }
   return(quality_evaluation_df)
 }
 
-attribute_ranking <- function(x, quality_evaluation_df, technical_aspect, word) {
+attribute_ranking <- function(x, i, quality_evaluation_df, technical_aspect, word) {
   idx<-which(x$lemma==word)
   if (length(idx)>0) { #if the word is present as lemma
-    quality_evaluation_df[[technical_aspect]]<-1
+    quality_evaluation_df[i,][[technical_aspect]]<-1
+    if (word=="size") {
+      print(x[idx,]$sentence)
+    }
   }
   return(quality_evaluation_df)
+}
+
+quality_assessment <- function(x, i, pdf_name, quality_evaluation_df, ontology_material_characterisation) {
+  if (first_iteration(i)) {
+    quality_evaluation_df<-init_quality_df(quality_evaluation_df, pdf_name)
+  } else {
+    quality_evaluation_df<-rbind(quality_evaluation_df, c(0))
+    quality_evaluation_df[i,]$Article_name<-pdf_name
+  }
+  for (technical_aspect in names(ontology_material_characterisation)) { #Size, surface area, etc
+    for (word in ontology_material_characterisation[[technical_aspect]]) { #Diameter
+      if (is_space(word)) {
+        quality_evaluation_df<-attribute_ranking_split_word(x, i, quality_evaluation_df, technical_aspect, word)
+      }
+      else {
+        quality_evaluation_df<-attribute_ranking(x, i, quality_evaluation_df, technical_aspect, word)
+      }
+    }
+  }
+  return(quality_evaluation_df)
+}
+
+first_iteration <- function(i) {
+  if (i==1) {
+    return(TRUE)
+  }
+  return(FALSE)
 }
 
 
 #ontology of terms
-material_characterisation <- list( Size = c("diameter", "size", "dimension", "radius"), 
+ontology_material_characterisation <- list( Size = c("diameter", "size", "dimension", "radius", "nm"), 
                                    Surface_area = c("surface area"), 
-                                   Surface_charge = c("zeta potentiual", "surface charge", "mv"))
-
-#charge the udpipe dataframe
-x<-readRDS(file = "Material_and_Methods_Section/Abrams, M T et al 2010.pdf.rds")
-
-print(head(unique(x$sentence), 10))
-print(tail(unique(x$sentence), 10))
-
-
-#the func must know pdf_name
-#for loop with it of row
-
-quality_evaluation_df<-create_quality_df(material_characterisation)
+                                   Surface_charge = c("zeta potentiual", "surface charge", "mv"),
+                                   Chemical_composition = c("chemical composition", "coating", "core",
+                                                            "shell", "content", "configuration", 
+                                                            "molecular ratio"),
+                                   Concentration = c("final concentration", "dilution", "diluted", "mM"),
+                                   Aggregation = c("aggregation", "aggregate", "polydisperse", "monodisperse",
+                                                   "stability", "agglomeration", "stable", "agglomerate"),
+                                   Wavelenght = c("wavelenght", "excitation wavelenght", "excitation", "emission",
+                                                  "emission wavelenght")
+                                   )
 
 
-pdf_name<-"Abrams, M T et al 2010"
-i<-1
-if (i==1) {
-  quality_evaluation_df<-init_quality_df(quality_evaluation_df, pdf_name)
+
+quality_evaluation_df<-create_quality_df(ontology_material_characterisation)
+
+rds_list<-list.files(path="Material_and_Methods_Section/", pattern = "\\.rds$")
+
+i<-0
+
+for (rds in rds_list) {
+  i<-i+1
+  x<-readRDS(file = paste0("Material_and_Methods_Section/", rds))
+  pdf_name<-str_replace_all(rds, ".rds", "")
+  quality_evaluation_df<-quality_assessment(x, i, pdf_name, quality_evaluation_df, ontology_material_characterisation)
 }
 
-for (technical_aspect in names(material_characterisation)) { #Size, surface area, etc
+#compute the score :
+quality_evaluation_df$Ranking<-rowSums(quality_evaluation_df[, names(ontology_material_characterisation)])
 
-  for (word in material_characterisation[[technical_aspect]]) { #Diameter
-    if (is_space(word)) {
-      quality_evaluation_df<-attribute_ranking_split_word(x, quality_evaluation_df, technical_aspect, word)
-      }
-    else {
-      quality_evaluation_df<-attribute_ranking(x, quality_evaluation_df, technical_aspect, word)
-    }
-  }
-  }
+
+
+
 
