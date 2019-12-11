@@ -40,6 +40,33 @@ is_space <- function(word) {
   return(FALSE)
 }
 
+cut_word <- function(word) {
+  res<-str_split(word, "\\s")[[1]]
+  return(res)
+}
+
+attribute_ranking_split_word <- function(x, quality_evaluation_df, technical_aspect, word) {
+  res<-cut_word(word)
+  first_word<-res[1]
+  second_word<-res[2]
+  idx<-which(x$lemma==first_word) #firstword
+  
+  if (length(idx)>0) { #if the word is present as lemma
+    if (x[(idx+1),]$lemma==second_word) {
+      quality_evaluation_df[[technical_aspect]]<-1
+    }
+  }
+  return(quality_evaluation_df)
+}
+
+attribute_ranking <- function(x, quality_evaluation_df, technical_aspect, word) {
+  idx<-which(x$lemma==word)
+  if (length(idx)>0) { #if the word is present as lemma
+    quality_evaluation_df[[technical_aspect]]<-1
+  }
+  return(quality_evaluation_df)
+}
+
 
 #ontology of terms
 material_characterisation <- list( Size = c("diameter", "size", "dimension", "radius"), 
@@ -58,33 +85,22 @@ print(tail(unique(x$sentence), 10))
 
 quality_evaluation_df<-create_quality_df(material_characterisation)
 
-init_quality_df(quality_evaluation_df, pdf_name)
-
 
 pdf_name<-"Abrams, M T et al 2010"
-
+i<-1
 if (i==1) {
   quality_evaluation_df<-init_quality_df(quality_evaluation_df, pdf_name)
 }
 
-quality_evaluation_df #add a row for pdf name
-for (technical_aspect in names(material_characterisation) ) { #Size, surface area, etc
+for (technical_aspect in names(material_characterisation)) { #Size, surface area, etc
 
   for (word in material_characterisation[[technical_aspect]]) { #Diameter
     if (is_space(word)) {
-      print(word)
-      print("do nothing")
+      quality_evaluation_df<-attribute_ranking_split_word(x, quality_evaluation_df, technical_aspect, word)
       }
     else {
-    print(word)
-    idx<-which(x$lemma==word)
-    if (length(idx)>0) { #if there is something
-      quality_evaluation_df[[technical_aspect]]<-1
+      quality_evaluation_df<-attribute_ranking(x, quality_evaluation_df, technical_aspect, word)
     }
   }
   }
-}
-
-
-
 
