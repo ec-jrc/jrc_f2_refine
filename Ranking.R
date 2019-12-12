@@ -52,12 +52,13 @@ attribute_ranking_split_word <- function(x, i, quality_evaluation_df, technical_
   idx<-which(x$lemma==first_word) #firstword
   
   if (length(idx)>0) { #if the word is present as lemma
-    if (x[(idx+1),]$lemma==second_word) {
-      quality_evaluation_df[i,][[technical_aspect]]<-1
-      print(first_word)
-      print(second_word)
+    for (id in idx) {   #if several times the word, simply
+      if (x[(id+1),]$lemma==second_word) {
+        quality_evaluation_df[i,][[technical_aspect]]<-1
     }
-  }
+    }
+    }
+  
   return(quality_evaluation_df)
 }
 
@@ -65,9 +66,9 @@ attribute_ranking <- function(x, i, quality_evaluation_df, technical_aspect, wor
   idx<-which(x$lemma==word)
   if (length(idx)>0) { #if the word is present as lemma
     quality_evaluation_df[i,][[technical_aspect]]<-1
-    if (word=="size") {
-      print(x[idx,]$sentence)
-    }
+    # if (word=="size") {
+    #   print(x[idx,]$sentence)
+    # }
   }
   return(quality_evaluation_df)
 }
@@ -89,6 +90,7 @@ quality_assessment <- function(x, i, pdf_name, quality_evaluation_df, ontology_m
       }
     }
   }
+  
   return(quality_evaluation_df)
 }
 
@@ -99,11 +101,63 @@ first_iteration <- function(i) {
   return(FALSE)
 }
 
+biological_condition <- function(x, i, quality_evaluation_df, condition, word) {
+  idx<-which(x$lemma==word)
+  if (length(idx)>0) { #if the word is present as lemma
+    quality_evaluation_df[i,][[condition]]<-"Yes"
+    # if (word=="size") {
+    #   print(x[idx,]$sentence)
+    # }
+  }
+  return(quality_evaluation_df)
+}
+
+biological_condition_split_word <- function(x, i, quality_evaluation_df, condition, word) {
+  res<-cut_word(word)
+  first_word<-res[1]
+  second_word<-res[2]
+  idx<-which(x$lemma==first_word) #firstword
+  
+  if (length(idx)>0) { #if the word is present as lemma
+    for (id in idx) {   #if several times the word in the article
+      if (x[(id+1),]$lemma==second_word) {
+        quality_evaluation_df[i,][[condition]]<-"Yes"
+      }
+    }
+  }
+  
+  return(quality_evaluation_df)
+}
+
+bioligical_condition_assessment <- function(x, i, pdf_name, quality_evaluation_df, ontology_in_vitro_in_vivo) {
+  if (first_iteration(i)) {
+    quality_evaluation_df$In_vitro<-"No"
+    quality_evaluation_df$In_vivo<-"No"
+  } else {
+    quality_evaluation_df[i,]$In_vitro<-"No"
+    quality_evaluation_df[i,]$In_vivo<-"No"
+  }
+  
+  for (condition in names(ontology_in_vitro_in_vivo)) { 
+    for (word in ontology_in_vitro_in_vivo[[condition]]) { 
+      if (is_space(word)) {
+        
+        quality_evaluation_df<-biological_condition_split_word(x, i, quality_evaluation_df, condition, word)
+      }
+      else {
+        quality_evaluation_df<-biological_condition(x, i, quality_evaluation_df, condition, word)
+      }
+    }
+  }
+  
+  return(quality_evaluation_df)
+}
+
 
 #ontology of terms
 ontology_material_characterisation <- list( Size = c("diameter", "size", "dimension", "radius", "nm"), 
                                    Surface_area = c("surface area"), 
-                                   Surface_charge = c("zeta potentiual", "surface charge", "mv"),
+                                   Surface_charge = c("zeta potential", "surface charge", "mv"),
                                    Chemical_composition = c("chemical composition", "coating", "core",
                                                             "shell", "content", "configuration", 
                                                             "molecular ratio"),
@@ -114,25 +168,43 @@ ontology_material_characterisation <- list( Size = c("diameter", "size", "dimens
                                                   "emission wavelenght")
                                    )
 
+#cells/ml
+#cells per wll
+#% of CO2
+#light
+#dose in mg/kg
 
+ontology_in_vitro_in_vivo <- list( In_vitro = c("incubation temperature", "incubator", "incubated", "viability",
+                                                "cells/ml", "cells/mL",
+                                                "cultured", "culture", "medium", "media", "penicillin", 
+                                                "streptomycin", "well plates", "cell line", "cells"
+                                                ), 
+                                   
+                                  In_vivo = c("age", "year old", "month old", "year-old", "month-old",
+                                              "cage", "holding rooms", "housed", "facility", "diet", "ad libitum",
+                                              "dark cycle", "euthanized", "acclimate", "acclimatized", 
+                                              "body weight", "administration route")
+                                                )
 
 quality_evaluation_df<-create_quality_df(ontology_material_characterisation)
 
 rds_list<-list.files(path="Material_and_Methods_Section/", pattern = "\\.rds$")
 
-i<-0
-
-for (rds in rds_list) {
-  i<-i+1
-  x<-readRDS(file = paste0("Material_and_Methods_Section/", rds))
-  pdf_name<-str_replace_all(rds, ".rds", "")
-  quality_evaluation_df<-quality_assessment(x, i, pdf_name, quality_evaluation_df, ontology_material_characterisation)
+run_assesment <- function(rds_list, ontology_material_characterisation, ontology_in_vitro_in_vivo) {
+  i<-0
+  quality_evaluation_df<-create_quality_df(ontology_material_characterisation)
+  for (rds in rds_list) {
+    i<-i+1
+    x<-readRDS(file = paste0("Material_and_Methods_Section/", rds))
+    pdf_name<-str_replace_all(rds, ".rds", "")
+    quality_evaluation_df<-quality_assessment(x, i, pdf_name, quality_evaluation_df, ontology_material_characterisation)
+    quality_evaluation_df<-bioligical_condition_assessment(x, i, pdf_name, quality_evaluation_df, ontology_in_vitro_in_vivo) 
+  }
+  #compute the score
+  quality_evaluation_df$Ranking<-rowSums(quality_evaluation_df[, names(ontology_material_characterisation)])
+  return(quality_evaluation_df)
 }
 
-#compute the score :
-quality_evaluation_df$Ranking<-rowSums(quality_evaluation_df[, names(ontology_material_characterisation)])
-
-
-
+quality_evaluation_df<-run_assesment(rds_list, ontology_material_characterisation, ontology_in_vitro_in_vivo)
 
 
