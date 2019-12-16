@@ -237,6 +237,7 @@ locate_sections_position <- function(x, section_title_df){
 
   for (section in section_title_df$Word) {
     occurrences<-which(lower_but_first_letter(x$token) %in% section)
+    occurrences<-eliminate_cf_occurrences(x, occurrences)
     occurrences<-missing_first_letter_section(x, section, occurrences)
     occurrences<-subset_occurrences(occurrences, positions_sections_df)
     occurrences<-handle_typos(x, section, occurrences)
@@ -504,7 +505,6 @@ lower_but_first_letter<- function(token) {
   return(token)
 }
 
-
 clean_title_journal <- function(pdf_name, section_title_df) {
   #Guo, J et al 2014.pdf highlight a problem : the title of the journal is wrotte with the
   #same font that the sections titles
@@ -519,8 +519,32 @@ clean_title_journal <- function(pdf_name, section_title_df) {
   if (length(title_mistaken)>0) { #if exist
     title_journal<-res[title_mistaken,]$Var1
     section_title_df<-section_title_df[-(which(section_title_df$Word==title_journal)),]
+    print("############## clean_title_journal has been called")
   }
   return(section_title_df)
+}
+
+eliminate_cf_occurrences <- function(x, occurrences) {
+  #This function remove the occurrences of section title name that are token preceeded by word like "see" or 
+  #"cf". The function will probably grow over time.
+  occurrences_without_cf<-c()
+  for (occur in occurrences) {
+    word_before<-x[(occur-1),]$token
+    if (word_before=="see") {
+      next
+    }
+    if (word_before=="described") {
+      next
+    }
+    if (word_before=="cf") {
+      next
+    }
+    #if not next addition to the occurrences without the 
+    #entries that are just references to a section
+    occurrences_without_cf<-c(occurrences_without_cf, occur)
+  }
+  occurrences<-occurrences_without_cf
+  return(occurrences)
 }
 
 ## Debug func
@@ -535,6 +559,7 @@ locate_sections_position_debug<- function(x, section_title_df){
     print("***** New section")
     print(section)
     occurrences<-which(lower_but_first_letter(x$token) %in% section)
+    occurrences<-eliminate_cf_occurrences(x, occurrences)
     print(occurrences)
     occurrences<-missing_first_letter_section(x, section, occurrences)
     print("missing first letter section :")
@@ -652,7 +677,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<- "Guo, J et al 2014.pdf"
+pdf_name<- "Heringa, M B et al 2016.pdf"
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
@@ -770,3 +795,4 @@ run_tests <- function(pdf_list) {
   }}
 
 run_tests(pdf_list)
+
