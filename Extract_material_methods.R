@@ -478,8 +478,8 @@ repair_txt <- function(txt_pdf) {
   #"Elsabahy, M et al 2013.pdf" show a similar problem, but with a coma
   #Example of the regex :
   #"SCKs,Results and discussion" ->  "SCKs. Results"
-  #txt_pdf<-gsub("\\b\\,\\b", ". ", txt_pdf, perl=TRUE) can also work
-  txt_pdf<-gsub("\\b[[:graph:]]\\b", ". ", txt_pdf, perl=TRUE)
+  txt_pdf<-gsub("\\b\\,\\b", ", ", txt_pdf, perl=TRUE)
+  #txt_pdf<-gsub("\\b[[:graph:]]\\b", ". ", txt_pdf, perl=TRUE)
   
   #https://stackoverflow.com/questions/26896971/add-space-between-two-letters-in-a-string-in-r
   #https://stringr.tidyverse.org/articles/regular-expressions.html
@@ -702,7 +702,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<- "Elsabahy, M et al 2013.pdf"
+pdf_name<- "Gonzales et al 2010.pdf"
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
