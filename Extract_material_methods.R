@@ -528,7 +528,7 @@ eliminate_cf_occurrences <- function(x, occurrences) {
   #This function remove the occurrences of section title name that are token preceeded by word like "see" or 
   #"cf". The function will probably grow over time.
   occurrences_without_cf<-c()
-  for (occur in occurrences) { 
+  for (occur in occurrences) {
     word_before<-x[(occur-1),]$token
     if (word_before=="see") {
       next
@@ -695,7 +695,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<- "Bachler, G et al 2014.pdf"
+pdf_name<- "Lee, I C et al 2016.pdf"
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
@@ -720,7 +720,9 @@ list_of_sections <- list(c("Introduction", "INTRODUCTION"),
                          c("Abstract", "ABSTRACT"),
                          c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"),
                          c("Background", "BACKGROUND"),
-                         c("Experimental", "EXPERIMENTAL")
+                         c("Experimental", "EXPERIMENTAL"),
+                         c("Supplementary", "SUPPLEMENTARY"),
+                         c("Section", "SECTION")
 )
 
 #dataframe with Section name (word), font of the section, size of the of the font inside the poppler documents
@@ -771,7 +773,9 @@ extract_material_and_methods <- function(pdf_name) {
                            c("Abstract", "ABSTRACT"),
                            c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"),
                            c("Background", "BACKGROUND"),
-                           c("Experimental", "EXPERIMENTAL")
+                           c("Experimental", "EXPERIMENTAL"),
+                           c("Supplementary", "SUPPLEMENTARY"),
+                           c("Section", "SECTION")
   )
   section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
   section_title_df<-clean_title_journal(pdf_name, section_title_df)
@@ -787,11 +791,11 @@ extract_material_and_methods <- function(pdf_name) {
   # print(tail(unique(material_and_method_section$sentence), 15))
   }
 
-
-run_tests_with_error_count <- function(pdf_list) {
+run_tests_with_error_count <- function(pdf_list, pdf_to_ignore) {
   error_counter<<-0
   for (pdf_name in pdf_list){
     print(pdf_name)
+    if (pdf_name %in% pdf_to_ignore){next}
     res<- try(extract_material_and_methods(pdf_name))
 
   if (class(res) == "try-error"){
@@ -805,12 +809,24 @@ run_tests_with_error_count <- function(pdf_list) {
 
 # run_tests_with_error_count(pdf_list)
 
+#Huang X et al 2013.pdf : supplemental information
+#Durantie, E et al 2017.pdf : supplemental information
+#Heringa, M B et al 2016.pdf totaly mad article
 
-run_tests <- function(pdf_list) {
+pdf_to_ignore<-c("Huang X et al 2013.pdf",
+                 "Durantie, E et al 2017.pdf",
+                 "Heringa, M B et al 2016.pdf"
+)
+
+
+run_tests <- function(pdf_list, pdf_to_ignore) {
   for (pdf_name in pdf_list){
     print(pdf_name)
+    if (pdf_name %in% pdf_to_ignore){
+      next}
     try(extract_material_and_methods(pdf_name))
   }}
 
-run_tests(pdf_list)
+run_tests(pdf_list, pdf_to_ignore)
+
 
