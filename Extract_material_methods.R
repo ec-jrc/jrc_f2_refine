@@ -474,6 +474,13 @@ repair_txt <- function(txt_pdf) {
   #[1] "significant. Results"
   
   txt_pdf<-gsub("\\b\\.\\b", ". ", txt_pdf, perl=TRUE)
+  
+  #"Elsabahy, M et al 2013.pdf" show a similar problem, but with a coma
+  #Example of the regex :
+  #"SCKs,Results and discussion" ->  "SCKs. Results"
+  #txt_pdf<-gsub("\\b\\,\\b", ". ", txt_pdf, perl=TRUE) can also work
+  txt_pdf<-gsub("\\b[[:graph:]]\\b", ". ", txt_pdf, perl=TRUE)
+  
   #https://stackoverflow.com/questions/26896971/add-space-between-two-letters-in-a-string-in-r
   #https://stringr.tidyverse.org/articles/regular-expressions.html
   #"methods2.1." -> "methods 2.1"
@@ -631,7 +638,7 @@ filter_association_first_token_debug<- function(x, index, section_title_df){
   token_id<-as.numeric(token_id)
   print(occurrence)
   sentence_id<-occurrence$sentence_id
-  #the following line query the first lemma of the sentence in the good document
+  #the following line query previous token in the sentencd
   first_tokens<-x[which(x$sentence_id==sentence_id)[1:(token_id-1)],]$token
   print(first_tokens)
   for (token in first_tokens) {
@@ -695,7 +702,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<- "Lee, I C et al 2016.pdf"
+pdf_name<- "Elsabahy, M et al 2013.pdf"
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
