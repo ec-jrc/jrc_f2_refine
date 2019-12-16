@@ -504,6 +504,25 @@ lower_but_first_letter<- function(token) {
   return(token)
 }
 
+
+clean_title_journal <- function(pdf_name, section_title_df) {
+  #Guo, J et al 2014.pdf highlight a problem : the title of the journal is wrotte with the
+  #same font that the sections titles
+  #this function check if there is not a section repeated the same number of pages of the pdf or 
+  #the same number of page menos 1
+  res<-table(section_title_df$Word)
+  res<-as.data.frame(res)
+  
+  nb_page<-tabulizer::get_n_pages(pdf_name)
+  title_mistaken<-which(res$Freq==nb_page | res$Freq==(nb_page-1))
+  
+  if (length(title_mistaken)>0) { #if exist
+    title_journal<-res[title_mistaken,]$Var1
+    section_title_df<-section_title_df[-(which(section_title_df$Word==title_journal)),]
+  }
+  return(section_title_df)
+}
+
 ## Debug func
 
 locate_sections_position_debug<- function(x, section_title_df){
@@ -633,7 +652,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<-"Bachler, G et al 2014.pdf"
+pdf_name<- "Guo, J et al 2014.pdf"
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
@@ -650,21 +669,21 @@ font_section<-identify_font(df_poppler)
 list_of_sections <- list(c("Introduction", "INTRODUCTION"),
                          c("Materials", "Material", "materials", "material", "MATERIALS", "MATERIAL"),
                          c("Methods", "Method", "methods", "method", "METHODS", "METHOD"),
-                         c("Acknowledgements", "Acknowledgments", "ACKNOWLEDGEMENTS", "ACKNOWLDGEMENTS",
-                           "Acknowledgement", "Acknowledgment", "ACKNOWLEDGEMENT", "ACKNOWLDGEMENT"),
+                         c("Acknowledgements", "Acknowledgments", "ACKNOWLEDGEMENTS", "ACKNOWLEDGMENTS",
+                           "Acknowledgement", "Acknowledgment", "ACKNOWLEDGEMENT", "ACKNOWLEDGMENT"),
                          c("References", "REFERENCES"),
                          c("Results", "RESULTS"),
                          c("Discussion", "DISCUSSION", "discussion"),
                          c("Abstract", "ABSTRACT"),
                          c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"),
                          c("Background", "BACKGROUND"),
-                         c("Experimental")
+                         c("Experimental", "EXPERIMENTAL")
 )
 
 #dataframe with Section name (word), font of the section, size of the of the font inside the poppler documents
 #section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
 section_title_df<-create_section_title_df_debug(font_section, list_of_sections, df_poppler)
-
+section_title_df<-clean_title_journal(pdf_name, section_title_df)
 
 #dataframe with the Sections title in order of appereance in the article, and their position in x
 #positions_sections_df<-locate_sections_position(x, section_title_df)
@@ -686,7 +705,7 @@ pdf_list<-list.files(pattern = "\\.pdf$")
 extract_material_and_methods <- function(pdf_name) {
   
   #txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
-  txt_pdf <-extract_text(pdf_name)
+  txt_pdf <- extract_text(pdf_name)
   txt_pdf <- repair_txt(txt_pdf)
   
   x<-annotate_txt_pdf(txt_pdf)   #create the dataframe for NLP using udpipe
@@ -701,17 +720,19 @@ extract_material_and_methods <- function(pdf_name) {
   list_of_sections <- list(c("Introduction", "INTRODUCTION"),
                            c("Materials", "Material", "materials", "material", "MATERIALS", "MATERIAL"),
                            c("Methods", "Method", "methods", "method", "METHODS", "METHOD"),
-                           c("Acknowledgements", "Acknowledgments", "ACKNOWLEDGEMENTS", "ACKNOWLDGEMENTS",
-                             "Acknowledgement", "Acknowledgment", "ACKNOWLEDGEMENT", "ACKNOWLDGEMENT"),
+                           c("Acknowledgements", "Acknowledgments", "ACKNOWLEDGEMENTS", "ACKNOWLEDGMENTS",
+                             "Acknowledgement", "Acknowledgment", "ACKNOWLEDGEMENT", "ACKNOWLEDGMENT"),
                            c("References", "REFERENCES"),
                            c("Results", "RESULTS"),
-                           c("Discussion", "DISCUSSION"),
+                           c("Discussion", "DISCUSSION", "discussion"),
                            c("Abstract", "ABSTRACT"),
                            c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"),
                            c("Background", "BACKGROUND"),
-                           c("Experimental")
+                           c("Experimental", "EXPERIMENTAL")
   )
   section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
+  section_title_df<-clean_title_journal(pdf_name, section_title_df)
+  
   # print(section_title_df)
   positions_sections_df<-locate_sections_position(x, section_title_df)
   # print(positions_sections_df)
@@ -724,7 +745,7 @@ extract_material_and_methods <- function(pdf_name) {
   }
 
 
-run_tests <- function(pdf_list) {
+run_tests_with_error_count <- function(pdf_list) {
   error_counter<<-0
   for (pdf_name in pdf_list){
     print(pdf_name)
@@ -739,5 +760,13 @@ run_tests <- function(pdf_list) {
   print(error_counter)
   }
 
+# run_tests_with_error_count(pdf_list)
+
+
+run_tests <- function(pdf_list) {
+  for (pdf_name in pdf_list){
+    print(pdf_name)
+    try(extract_material_and_methods(pdf_name))
+  }}
 
 run_tests(pdf_list)
