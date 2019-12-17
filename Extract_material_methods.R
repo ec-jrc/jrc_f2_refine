@@ -435,7 +435,8 @@ re_identify_font_section <- function(df_poppler, section_title_df, list_of_secti
       for (vector_title in list_of_sections) {
         section_title_df<-rbind(section_title_df, find_section_titles(vector_title, new_font_section, df_poppler))
       }
-    }}
+    }
+    }
   return(section_title_df)
 }
 
@@ -706,10 +707,8 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-# pdf_name<- "Jensen, A I et al 2017.pdf"
-# pdf_name<- "Katsnelson, B A et al 2011.pdf"
+pdf_name<- "Campagnolo, L et al 2013.pdf"
 
-pdf_name<- "Gonzales et al 2010.pdf"
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
@@ -815,21 +814,20 @@ run_tests_with_error_count <- function(pdf_list, pdf_to_ignore) {
   if (class(res) == "try-error"){
       error_counter<<-error_counter+1
     }
-    print(error_counter)
   }
   print("Error on biodistribution :")
   print(error_counter)
   }
 
-# run_tests_with_error_count(pdf_list)
+# run_tests_with_error_count(pdf_list, pdf_to_ignore)
 
-#Huang X et al 2013.pdf : supplemental information
-#Durantie, E et al 2017.pdf : supplemental information
-#Heringa, M B et al 2016.pdf totaly mad article
 
 pdf_to_ignore<-c("Huang X et al 2013.pdf",
                  "Durantie, E et al 2017.pdf",
-                 "Heringa, M B et al 2016.pdf"
+                 "Heringa, M B et al 2016.pdf",
+                 "Katsnelson, B A et al 2011.pdf",
+                 "Jensen, A I et al 2017.pdf",
+                 "Kim, Y R et al 2014.pdf"
 )
 
 
@@ -844,3 +842,4 @@ run_tests <- function(pdf_list, pdf_to_ignore) {
 run_tests(pdf_list, pdf_to_ignore)
 
 
+run_tests_with_error_count(pdf_list, pdf_to_ignore)
