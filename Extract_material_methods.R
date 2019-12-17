@@ -163,7 +163,7 @@ filter_first_lemma <- function(x, index){
   return(FALSE)
 }
 
-filter_association_first_token <- function(x, index, section_title_df){
+filter_association_first_token <- function(x, index, positions_sections_df){
   #update tabulizer : tolower can lead to unexpected results
   #doubling the if is a quick and safe fix
   #this function looks if the first token is already in section_title_df
@@ -716,7 +716,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<-"Al Faraj A, Fauvelle F et al 2011.pdf"
+pdf_name<-"Fraga et al 2013.pdf"
 
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
