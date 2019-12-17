@@ -174,8 +174,10 @@ filter_association_first_token <- function(x, index, section_title_df){
   sentence_id<-occurrence$sentence_id
   first_tokens<-x[which(x$sentence_id==sentence_id)[1:(token_id-1)],]$token
   for (token in first_tokens) {
-    if (token %in% positions_sections_df$Word) {return(TRUE)} 
-    if (capitalize_first_letter(token) %in% positions_sections_df$Word) {return(TRUE)}} 
+    if (token %in% positions_sections_df$section) {
+      return(TRUE)}
+    if (capitalize_first_letter(token) %in% positions_sections_df$section) {
+      return(TRUE)}}
   return(FALSE)
 }
 
@@ -649,13 +651,16 @@ filter_association_first_token_debug<- function(x, index, positions_sections_df)
   sentence_id<-occurrence$sentence_id
   #the following line query previous token in the sentencd
   first_tokens<-x[which(x$sentence_id==sentence_id)[1:(token_id-1)],]$token
+  print("first tokens :")
   print(first_tokens)
   for (token in first_tokens) {
     print(token)
-    if (token %in% positions_sections_df$Word) {return(TRUE)} #}
-    if (capitalize_first_letter(token) %in% positions_sections_df$Word) {
-    print(capitalize_first_letter(token))
-    return(TRUE)}}
+    if (token %in% positions_sections_df$section) {
+      print("first condition is true")
+      return(TRUE)}
+    if (capitalize_first_letter(token) %in% positions_sections_df$section) {
+      print("second condition is true")
+      return(TRUE)}}
   return(FALSE)
 }
 
@@ -711,7 +716,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<-"Hong, TK et al 2013.pdf"
+pdf_name<-"Al Faraj A, Fauvelle F et al 2011.pdf"
 
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
