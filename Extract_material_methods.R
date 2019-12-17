@@ -216,7 +216,9 @@ reduce_occurrences<- function(x, occurrences, positions_sections_df, section_tit
   if (length(occurrences)>1){ #if several time the section name in the article
     occurrences<-subset_occurrences(occurrences, positions_sections_df)}
   if (length(occurrences)>1){ #if there is still several time the section name in the article
-    occurrences<-NLP_filter_second_member_section_title(x, occurrences, section_title_df)}
+    occurrences_NLP<-NLP_filter_second_member_section_title(x, occurrences, section_title_df)
+    if (length(occurrences_NLP)>0){ #if not NULL, like for Methods in Materials and Methods
+      occurrences<-occurrences_NLP}}
   if (length(occurrences)>1){ #if there is still several time the section name in the article
     occurrences_NLP<-NLP_filter_section_title(x, occurrences)
     if (length(occurrences_NLP)>0){ #if not NULL, like for Methods in Materials and Methods
@@ -616,7 +618,9 @@ reduce_occurrences_debug<- function(x, occurrences, positions_sections_df, secti
     occurrences<-subset_occurrences(occurrences, positions_sections_df)}
   print(occurrences)
   if (length(occurrences)>1){ #if there is still several time the section name in the article
-    occurrences<-NLP_filter_second_debug(x, occurrences, section_title_df)}
+    occurrences_NLP<-NLP_filter_second_debug(x, occurrences, section_title_df)
+    if (length(occurrences_NLP)>0){ #if not NULL, like for Methods in Materials and Methods
+    occurrences<-occurrences_NLP}}
   if (length(occurrences)>1){ #if there is still several time the section name in the article
     occurrences_NLP<-NLP_filter_section_title(x, occurrences)
     print("NLP_filter_section_title")
@@ -707,7 +711,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<- "Campagnolo, L et al 2013.pdf"
+pdf_name<-"Chen, Y 2018.pdf"
 
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
