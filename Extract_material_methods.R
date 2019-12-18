@@ -131,6 +131,7 @@ find_section_titles <- function(vector_title, font_section, df_poppler) {
         clean_df_poppler<-clean_font_txt(df_poppler)
         rm(df_poppler)
         df_poppler<-clean_df_poppler
+        print("***** Clean_font_txt_() has been called in find_section_titles *****")
         return(find_section_titles(vector_title, font_section, df_poppler))
         
       }}
@@ -369,7 +370,6 @@ clean_font_txt <- function(df_poppler) {
   #Fond the most abundant font, the one of the text
   font_text<-fonts$Var1[which(fonts$Freq==max(fonts$Freq))] #font the most used
   clean_df_poppler<-df_poppler[-which(df_poppler$Font==font_text),]
-  #print("***** Clean_font_txt_() has been called *****")
   return(clean_df_poppler)
 }
 
@@ -748,7 +748,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<-"You, J et al 2014.pdf"
+pdf_name<-"Wang, Y et al 2008.pdf"
 
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
@@ -821,7 +821,8 @@ extract_material_and_methods <- function(pdf_name) {
   #the sections what the script will try to identify in the doppler output
   list_of_sections <- list(c("Introduction", "INTRODUCTION"),
                            c("Materials", "Material", "materials", "material", "MATERIALS", "MATERIAL"),
-                           c("Methods", "Method", "methods", "method", "METHODS", "METHOD"),
+                           #c("Methods", "Method", "methods", "method", "METHODS", "METHOD"),
+                           c("Methods", "methods", "METHODS"),
                            c("Acknowledgements", "Acknowledgments", "ACKNOWLEDGEMENTS", "ACKNOWLEDGMENTS",
                              "Acknowledgement", "Acknowledgment", "ACKNOWLEDGEMENT", "ACKNOWLEDGMENT"),
                            c("References", "REFERENCES"),
@@ -835,6 +836,7 @@ extract_material_and_methods <- function(pdf_name) {
                            c("Section", "SECTION")
   )
   
+  df_poppler<-clean_font_txt(df_poppler)
   section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
   section_title_df<-clean_title_journal(pdf_name, section_title_df)
   
@@ -853,12 +855,12 @@ extract_material_and_methods <- function(pdf_name) {
 run_tests_with_error_count <- function(pdf_list, pdf_to_ignore) {
   error_counter<<-0
   for (pdf_name in pdf_list){
-    #print(pdf_name)
+    print(pdf_name)
     if (pdf_name %in% pdf_to_ignore){next}
     res<- try(extract_material_and_methods(pdf_name))
 
   if (class(res) == "try-error"){
-      print(pdf_name)
+      #print(pdf_name)
       error_counter<<-error_counter+1
     }
   }
@@ -881,154 +883,46 @@ pdf_to_ignore<-c("Huang X et al 2013.pdf",
 
 run_tests_with_error_count(pdf_list, pdf_to_ignore)
 
+#########################
+
+
+#Run in parallel while commenting the rest of the executable code 
+setwd("Test_env/")
+
+pdf_list<-list.files(pattern = "\\.pdf$")
+
+pdf_to_ignore<-c("Huang X et al 2013.pdf", #Supporting information 
+                 "Durantie, E et al 2017.pdf", #SupplementaryInformation
+                 "Heringa, M B et al 2016.pdf", #no material and method
+                 "Katsnelson, B A et al 2011.pdf", #problem with poppler section
+                 "Jensen, A I et al 2017.pdf", #problem with poppler section
+                 "Kim, Y R et al 2014.pdf", #review + material in table
+                 "Mangalampalli, B et al 2018.pdf" #problem with poppler section
+)
+
+
+library(parallel)
+
+run_a_test <- function(pdf_list, pdf_to_ignore) {
+  #print(pdf_name)
+  if (pdf_name %in% pdf_to_ignore){return(0)}
+  res<- try(extract_material_and_methods(pdf_name))
+  if (class(res) == "try-error"){
+    print(pdf_name)
+    return(1)
+  }
+  return(0)
+}
+
+print("Start parallel computing")
+res<-mclapply(pdf_list, run_a_test, pdf_to_ignore, mc.cores=8)
 
 
 
 
+print("errors :")
+print(sum(unlist(res)))
 
 
 
-
-
-
-
-
-
-#### without method :
-
-# 
-# extract_material_and_methods_2 <- function(pdf_name) {
-#   
-#   #txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
-#   txt_pdf <- extract_text(pdf_name)
-#   txt_pdf <- repair_txt(txt_pdf)
-#   
-#   x<-annotate_txt_pdf(txt_pdf)   #create the dataframe for NLP using udpipe
-#   
-#   #read the output from poppler and create the dataframe with words, font and fontsize
-#   df_poppler<-read_outpout_poppler(pdf_name)
-#   
-#   #identify the font of the section, first by looking at references and then at Acknowledgement
-#   font_section<-identify_font(df_poppler)
-#   
-#   #the sections what the script will try to identify in the doppler output
-#   list_of_sections <- list(c("Introduction", "INTRODUCTION"),
-#                            c("Materials", "Material", "materials", "material", "MATERIALS", "MATERIAL"),
-#                            c("Methods", "methods", "METHODS"),
-#                            c("Acknowledgements", "Acknowledgments", "ACKNOWLEDGEMENTS", "ACKNOWLEDGMENTS",
-#                              "Acknowledgement", "Acknowledgment", "ACKNOWLEDGEMENT", "ACKNOWLEDGMENT"),
-#                            c("References", "REFERENCES"),
-#                            c("Results", "RESULTS"),
-#                            c("Discussion", "DISCUSSION", "discussion"),
-#                            c("Abstract", "ABSTRACT"),
-#                            c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"),
-#                            c("Background", "BACKGROUND"),
-#                            c("Experimental", "EXPERIMENTAL"),
-#                            c("Supplementary", "SUPPLEMENTARY"),
-#                            c("Section", "SECTION")
-#   )
-#   
-#   section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
-#   section_title_df<-clean_title_journal(pdf_name, section_title_df)
-#   
-#   
-#   positions_sections_df<-locate_sections_position(x, section_title_df)
-#   
-#   material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
-#   
-#   #name<-strsplit(string, "/" )[[1]] #seriously R ?
-#   #saveRDS(material_section, file = paste0("Material_and_Methods_Section/" , paste0(name[3], ".rds")))
-#   saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
-#   
-#   
-# }
-# 
-# run_tests_with_error_count_2 <- function(pdf_list, pdf_to_ignore) {
-#   error_counter<<-0
-#   for (pdf_name in pdf_list){
-#     if (pdf_name %in% pdf_to_ignore){next}
-#     res<- try(extract_material_and_methods_2(pdf_name))
-#     
-#     if (class(res) == "try-error"){
-#       print(pdf_name)
-#       error_counter<<-error_counter+1
-#     }
-#   }
-#   print("Error on biodistribution :")
-#   print(error_counter)
-#   return(error_counter)
-# }
-# 
-# ### one txt clean by default on vanilla :
-# 
-# extract_mm_clean_txt <- function(pdf_name) {
-#   
-#   #txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
-#   txt_pdf <- extract_text(pdf_name)
-#   txt_pdf <- repair_txt(txt_pdf)
-#   
-#   x<-annotate_txt_pdf(txt_pdf)   #create the dataframe for NLP using udpipe
-#   
-#   #read the output from poppler and create the dataframe with words, font and fontsize
-#   df_poppler<-read_outpout_poppler(pdf_name)
-#   
-#   #identify the font of the section, first by looking at references and then at Acknowledgement
-#   font_section<-identify_font(df_poppler)
-#   
-#   #the sections what the script will try to identify in the doppler output
-#   list_of_sections <- list(c("Introduction", "INTRODUCTION"),
-#                            c("Materials", "Material", "materials", "material", "MATERIALS", "MATERIAL"),
-#                            c("Methods", "Method", "methods", "method", "METHODS", "METHOD"),
-#                            c("Acknowledgements", "Acknowledgments", "ACKNOWLEDGEMENTS", "ACKNOWLEDGMENTS",
-#                              "Acknowledgement", "Acknowledgment", "ACKNOWLEDGEMENT", "ACKNOWLEDGMENT"),
-#                            c("References", "REFERENCES"),
-#                            c("Results", "RESULTS"),
-#                            c("Discussion", "DISCUSSION", "discussion"),
-#                            c("Abstract", "ABSTRACT"),
-#                            c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"),
-#                            c("Background", "BACKGROUND"),
-#                            c("Experimental", "EXPERIMENTAL"),
-#                            c("Supplementary", "SUPPLEMENTARY"),
-#                            c("Section", "SECTION")
-#   )
-#   
-#   clean_df_poppler<-clean_font_txt(df_poppler)
-#   section_title_df<-create_section_title_df(font_section, list_of_sections, clean_df_poppler)
-#   section_title_df<-clean_title_journal(pdf_name, section_title_df)
-#   
-#   
-#   positions_sections_df<-locate_sections_position(x, section_title_df)
-#   
-#   material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
-#   
-#   #name<-strsplit(string, "/" )[[1]] #seriously R ?
-#   #saveRDS(material_section, file = paste0("Material_and_Methods_Section/" , paste0(name[3], ".rds")))
-#   saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
-#   
-#   
-# }
-# 
-# run_tests_with_error_count_mm_clean_txt <- function(pdf_list, pdf_to_ignore) {
-#   error_counter<<-0
-#   for (pdf_name in pdf_list){
-#     if (pdf_name %in% pdf_to_ignore){next}
-#     res<- try(extract_mm_clean_txt(pdf_name))
-#     
-#     if (class(res) == "try-error"){
-#       print(pdf_name)
-#       error_counter<<-error_counter+1
-#     }
-#   }
-#   print("Error on biodistribution :")
-#   print(error_counter)
-#   return(error_counter)
-# }
-# 
-# ### calls :
-# 
-# error_vanilla<-run_tests_with_error_count(pdf_list, pdf_to_ignore)
-# 
-# error_without_method<-run_tests_with_error_count_2(pdf_list, pdf_to_ignore)
-# 
-# error_vanilla_clean_txt<-run_tests_with_error_count_mm_clean_txt(pdf_list, pdf_to_ignore)
 
