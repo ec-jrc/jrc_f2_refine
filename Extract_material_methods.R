@@ -638,6 +638,13 @@ ad_hoc_reorder <- function(section_title_df) {
   return(section_title_df)
 }
 
+check_sections_df <- function(positions_sections_df) {
+  df<-as.data.frame(table(positions_sections_df$section))
+  if (max(df$Freq)>1) {
+    print("ALERT Section in double here")
+  }
+}
+
 
 # Debug func
 
@@ -816,11 +823,12 @@ list_of_sections <- list(c("Introduction", "INTRODUCTION"),
 #dataframe with Section name (word), font of the section, size of the of the font inside the poppler documents
 #section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
 
-#clean_df_poppler<-clean_font_txt(df_poppler)
+df_poppler<-clean_font_txt(df_poppler)
 
 section_title_df<-create_section_title_df_debug(font_section, list_of_sections, df_poppler)
 section_title_df<-clean_title_journal(pdf_name, section_title_df)
 section_title_df<-ad_hoc_reorder(section_title_df)
+check_sections_df(positions_sections_df)
 
 #dataframe with the Sections title in order of appereance in the article, and their position in x
 #positions_sections_df<-locate_sections_position(x, section_title_df)
@@ -876,7 +884,7 @@ extract_material_and_methods <- function(pdf_name) {
   section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
   section_title_df<-clean_title_journal(pdf_name, section_title_df)
   section_title_df<-ad_hoc_reorder(section_title_df)
-
+  check_sections_df(positions_sections_df)
   positions_sections_df<-locate_sections_position(x, section_title_df)
 
   material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
@@ -922,6 +930,7 @@ pdf_to_ignore<-c("Huang X et al 2013.pdf", #Supporting information
 
 
 run_tests_with_error_count(pdf_list, pdf_to_ignore)
+
 
 
 
