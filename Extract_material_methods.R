@@ -433,13 +433,32 @@ re_identify_font_section <- function(df_poppler, section_title_df, list_of_secti
   if (length(section_title_df$Word)<=2) {
     introduction_df<-df_poppler[which(capitalize_first_letter(df_poppler$Word) %in% 
                                         c("Introduction")),]
+    abstract_df<-df_poppler[which(capitalize_first_letter(df_poppler$Word) %in% 
+                                        c("Abstract")),]
+    background_df<-df_poppler[which(capitalize_first_letter(df_poppler$Word) %in% 
+                                    c("Background")),]
+    
     if (dim(introduction_df)[1]==1) {#if Introduction exist ONE time
       new_font_section<-introduction_df$Font
       #section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
       for (vector_title in list_of_sections) {
         section_title_df<-rbind(section_title_df, find_section_titles(vector_title, new_font_section, df_poppler))
       }
-    }
+    } 
+    if (dim(introduction_df)[1]!=1 & dim(abstract_df)[1]==1) {#if Introduction exist ONE time
+      new_font_section<-abstract_df$Font
+      #section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
+      for (vector_title in list_of_sections) {
+        section_title_df<-rbind(section_title_df, find_section_titles(vector_title, new_font_section, df_poppler))
+      }
+    } 
+    if (dim(introduction_df)[1]!=1 & dim(abstract_df)[1]!=1 & dim(background_df)[1]==1) {#if Introduction exist ONE time
+      new_font_section<-background_df$Font
+      #section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
+      for (vector_title in list_of_sections) {
+        section_title_df<-rbind(section_title_df, find_section_titles(vector_title, new_font_section, df_poppler))
+      }
+    } 
     }
   return(section_title_df)
 }
@@ -729,7 +748,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<-"Yu, J et al 2014.pdf"
+pdf_name<-"You, J et al 2014.pdf"
 
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
