@@ -788,6 +788,14 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
     }
 }
 
+remove_bibliography<- function(x) {
+  occurrences<-which(lower_but_first_letter(x$token) %in% c("References"))
+  if (length(occurrences)==1) {
+    x<-x[1:(occurrences+1),]
+  }
+  return(x)
+}
+
 #######
 
 
@@ -802,6 +810,7 @@ pdf_name<-"Yao, M Z et al 2016.pdf"
 #10197   doc1            1         588 [ 43 ] C. Backes, Results and Discussion.        9 Discussion discussion PROPN
 #xpos       feats head_token_id dep_rel deps          misc
 #10197  NNP Number=Sing             4    conj <NA> SpaceAfter=No
+#In this 
 
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
@@ -845,8 +854,10 @@ section_title_df<-ad_hoc_reorder(section_title_df)
 
 #dataframe with the Sections title in order of appereance in the article, and their position in x
 #positions_sections_df<-locate_sections_position(x, section_title_df)
+x<-remove_bibliography(x) #"Yao, M Z et al 2016.pdf"
 positions_sections_df<-locate_sections_position_debug(x, section_title_df)
 check_sections_df(positions_sections_df)
+
 material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
 
 #saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
@@ -859,7 +870,7 @@ print(tail(unique(material_and_method_section$sentence), 10))
 
 
 pdf_list<-list.files(pattern = "\\.pdf$")
-pdf_list<-rev(pdf_list)
+#pdf_list<-rev(pdf_list)
 
 extract_material_and_methods <- function(pdf_name) {
 
@@ -889,6 +900,7 @@ extract_material_and_methods <- function(pdf_name) {
                            c("Background", "BACKGROUND"),
                            c("Experimental", "EXPERIMENTAL", "Experiment"), #Experiment :Yu, Z et al 2013.pdf
                            c("Supplementary", "SUPPLEMENTARY"),
+                           c("Appendix"),
                            c("Section", "SECTION")
   )
 
@@ -927,7 +939,72 @@ run_tests_with_error_count <- function(pdf_list, pdf_to_ignore) {
   }
 
 
+extract_mm_bib_removed <- function(pdf_name) {
+  
+  #txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
+  txt_pdf <- extract_text(pdf_name)
+  txt_pdf <- repair_txt(txt_pdf)
+  
+  x<-annotate_txt_pdf(txt_pdf)   #create the dataframe for NLP using udpipe
+  
+  #read the output from poppler and create the dataframe with words, font and fontsize
+  df_poppler<-read_outpout_poppler(pdf_name)
+  
+  #identify the font of the section, first by looking at references and then at Acknowledgement
+  font_section<-identify_font(df_poppler)
+  
+  #the sections what the script will try to identify in the doppler output
+  list_of_sections <- list(c("Introduction", "INTRODUCTION"),
+                           c("Materials", "Material", "materials", "material", "MATERIALS", "MATERIAL"),
+                           c("Methods", "Method", "methods", "method", "METHODS", "METHOD"),
+                           c("Acknowledgements", "Acknowledgments", "ACKNOWLEDGEMENTS", "ACKNOWLEDGMENTS",
+                             "Acknowledgement", "Acknowledgment", "ACKNOWLEDGEMENT", "ACKNOWLEDGMENT"),
+                           c("References", "REFERENCES"),
+                           c("Results", "RESULTS"),
+                           c("Discussion", "DISCUSSION", "discussion"),
+                           c("Abstract", "ABSTRACT"),
+                           c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"),
+                           c("Background", "BACKGROUND"),
+                           c("Experimental", "EXPERIMENTAL", "Experiment"), #Experiment :Yu, Z et al 2013.pdf
+                           c("Supplementary", "SUPPLEMENTARY"),
+                           c("Appendix"),
+                           c("Section", "SECTION")
+  )
+  
+  df_poppler<-clean_font_txt(df_poppler)
+  section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
+  section_title_df<-clean_title_journal(pdf_name, section_title_df)
+  section_title_df<-ad_hoc_reorder(section_title_df)
+  
+  x<-remove_bibliography(x) #"Yao, M Z et al 2016.pdf"
+  positions_sections_df<-locate_sections_position(x, section_title_df)
+  check_sections_df(positions_sections_df)
+  
+  material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
+  
+  #name<-strsplit(string, "/" )[[1]] #seriously R ?
+  #saveRDS(material_section, file = paste0("Material_and_Methods_Section/" , paste0(name[3], ".rds")))
+  saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
+  
+  
+}
 
+run_tests_with_error_count_bib_removed <- function(pdf_list, pdf_to_ignore) {
+  error_counter<<-0
+  for (pdf_name in pdf_list){
+    print(pdf_name)
+    if (pdf_name %in% pdf_to_ignore){next}
+    res<- try(extract_mm_bib_removed(pdf_name))
+    
+    if (class(res) == "try-error"){
+      #print(pdf_name)
+      error_counter<<-error_counter+1
+    }
+  }
+  print("Error on biodistribution :")
+  print(error_counter)
+  return(error_counter)
+}
 
 pdf_to_ignore<-c("Huang X et al 2013.pdf", #Supporting information
                  "Durantie, E et al 2017.pdf", #SupplementaryInformation
@@ -943,8 +1020,8 @@ pdf_to_ignore<-c("Huang X et al 2013.pdf", #Supporting information
 
 
 
-run_tests_with_error_count(pdf_list, pdf_to_ignore)
 
+errors<-run_tests_with_error_count(pdf_list, pdf_to_ignore)
 
-
+errors_without_bib<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
 
