@@ -604,6 +604,33 @@ grep_head_token <- function(x, index){
   return(lemma_head_token_id)
 }
 
+ad_hoc_reorder <- function(section_title_df) {
+  # in Smulders, S et al 2015.pdf the following problem when using poppler was encountered :
+  # > section_title_df
+  # Word                   Font   Size
+  # 543      Introduction CLNCIJ+AdvOT18499c10.B 7.9702
+  # 1089        Materials CLNCIJ+AdvOT18499c10.B 7.9702
+  # 1091          Methods CLNCIJ+AdvOT18499c10.B 7.9702
+  # 1787          Results CLNCIJ+AdvOT18499c10.B 7.9702
+  # 2263       Discussion CLNCIJ+AdvOT18499c10.B 7.9702
+  # 3447 Acknowledgements CLNCIJ+AdvOT18499c10.B 7.9702
+  # 3449       Conclusion CLNCIJ+AdvOT18499c10.B 7.9702
+  # 3624    Supplementary CLNCIJ+AdvOT18499c10.B 7.9702
+  # 3642       References CLNCIJ+AdvOT18499c10.B 7.9702
+  #
+  #This lead to crash downstream since Conclusion is placed before for a human reader and for the tabulizer
+  
+  pos_conclusion<-which(capitalize_first_letter(section_title_df$Word)=="Conclusion")
+  pos_ack<-which(capitalize_first_letter(section_title_df$Word) %in% c("Acknowledgements", "Acknowledgments"))
+  if (pos_ack<pos_conclusion) {
+    #it is swapping time
+    section_title_df$Word[c(pos_conclusion,pos_ack)]=section_title_df$Word[c(pos_ack,pos_conclusion)]
+  }
+  
+  return(section_title_df)
+}
+
+
 ## Debug func
 
 locate_sections_position_debug<- function(x, section_title_df){
@@ -748,7 +775,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf" 
 
-pdf_name<-"Wang, Y et al 2008.pdf"
+pdf_name<-"Smulders, S et al 2015.pdf"
 
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
@@ -786,6 +813,7 @@ list_of_sections <- list(c("Introduction", "INTRODUCTION"),
 
 section_title_df<-create_section_title_df_debug(font_section, list_of_sections, df_poppler)
 section_title_df<-clean_title_journal(pdf_name, section_title_df)
+section_title_df<-ad_hoc_reorder(section_title_df)
 
 #dataframe with the Sections title in order of appereance in the article, and their position in x
 #positions_sections_df<-locate_sections_position(x, section_title_df)
@@ -803,6 +831,7 @@ print(tail(unique(material_and_method_section$sentence), 10))
 
 
 pdf_list<-list.files(pattern = "\\.pdf$")
+#pdf_list<-rev(pdf_list)
 
 extract_material_and_methods <- function(pdf_name) {
   
@@ -887,42 +916,42 @@ run_tests_with_error_count(pdf_list, pdf_to_ignore)
 
 
 #Run in parallel while commenting the rest of the executable code 
-setwd("Test_env/")
-
-pdf_list<-list.files(pattern = "\\.pdf$")
-
-pdf_to_ignore<-c("Huang X et al 2013.pdf", #Supporting information 
-                 "Durantie, E et al 2017.pdf", #SupplementaryInformation
-                 "Heringa, M B et al 2016.pdf", #no material and method
-                 "Katsnelson, B A et al 2011.pdf", #problem with poppler section
-                 "Jensen, A I et al 2017.pdf", #problem with poppler section
-                 "Kim, Y R et al 2014.pdf", #review + material in table
-                 "Mangalampalli, B et al 2018.pdf" #problem with poppler section
-)
-
-
-library(parallel)
-
-run_a_test <- function(pdf_list, pdf_to_ignore) {
-  #print(pdf_name)
-  if (pdf_name %in% pdf_to_ignore){return(0)}
-  res<- try(extract_material_and_methods(pdf_name))
-  if (class(res) == "try-error"){
-    print(pdf_name)
-    return(1)
-  }
-  return(0)
-}
-
-print("Start parallel computing")
-res<-mclapply(pdf_list, run_a_test, pdf_to_ignore, mc.cores=8)
-
-
-
-
-print("errors :")
-print(sum(unlist(res)))
-
+# setwd("Test_env/")
+# 
+# pdf_list<-list.files(pattern = "\\.pdf$")
+# 
+# pdf_to_ignore<-c("Huang X et al 2013.pdf", #Supporting information 
+#                  "Durantie, E et al 2017.pdf", #SupplementaryInformation
+#                  "Heringa, M B et al 2016.pdf", #no material and method
+#                  "Katsnelson, B A et al 2011.pdf", #problem with poppler section
+#                  "Jensen, A I et al 2017.pdf", #problem with poppler section
+#                  "Kim, Y R et al 2014.pdf", #review + material in table
+#                  "Mangalampalli, B et al 2018.pdf", #problem with poppler section
+#                  "Wang, Y et al 2008.pdf" #special caracters in output of df_popplers
+# )
+# 
+# 
+# library(parallel)
+# 
+# run_a_test <- function(pdf_list, pdf_to_ignore) {
+#   #print(pdf_name)
+#   if (pdf_name %in% pdf_to_ignore){return(0)}
+#   res<- try(extract_material_and_methods(pdf_name))
+#   if (class(res) == "try-error"){
+#     print(pdf_name)
+#     return(1)
+#   }
+#   return(0)
+# }
+# 
+# print("Start parallel computing")
+# res<-mclapply(pdf_list, run_a_test, pdf_to_ignore, mc.cores=8)
+# 
+# 
+# 
+# 
+# print("errors :")
+# print(sum(unlist(res)))
 
 
 
