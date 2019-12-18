@@ -95,6 +95,10 @@ identify_font <- function(df_poppler) {
   
   #needed in this function, but would be redo outside
   #addition of capitalize() to be able to identify "REFERENCES"
+  
+  font_sections<-"void" #so the fonction can send something back if there is nothing
+                        #after the function will rerun reidentify font if there is a problem
+  
   reference_df<-df_poppler[which(capitalize_first_letter(df_poppler$Word) %in% c("References")),]
   ack_df<-df_poppler[which(capitalize_first_letter(df_poppler$Word) %in% 
                              c("Acknowledgements", "Acknowledgments",
@@ -789,7 +793,15 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"
 
-pdf_name<-"Ukawala, M et al 2012.pdf"
+pdf_name<-"Yao, M Z et al 2016.pdf"
+
+#Bug because there is 
+
+#: [1] "filter_association_first_token_debug"
+#doc_id paragraph_id sentence_id                                  sentence token_id      token      lemma  upos
+#10197   doc1            1         588 [ 43 ] C. Backes, Results and Discussion.        9 Discussion discussion PROPN
+#xpos       feats head_token_id dep_rel deps          misc
+#10197  NNP Number=Sing             4    conj <NA> SpaceAfter=No
 
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
@@ -815,8 +827,9 @@ list_of_sections <- list(c("Introduction", "INTRODUCTION"),
                          c("Abstract", "ABSTRACT"),
                          c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"),
                          c("Background", "BACKGROUND"),
-                         c("Experimental", "EXPERIMENTAL"),
+                         c("Experimental", "EXPERIMENTAL", "Experiment"), #Experiment :Yu, Z et al 2013.pdf
                          c("Supplementary", "SUPPLEMENTARY"),
+                         c("Appendix"),
                          c("Section", "SECTION")
 )
 
@@ -828,12 +841,12 @@ df_poppler<-clean_font_txt(df_poppler)
 section_title_df<-create_section_title_df_debug(font_section, list_of_sections, df_poppler)
 section_title_df<-clean_title_journal(pdf_name, section_title_df)
 section_title_df<-ad_hoc_reorder(section_title_df)
-check_sections_df(positions_sections_df)
+
 
 #dataframe with the Sections title in order of appereance in the article, and their position in x
 #positions_sections_df<-locate_sections_position(x, section_title_df)
 positions_sections_df<-locate_sections_position_debug(x, section_title_df)
-
+check_sections_df(positions_sections_df)
 material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
 
 #saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
@@ -865,8 +878,7 @@ extract_material_and_methods <- function(pdf_name) {
   #the sections what the script will try to identify in the doppler output
   list_of_sections <- list(c("Introduction", "INTRODUCTION"),
                            c("Materials", "Material", "materials", "material", "MATERIALS", "MATERIAL"),
-                           #c("Methods", "Method", "methods", "method", "METHODS", "METHOD"),
-                           c("Methods", "methods", "METHODS"),
+                           c("Methods", "Method", "methods", "method", "METHODS", "METHOD"),
                            c("Acknowledgements", "Acknowledgments", "ACKNOWLEDGEMENTS", "ACKNOWLEDGMENTS",
                              "Acknowledgement", "Acknowledgment", "ACKNOWLEDGEMENT", "ACKNOWLEDGMENT"),
                            c("References", "REFERENCES"),
@@ -875,7 +887,7 @@ extract_material_and_methods <- function(pdf_name) {
                            c("Abstract", "ABSTRACT"),
                            c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"),
                            c("Background", "BACKGROUND"),
-                           c("Experimental", "EXPERIMENTAL"),
+                           c("Experimental", "EXPERIMENTAL", "Experiment"), #Experiment :Yu, Z et al 2013.pdf
                            c("Supplementary", "SUPPLEMENTARY"),
                            c("Section", "SECTION")
   )
@@ -884,9 +896,10 @@ extract_material_and_methods <- function(pdf_name) {
   section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
   section_title_df<-clean_title_journal(pdf_name, section_title_df)
   section_title_df<-ad_hoc_reorder(section_title_df)
-  check_sections_df(positions_sections_df)
+  
   positions_sections_df<-locate_sections_position(x, section_title_df)
-
+  check_sections_df(positions_sections_df)
+  
   material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
 
   #name<-strsplit(string, "/" )[[1]] #seriously R ?
@@ -924,7 +937,8 @@ pdf_to_ignore<-c("Huang X et al 2013.pdf", #Supporting information
                  "Kim, Y R et al 2014.pdf", #review + material in table
                  "Mangalampalli, B et al 2018.pdf", #problem with poppler section
                  "Wang, Y et al 2008.pdf", #special caracters in output of df_popplers
-                 "Weissig, V et al 1998.pdf" #pdf is "empty", cannot be read, look more like a scan
+                 "Weissig, V et al 1998.pdf", #pdf is "empty", cannot be read, look more like a scan
+                 "Tam, Y T et al 2016.pdf" #not an article
 )
 
 
