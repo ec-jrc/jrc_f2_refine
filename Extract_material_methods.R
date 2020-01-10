@@ -299,6 +299,7 @@ extract_material_and_method_section <- function(x, positions_sections_df) {
   #It was also quite bug prone, and would require to think ahead all combinaisonm especially to extend this
   #function to result.
   positions_sections_df<-clean_section_title(positions_sections_df)
+  #for (i in 1:(length(positions_sections_df$section)-1)){
   for (i in 1:(length(positions_sections_df$section)-1)){
     if (grepl("material", positions_sections_df$section[i])){ 
       idx<-i
