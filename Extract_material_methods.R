@@ -796,12 +796,24 @@ remove_bibliography<- function(x) {
   return(x)
 }
 
+
+remove_reference_section<- function(section_title_df) {
+  #this function remove the references section and the one that came after in the section title df to avoid
+  #crash due to looking for inexisting section
+  idx<-which(lower_but_first_letter(section_title_df$Word) %in% c("References"))
+  if (length(occurrences)==1) {
+    section_title_df<-section_title_df[1:(idx-1),]
+  }
+  return(section_title_df)
+}
+
+
 #######
 
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"
 
-pdf_name<-"Yao, M Z et al 2016.pdf"
+pdf_name<-"Gao H et al 2013.pdf"
 
 #Bug because there is 
 
@@ -810,7 +822,9 @@ pdf_name<-"Yao, M Z et al 2016.pdf"
 #10197   doc1            1         588 [ 43 ] C. Backes, Results and Discussion.        9 Discussion discussion PROPN
 #xpos       feats head_token_id dep_rel deps          misc
 #10197  NNP Number=Sing             4    conj <NA> SpaceAfter=No
-#In this 
+
+
+### => func to remove bibliography
 
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
@@ -850,6 +864,7 @@ df_poppler<-clean_font_txt(df_poppler)
 section_title_df<-create_section_title_df_debug(font_section, list_of_sections, df_poppler)
 section_title_df<-clean_title_journal(pdf_name, section_title_df)
 section_title_df<-ad_hoc_reorder(section_title_df)
+section_title_df<-remove_reference_section(section_title_df)
 
 
 #dataframe with the Sections title in order of appereance in the article, and their position in x
@@ -975,6 +990,7 @@ extract_mm_bib_removed <- function(pdf_name) {
   section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
   section_title_df<-clean_title_journal(pdf_name, section_title_df)
   section_title_df<-ad_hoc_reorder(section_title_df)
+  section_title_df<-remove_reference_section(section_title_df)
   
   x<-remove_bibliography(x) #"Yao, M Z et al 2016.pdf"
   positions_sections_df<-locate_sections_position(x, section_title_df)
