@@ -314,7 +314,12 @@ extract_material_and_method_section <- function(x, positions_sections_df) {
     }
   }
   beginning_section<-positions_sections_df[idx,]$occurrences
-  end_section<-positions_sections_df[idx+1,]$occurrences
+  
+  if (length(positions_sections_df$occurrences)>=idx+1) {
+    end_section<-positions_sections_df[idx+1,]$occurrences
+  } else { #if the methods section is the last one of the article, just go until the end of x
+    end_section<-dim(x)[1]
+  }
   material_and_method_section<-x[beginning_section:(end_section-1),]
   return(material_and_method_section)
 }
@@ -649,6 +654,23 @@ check_sections_df <- function(positions_sections_df) {
   }
 }
 
+remove_bibliography<- function(x) {
+  occurrences<-which(lower_but_first_letter(x$token) %in% c("References"))
+  if (length(occurrences)==1) {
+    x<-x[1:(occurrences+1),]
+  }
+  return(x)
+}
+
+remove_reference_section<- function(section_title_df) {
+  #this function remove the references section and the one that came after in the section title df to avoid
+  #crash due to looking for inexisting section
+  idx<-which(lower_but_first_letter(section_title_df$Word) %in% c("References"))
+  if (length(idx)==1) {
+    section_title_df<-section_title_df[1:(idx-1),]
+  }
+  return(section_title_df)
+}
 
 # Debug func
 
@@ -788,43 +810,13 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
     }
 }
 
-remove_bibliography<- function(x) {
-  occurrences<-which(lower_but_first_letter(x$token) %in% c("References"))
-  if (length(occurrences)==1) {
-    x<-x[1:(occurrences+1),]
-  }
-  return(x)
-}
-
-
-remove_reference_section<- function(section_title_df) {
-  #this function remove the references section and the one that came after in the section title df to avoid
-  #crash due to looking for inexisting section
-  idx<-which(lower_but_first_letter(section_title_df$Word) %in% c("References"))
-  if (length(occurrences)==1) {
-    section_title_df<-section_title_df[1:(idx-1),]
-  }
-  return(section_title_df)
-}
-
 
 #######
 
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"
 
-pdf_name<-"Gao H et al 2013.pdf"
-
-#Bug because there is 
-
-#: [1] "filter_association_first_token_debug"
-#doc_id paragraph_id sentence_id                                  sentence token_id      token      lemma  upos
-#10197   doc1            1         588 [ 43 ] C. Backes, Results and Discussion.        9 Discussion discussion PROPN
-#xpos       feats head_token_id dep_rel deps          misc
-#10197  NNP Number=Sing             4    conj <NA> SpaceAfter=No
-
-
-### => func to remove bibliography
+pdf_name<-"Anselmo, A C 2015.pdf"
 
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
