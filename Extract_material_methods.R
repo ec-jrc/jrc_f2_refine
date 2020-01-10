@@ -300,7 +300,7 @@ extract_material_and_method_section <- function(x, positions_sections_df) {
   #function to result.
   positions_sections_df<-clean_section_title(positions_sections_df)
   #for (i in 1:(length(positions_sections_df$section)-1)){
-  for (i in 1:(length(positions_sections_df$section)-1)){
+  for (i in 1:(length(positions_sections_df$section))){
     if (grepl("material", positions_sections_df$section[i])){ 
       idx<-i
       break
@@ -655,13 +655,6 @@ check_sections_df <- function(positions_sections_df) {
   }
 }
 
-remove_bibliography<- function(x) {
-  occurrences<-which(lower_but_first_letter(x$token) %in% c("References"))
-  if (length(occurrences)==1) {
-    x<-x[1:(occurrences+1),]
-  }
-  return(x)
-}
 
 remove_reference_section<- function(section_title_df) {
   #this function remove the references section and the one that came after in the section title df to avoid
@@ -672,6 +665,23 @@ remove_reference_section<- function(section_title_df) {
   }
   return(section_title_df)
 }
+
+remove_bibliography<- function(x, section_title_df) {
+
+  occurrences<-which(lower_but_first_letter(x$token) %in% c("References"))
+  
+  # the following line is retaken from remove_reference_section() to ensure both are call at the same time
+  # this function must be called before remove_reference_section()
+  idx<-which(lower_but_first_letter(section_title_df$Word) %in% c("References"))
+  
+  if (length(occurrences)==1 & length(idx)==1) {
+    x<-x[1:(occurrences+1),]
+  }
+  return(x)
+}
+
+
+
 
 # Debug func
 
@@ -817,7 +827,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"
 
-pdf_name<-"Anselmo, A C 2015.pdf"
+pdf_name<-"Zhang, X et al 2011.pdf"
 
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
@@ -850,20 +860,21 @@ list_of_sections <- list(c("Introduction", "INTRODUCTION"),
 )
 
 #dataframe with Section name (word), font of the section, size of the of the font inside the poppler documents
-#section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
 
 df_poppler<-clean_font_txt(df_poppler)
 
-section_title_df<-create_section_title_df_debug(font_section, list_of_sections, df_poppler)
+#section_title_df<-create_section_title_df_debug(font_section, list_of_sections, df_poppler)
+section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
 section_title_df<-clean_title_journal(pdf_name, section_title_df)
 section_title_df<-ad_hoc_reorder(section_title_df)
-section_title_df<-remove_reference_section(section_title_df)
 
 
 #dataframe with the Sections title in order of appereance in the article, and their position in x
-#positions_sections_df<-locate_sections_position(x, section_title_df)
-x<-remove_bibliography(x) #"Yao, M Z et al 2016.pdf"
-positions_sections_df<-locate_sections_position_debug(x, section_title_df)
+x<-remove_bibliography(x, section_title_df)
+section_title_df<-remove_reference_section(section_title_df)
+
+#positions_sections_df<-locate_sections_position_debug(x, section_title_df)
+positions_sections_df<-locate_sections_position(x, section_title_df)
 check_sections_df(positions_sections_df)
 
 material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
@@ -877,7 +888,9 @@ print(tail(unique(material_and_method_section$sentence), 10))
 ##########
 
 
-pdf_list<-list.files(pattern = "\\.pdf$")
+
+pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
+
 #pdf_list<-rev(pdf_list)
 
 extract_material_and_methods <- function(pdf_name) {
@@ -924,7 +937,7 @@ extract_material_and_methods <- function(pdf_name) {
 
   #name<-strsplit(string, "/" )[[1]] #seriously R ?
   #saveRDS(material_section, file = paste0("Material_and_Methods_Section/" , paste0(name[3], ".rds")))
-  saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
+  #saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
 
 
   }
@@ -983,9 +996,10 @@ extract_mm_bib_removed <- function(pdf_name) {
   section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
   section_title_df<-clean_title_journal(pdf_name, section_title_df)
   section_title_df<-ad_hoc_reorder(section_title_df)
+
+  x<-remove_bibliography(x, section_title_df)
   section_title_df<-remove_reference_section(section_title_df)
   
-  x<-remove_bibliography(x) #"Yao, M Z et al 2016.pdf"
   positions_sections_df<-locate_sections_position(x, section_title_df)
   check_sections_df(positions_sections_df)
   
@@ -993,7 +1007,7 @@ extract_mm_bib_removed <- function(pdf_name) {
   
   #name<-strsplit(string, "/" )[[1]] #seriously R ?
   #saveRDS(material_section, file = paste0("Material_and_Methods_Section/" , paste0(name[3], ".rds")))
-  saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
+  #saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
   
   
 }
