@@ -531,6 +531,10 @@ repair_txt <- function(txt_pdf) {
   #https://stackoverflow.com/questions/9637278/r-tm-package-invalid-input-in-utf8towcs
   txt_pdf<-str_replace_all(txt_pdf,"[^[:graph:]]", " ")
   
+  #"Zhang, J et al 2013.pdf"
+  #View Article OnlineResults and discussion Characterization of nanoTiO 2 As shown in Fig.
+  txt_pdf<-str_replace_all(txt_pdf,"Online", "Online ")
+  
   return(txt_pdf)
 }
 
@@ -827,8 +831,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"
 
-pdf_name<-"Zhang, X et al 2011.pdf"
-
+pdf_name<-"Zhang, J et al 2013.pdf"
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
