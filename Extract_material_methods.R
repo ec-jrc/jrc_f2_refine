@@ -317,7 +317,7 @@ extract_material_and_method_section <- function(x, positions_sections_df) {
       idx<-i
       break
     }
-    if (grepl("methodolody", positions_sections_df$section[i])){
+    if (grepl("methodology", positions_sections_df$section[i])){
       idx<-i
       break
     }
@@ -839,7 +839,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"
 
-pdf_name<-"Meng, H et al 2007.pdf"
+pdf_name<-"Malik, N et al 2000.pdf"
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
@@ -866,7 +866,7 @@ list_of_sections <- list(c("Introduction", "INTRODUCTION"),
                          c("Background", "BACKGROUND"),
                          c("Experimental", "EXPERIMENTAL", "Experiment"), #Experiment :Yu, Z et al 2013.pdf
                          c("Supplementary", "SUPPLEMENTARY"),
-                         c("Methodolody"), #"Meng, H et al 2007.pdf"
+                         c("Methodology"), #"Meng, H et al 2007.pdf"
                          c("Appendix"),
                          c("Section", "SECTION")
 )
@@ -933,7 +933,7 @@ extract_material_and_methods <- function(pdf_name) {
                            c("Background", "BACKGROUND"),
                            c("Experimental", "EXPERIMENTAL", "Experiment"), #Experiment :Yu, Z et al 2013.pdf
                            c("Supplementary", "SUPPLEMENTARY"),
-                           c("Methodolody"), #"Meng, H et al 2007.pdf"
+                           c("Methodology"), #"Meng, H et al 2007.pdf"
                            c("Appendix"),
                            c("Section", "SECTION")
   )
@@ -1002,7 +1002,7 @@ extract_mm_bib_removed <- function(pdf_name) {
                            c("Background", "BACKGROUND"),
                            c("Experimental", "EXPERIMENTAL", "Experiment"), #Experiment :Yu, Z et al 2013.pdf
                            c("Supplementary", "SUPPLEMENTARY"),
-                           c("Methodolody"), #"Meng, H et al 2007.pdf"
+                           c("Methodology"), #"Meng, H et al 2007.pdf"
                            c("Appendix"),
                            c("Section", "SECTION")
   )
