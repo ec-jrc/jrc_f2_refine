@@ -313,6 +313,14 @@ extract_material_and_method_section <- function(x, positions_sections_df) {
       idx<-i
       break
     }
+    if (grepl("experiment", positions_sections_df$section[i])){
+      idx<-i
+      break
+    }
+    if (grepl("methodolody", positions_sections_df$section[i])){
+      idx<-i
+      break
+    }
   }
   beginning_section<-positions_sections_df[idx,]$occurrences
   
@@ -831,7 +839,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"
 
-pdf_name<-"Zhang, J et al 2013.pdf"
+pdf_name<-"Meng, H et al 2007.pdf"
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
@@ -858,6 +866,7 @@ list_of_sections <- list(c("Introduction", "INTRODUCTION"),
                          c("Background", "BACKGROUND"),
                          c("Experimental", "EXPERIMENTAL", "Experiment"), #Experiment :Yu, Z et al 2013.pdf
                          c("Supplementary", "SUPPLEMENTARY"),
+                         c("Methodolody"), #"Meng, H et al 2007.pdf"
                          c("Appendix"),
                          c("Section", "SECTION")
 )
@@ -924,9 +933,11 @@ extract_material_and_methods <- function(pdf_name) {
                            c("Background", "BACKGROUND"),
                            c("Experimental", "EXPERIMENTAL", "Experiment"), #Experiment :Yu, Z et al 2013.pdf
                            c("Supplementary", "SUPPLEMENTARY"),
+                           c("Methodolody"), #"Meng, H et al 2007.pdf"
                            c("Appendix"),
                            c("Section", "SECTION")
   )
+  
 
   df_poppler<-clean_font_txt(df_poppler)
   section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
@@ -948,16 +959,16 @@ extract_material_and_methods <- function(pdf_name) {
 run_tests_with_error_count <- function(pdf_list, pdf_to_ignore) {
   error_counter<<-0
   for (pdf_name in pdf_list){
-    print(pdf_name)
+    #print(pdf_name)
     if (pdf_name %in% pdf_to_ignore){next}
     res<- try(extract_material_and_methods(pdf_name))
 
   if (class(res) == "try-error"){
-      #print(pdf_name)
+      print(pdf_name)
       error_counter<<-error_counter+1
     }
   }
-  print("Error on biodistribution :")
+  print("Error on all articles :")
   print(error_counter)
   return(error_counter)
   }
@@ -991,9 +1002,11 @@ extract_mm_bib_removed <- function(pdf_name) {
                            c("Background", "BACKGROUND"),
                            c("Experimental", "EXPERIMENTAL", "Experiment"), #Experiment :Yu, Z et al 2013.pdf
                            c("Supplementary", "SUPPLEMENTARY"),
+                           c("Methodolody"), #"Meng, H et al 2007.pdf"
                            c("Appendix"),
                            c("Section", "SECTION")
   )
+  
   
   df_poppler<-clean_font_txt(df_poppler)
   section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
@@ -1027,7 +1040,7 @@ run_tests_with_error_count_bib_removed <- function(pdf_list, pdf_to_ignore) {
       error_counter<<-error_counter+1
     }
   }
-  print("Error on biodistribution :")
+  print("Error on all articles :")
   print(error_counter)
   return(error_counter)
 }
@@ -1041,7 +1054,9 @@ pdf_to_ignore<-c("Huang X et al 2013.pdf", #Supporting information
                  "Mangalampalli, B et al 2018.pdf", #problem with poppler section
                  "Wang, Y et al 2008.pdf", #special caracters in output of df_popplers
                  "Weissig, V et al 1998.pdf", #pdf is "empty", cannot be read, look more like a scan
-                 "Tam, Y T et al 2016.pdf" #not an article
+                 "Tam, Y T et al 2016.pdf", #not an article
+                 "Terentyuk, G 2009.pdf", #not an article
+                 "Stolnik, S et al 2001.pdf" #pdf is "empty", cannot be read, look more like a scan
 )
 
 
