@@ -248,6 +248,8 @@ locate_sections_position <- function(x, section_title_df){
 
   for (section in section_title_df$Word) {
     occurrences<-which(lower_but_first_letter(x$token) %in% section)
+    if (length(occurrences)==0){ #if several time the section name in the article
+      occurrences<-which(lower_but_first_letter(x$token) %in% lower_but_first_letter(section))} 
     occurrences<-eliminate_cf_occurrences(x, occurrences)
     occurrences<-missing_first_letter_section(x, section, occurrences)
     occurrences<-subset_occurrences(occurrences, positions_sections_df)
@@ -258,6 +260,7 @@ locate_sections_position <- function(x, section_title_df){
     if (length(occurrences)>1){ #if several time the section name in the article
       occurrences<-reduce_occurrences(x, occurrences, positions_sections_df, section_title_df)}
     positions_sections_df<-rbind(positions_sections_df, data.frame(section, occurrences))
+    positions_sections_df<-multiple_section_fix(positions_sections_df)
   }
   return(merging_section(positions_sections_df))}
 
@@ -692,7 +695,26 @@ remove_bibliography<- function(x, section_title_df) {
   return(x)
 }
 
-
+multiple_section_fix <- function(positions_sections_df) {
+  # > positions_sections_df
+  # section occurrences
+  # 1 Introduction         238
+  # 2      Results        1091
+  # 3   Discussion        4839
+  # 4   Discussion        9786
+  # 5   Discussion        9805
+  #to
+  # 1 Introduction         238
+  # 2      Results        1091
+  # 3   Discussion        4839
+  
+  df<-as.data.frame(table(positions_sections_df$section))
+  if (max(df$Freq)>1) {
+    new_size<-length(unique(positions_sections_df$section))
+    positions_sections_df<-positions_sections_df[1:new_size,]
+  }
+  return(positions_sections_df)
+}
 
 
 # Debug func
@@ -707,6 +729,8 @@ locate_sections_position_debug<- function(x, section_title_df){
     print("***** New section")
     print(section)
     occurrences<-which(lower_but_first_letter(x$token) %in% section)
+    if (length(occurrences)==0){ #if several time the section name in the article
+      occurrences<-which(lower_but_first_letter(x$token) %in% lower_but_first_letter(section))}
     print(occurrences)
     occurrences<-eliminate_cf_occurrences(x, occurrences)
     print(occurrences)
@@ -727,6 +751,7 @@ locate_sections_position_debug<- function(x, section_title_df){
       occurrences<-reduce_occurrences_debug(x, occurrences, positions_sections_df, section_title_df)}
     print(occurrences)
     positions_sections_df<-rbind(positions_sections_df, data.frame(section, occurrences))
+    positions_sections_df<-multiple_section_fix(positions_sections_df)
   }
   return(merging_section(positions_sections_df))}
 
@@ -839,7 +864,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"
 
-pdf_name<-"Malik, N et al 2000.pdf"
+pdf_name<-"Patil, R R et al 2011.pdf"
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
@@ -905,75 +930,6 @@ pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
 
 #pdf_list<-rev(pdf_list)
 
-extract_material_and_methods <- function(pdf_name) {
-
-  #txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
-  txt_pdf <- extract_text(pdf_name)
-  txt_pdf <- repair_txt(txt_pdf)
-
-  x<-annotate_txt_pdf(txt_pdf)   #create the dataframe for NLP using udpipe
-
-  #read the output from poppler and create the dataframe with words, font and fontsize
-  df_poppler<-read_outpout_poppler(pdf_name)
-
-  #identify the font of the section, first by looking at references and then at Acknowledgement
-  font_section<-identify_font(df_poppler)
-
-  #the sections what the script will try to identify in the doppler output
-  list_of_sections <- list(c("Introduction", "INTRODUCTION"),
-                           c("Materials", "Material", "materials", "material", "MATERIALS", "MATERIAL"),
-                           c("Methods", "Method", "methods", "method", "METHODS", "METHOD"),
-                           c("Acknowledgements", "Acknowledgments", "ACKNOWLEDGEMENTS", "ACKNOWLEDGMENTS",
-                             "Acknowledgement", "Acknowledgment", "ACKNOWLEDGEMENT", "ACKNOWLEDGMENT"),
-                           c("References", "REFERENCES"),
-                           c("Results", "RESULTS"),
-                           c("Discussion", "DISCUSSION", "discussion"),
-                           c("Abstract", "ABSTRACT"),
-                           c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"),
-                           c("Background", "BACKGROUND"),
-                           c("Experimental", "EXPERIMENTAL", "Experiment"), #Experiment :Yu, Z et al 2013.pdf
-                           c("Supplementary", "SUPPLEMENTARY"),
-                           c("Methodology"), #"Meng, H et al 2007.pdf"
-                           c("Appendix"),
-                           c("Section", "SECTION")
-  )
-  
-
-  df_poppler<-clean_font_txt(df_poppler)
-  section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
-  section_title_df<-clean_title_journal(pdf_name, section_title_df)
-  section_title_df<-ad_hoc_reorder(section_title_df)
-  
-  positions_sections_df<-locate_sections_position(x, section_title_df)
-  check_sections_df(positions_sections_df)
-  
-  material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
-
-  #name<-strsplit(string, "/" )[[1]] #seriously R ?
-  #saveRDS(material_section, file = paste0("Material_and_Methods_Section/" , paste0(name[3], ".rds")))
-  #saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
-
-
-  }
-
-run_tests_with_error_count <- function(pdf_list, pdf_to_ignore) {
-  error_counter<<-0
-  for (pdf_name in pdf_list){
-    #print(pdf_name)
-    if (pdf_name %in% pdf_to_ignore){next}
-    res<- try(extract_material_and_methods(pdf_name))
-
-  if (class(res) == "try-error"){
-      print(pdf_name)
-      error_counter<<-error_counter+1
-    }
-  }
-  print("Error on all articles :")
-  print(error_counter)
-  return(error_counter)
-  }
-
-
 extract_mm_bib_removed <- function(pdf_name) {
   
   #txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
@@ -1021,15 +977,14 @@ extract_mm_bib_removed <- function(pdf_name) {
   
   material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
   
-  #name<-strsplit(string, "/" )[[1]] #seriously R ?
-  #saveRDS(material_section, file = paste0("Material_and_Methods_Section/" , paste0(name[3], ".rds")))
-  #saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
+  saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
   
   
 }
 
 run_tests_with_error_count_bib_removed <- function(pdf_list, pdf_to_ignore) {
-  error_counter<<-0
+  error_counter<-0
+  articles_with_error<-c()
   for (pdf_name in pdf_list){
     print(pdf_name)
     if (pdf_name %in% pdf_to_ignore){next}
@@ -1037,13 +992,16 @@ run_tests_with_error_count_bib_removed <- function(pdf_list, pdf_to_ignore) {
     
     if (class(res) == "try-error"){
       #print(pdf_name)
-      error_counter<<-error_counter+1
+      error_counter<-error_counter+1
+      articles_with_error<-c(articles_with_error, pdf_name)
     }
+
   }
   print("Error on all articles :")
   print(error_counter)
-  return(error_counter)
+  return(list("errors"=error_counter, "articles"=articles_with_error))
 }
+
 
 pdf_to_ignore<-c("Huang X et al 2013.pdf", #Supporting information
                  "Durantie, E et al 2017.pdf", #SupplementaryInformation
@@ -1056,13 +1014,79 @@ pdf_to_ignore<-c("Huang X et al 2013.pdf", #Supporting information
                  "Weissig, V et al 1998.pdf", #pdf is "empty", cannot be read, look more like a scan
                  "Tam, Y T et al 2016.pdf", #not an article
                  "Terentyuk, G 2009.pdf", #not an article
-                 "Stolnik, S et al 2001.pdf" #pdf is "empty", cannot be read, look more like a scan
+                 "Stolnik, S et al 2001.pdf", #pdf is "empty", cannot be read, look more like a scan
+                 "Li, Z et al 2005.pdf" #a book inside lung
 )
 
 
 
+pdf_to_ignore<-c("Li, Z et al 2005.pdf" #a book inside lung
+)
 
-errors<-run_tests_with_error_count(pdf_list, pdf_to_ignore)
 
-errors_without_bib<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+
+setwd("~/Dev_pdf_poppler_output/Biodistribution/")
+pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
+res_Biodistribution<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+file.copy(res_Biodistribution$articles, "/home/NET1/rollaet/Articles_bug/")
+gc()
+
+setwd("~/Dev_pdf_poppler_output/Cardiotoxicity/")
+pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
+res_Cardiotoxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+file.copy(res_Cardiotoxicity$articles, "/home/NET1/rollaet/Articles_bug/")
+
+gc()
+
+setwd("~/Dev_pdf_poppler_output/Genotoxicity/")
+pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
+res_Genotoxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+file.copy(res_Genotoxicity$articles, "/home/NET1/rollaet/Articles_bug/")
+
+gc()
+
+
+setwd("~/Dev_pdf_poppler_output/Heamcompatibility/")
+pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
+res_Heamcompatibility<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+file.copy(res_Heamcompatibility$articles, "/home/NET1/rollaet/Articles_bug/")
+
+gc()
+
+setwd("~/Dev_pdf_poppler_output/Immune Effects/")
+pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
+res_Immune_Effects<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+file.copy(res_Immune_Effects$articles, "/home/NET1/rollaet/Articles_bug/")
+
+gc()
+
+setwd("~/Dev_pdf_poppler_output/Liver Toxicity/")
+pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
+res_Liver_Toxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+file.copy(res_Liver_Toxicity$articles, "/home/NET1/rollaet/Articles_bug/")
+
+gc()
+
+setwd("~/Dev_pdf_poppler_output/Lung Toxicity/")
+pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
+res_Lung_Toxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+file.copy(res_Lung_Toxicity$articles, "/home/NET1/rollaet/Articles_bug/")
+
+gc()
+
+setwd("~/Dev_pdf_poppler_output/Nephrotoxicity/")
+pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
+res_Nephrotoxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+file.copy(res_Nephrotoxicity$articles, "/home/NET1/rollaet/Articles_bug/")
+
+gc()
+
+setwd("~/Dev_pdf_poppler_output/Neurotoxicity/")
+pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
+res_Neurotoxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+file.copy(res_Neurotoxicity$articles, "/home/NET1/rollaet/Articles_bug/")
+
+gc()
+
+
 
