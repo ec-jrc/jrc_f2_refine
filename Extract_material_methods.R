@@ -546,6 +546,15 @@ repair_txt <- function(txt_pdf) {
   #View Article OnlineResults and discussion Characterization of nanoTiO 2 As shown in Fig.
   txt_pdf<-str_replace_all(txt_pdf,"Online", "Online ")
   
+  #"To gather all these points, iodine-based nano-\nemulsions, have recently been developed showing huge
+  #stabil-\nity, high biocompatibility and great potential in medical ap-\nplications, such as image-guided 
+  #surgery, advanced diagnosis\n(e.g., to recognize tumor regions), personalized medicine or\ntheragnostics."
+  
+  #"To gather all these points, iodine-based nanoemulsions, have recently been developed showing huge stability,
+  #high biocompatibility and great potential in medical applications, such as image-guided surgery, advanced 
+  #diagnosis\n(e.g., to recognize tumor regions), personalized medicine or\ntheragnostics."
+  txt_pdf<-gsub("\\b\\-\n", "", txt_pdf, perl=TRUE)
+
   return(txt_pdf)
 }
 
@@ -670,7 +679,6 @@ check_sections_df <- function(positions_sections_df) {
   }
 }
 
-
 remove_reference_section<- function(section_title_df) {
   #this function remove the references section and the one that came after in the section title df to avoid
   #crash due to looking for inexisting section
@@ -715,6 +723,34 @@ multiple_section_fix <- function(positions_sections_df) {
   }
   return(positions_sections_df)
 }
+
+extract_result_section <- function(x, positions_sections_df) {
+  #Clone of the function extract material and method
+  positions_sections_df<-clean_section_title(positions_sections_df)
+  
+  for (i in 1:(length(positions_sections_df$section))){
+    if (grepl("result", positions_sections_df$section[i])){ 
+      idx<-i
+      break
+    }
+    if (grepl("results", positions_sections_df$section[i])){
+      idx<-i
+      break
+    }
+  }
+  beginning_section<-positions_sections_df[idx,]$occurrences
+  
+  if (length(positions_sections_df$occurrences)>=idx+1) {
+    end_section<-positions_sections_df[idx+1,]$occurrences
+  } else { #if the methods section is the last one of the article, just go until the end of x
+    end_section<-dim(x)[1]
+  }
+  result_section<-x[beginning_section:(end_section-1),]
+  return(result_section)
+}
+
+
+
 
 
 # Debug func
@@ -864,7 +900,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"
 
-pdf_name<-"Patil, R R et al 2011.pdf"
+pdf_name<-"Attia MF et al 2016.pdf"
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
@@ -915,7 +951,9 @@ positions_sections_df<-locate_sections_position(x, section_title_df)
 check_sections_df(positions_sections_df)
 
 material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
+result_section<-extract_result_section(x, positions_sections_df)
 
+#write.table(unique(result_section$sentence), "Result_Elgharabawy, R M et al 2018.txt", append = FALSE, sep = "\n", dec = ".", row.names = FALSE, col.names = FALSE)
 #saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
 
 
@@ -930,7 +968,7 @@ pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
 
 #pdf_list<-rev(pdf_list)
 
-extract_mm_bib_removed <- function(pdf_name) {
+extract_material_methods <- function(pdf_name) {
   
   #txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
   txt_pdf <- extract_text(pdf_name)
@@ -976,8 +1014,62 @@ extract_mm_bib_removed <- function(pdf_name) {
   check_sections_df(positions_sections_df)
   
   material_and_method_section<-extract_material_and_method_section(x, positions_sections_df)
+  #result_section<-extract_result_section(x, positions_sections_df)
   
   saveRDS(material_and_method_section, file = paste0("Material_and_Methods_Section/" , paste0(pdf_name, ".rds")))
+  #saveRDS(result_section, file = paste0("Result_Section/" , paste0(pdf_name, ".rds")))
+  
+  
+}
+
+extract_results <- function(pdf_name) {
+  
+  #txt_pdf <-tabulizer::extract_text(pdf_name) #read the text from the pdf
+  txt_pdf <- extract_text(pdf_name)
+  txt_pdf <- repair_txt(txt_pdf)
+  
+  x<-annotate_txt_pdf(txt_pdf)   #create the dataframe for NLP using udpipe
+  
+  #read the output from poppler and create the dataframe with words, font and fontsize
+  df_poppler<-read_outpout_poppler(pdf_name)
+  
+  #identify the font of the section, first by looking at references and then at Acknowledgement
+  font_section<-identify_font(df_poppler)
+  
+  #the sections what the script will try to identify in the doppler output
+  list_of_sections <- list(c("Introduction", "INTRODUCTION"),
+                           c("Materials", "Material", "materials", "material", "MATERIALS", "MATERIAL"),
+                           c("Methods", "Method", "methods", "method", "METHODS", "METHOD"),
+                           c("Acknowledgements", "Acknowledgments", "ACKNOWLEDGEMENTS", "ACKNOWLEDGMENTS",
+                             "Acknowledgement", "Acknowledgment", "ACKNOWLEDGEMENT", "ACKNOWLEDGMENT"),
+                           c("References", "REFERENCES"),
+                           c("Results", "RESULTS"),
+                           c("Discussion", "DISCUSSION", "discussion"),
+                           c("Abstract", "ABSTRACT"),
+                           c("Conclusions", "Conclusion", "CONCLUSION", "CONCLUSIONS"),
+                           c("Background", "BACKGROUND"),
+                           c("Experimental", "EXPERIMENTAL", "Experiment"), #Experiment :Yu, Z et al 2013.pdf
+                           c("Supplementary", "SUPPLEMENTARY"),
+                           c("Methodology"), #"Meng, H et al 2007.pdf"
+                           c("Appendix"),
+                           c("Section", "SECTION")
+  )
+  
+  
+  df_poppler<-clean_font_txt(df_poppler)
+  section_title_df<-create_section_title_df(font_section, list_of_sections, df_poppler)
+  section_title_df<-clean_title_journal(pdf_name, section_title_df)
+  section_title_df<-ad_hoc_reorder(section_title_df)
+  
+  x<-remove_bibliography(x, section_title_df)
+  section_title_df<-remove_reference_section(section_title_df)
+  
+  positions_sections_df<-locate_sections_position(x, section_title_df)
+  check_sections_df(positions_sections_df)
+  
+  result_section<-extract_result_section(x, positions_sections_df)
+  
+  saveRDS(result_section, file = paste0("Result_Section/" , paste0(pdf_name, ".rds")))
   
   
 }
@@ -988,7 +1080,7 @@ run_tests_with_error_count_bib_removed <- function(pdf_list, pdf_to_ignore) {
   for (pdf_name in pdf_list){
     print(pdf_name)
     if (pdf_name %in% pdf_to_ignore){next}
-    res<- try(extract_mm_bib_removed(pdf_name))
+    res<- try(extract_material_methods(pdf_name))
     
     if (class(res) == "try-error"){
       #print(pdf_name)
@@ -1002,91 +1094,222 @@ run_tests_with_error_count_bib_removed <- function(pdf_list, pdf_to_ignore) {
   return(list("errors"=error_counter, "articles"=articles_with_error))
 }
 
+run_extraction_results <- function(pdf_list, pdf_to_ignore) {
+  error_counter<-0
+  articles_with_error<-c()
+  for (pdf_name in pdf_list){
+    print(pdf_name)
+    if (pdf_name %in% pdf_to_ignore){next}
+    res <- try(extract_results(pdf_name))
+    
+    if (class(res) == "try-error"){
+      #print(pdf_name)
+      error_counter<-error_counter+1
+      articles_with_error<-c(articles_with_error, pdf_name)
+    }
+    
+  }
+  print("Error on all articles :")
+  print(error_counter)
+  return(list("errors"=error_counter, "articles"=articles_with_error))
+}
 
-pdf_to_ignore<-c("Huang X et al 2013.pdf", #Supporting information
-                 "Durantie, E et al 2017.pdf", #SupplementaryInformation
-                 "Heringa, M B et al 2016.pdf", #no material and method
-                 "Katsnelson, B A et al 2011.pdf", #problem with poppler section
-                 "Jensen, A I et al 2017.pdf", #problem with poppler section
-                 "Kim, Y R et al 2014.pdf", #review + material in table
-                 "Mangalampalli, B et al 2018.pdf", #problem with poppler section
-                 "Wang, Y et al 2008.pdf", #special caracters in output of df_popplers
-                 "Weissig, V et al 1998.pdf", #pdf is "empty", cannot be read, look more like a scan
-                 "Tam, Y T et al 2016.pdf", #not an article
-                 "Terentyuk, G 2009.pdf", #not an article
+
+# Dev :
+# pdf_to_ignore<-c("Huang X et al 2013.pdf", #Supporting information
+#                  "Durantie, E et al 2017.pdf", #SupplementaryInformation
+#                  "Heringa, M B et al 2016.pdf", #no material and method
+#                  "Katsnelson, B A et al 2011.pdf", #problem with poppler section
+#                  "Jensen, A I et al 2017.pdf", #problem with poppler section
+#                  "Kim, Y R et al 2014.pdf", #review + material in table
+#                  "Mangalampalli, B et al 2018.pdf", #problem with poppler section
+#                  "Wang, Y et al 2008.pdf", #special caracters in output of df_popplers
+#                  "Weissig, V et al 1998.pdf", #pdf is "empty", cannot be read, look more like a scan
+#                  "Tam, Y T et al 2016.pdf", #not an article
+#                  "Terentyuk, G 2009.pdf", #not an article
+#                  "Stolnik, S et al 2001.pdf", #pdf is "empty", cannot be read, look more like a scan
+#                  "Li, Z et al 2005.pdf" #a book inside lung
+# )
+
+
+pdf_to_ignore<-c("Durantie, E et al 2017.pdf", #SupplementaryInformation
+                 "Heringa, M B et al 2016.pdf", #no material and method #Introduction with 4 subparts
+                 "Huang X et al 2013.pdf", #Supporting information
                  "Stolnik, S et al 2001.pdf", #pdf is "empty", cannot be read, look more like a scan
-                 "Li, Z et al 2005.pdf" #a book inside lung
+                 "Tam, Y T et al 2016.pdf", #not an article, #communication
+                 "Terentyuk, G 2009.pdf", #not an article, #news room
+                 "Weissig, V et al 1998.pdf" #pdf is "empty", cannot be read, look more like a scan
+                 
 )
 
-
-
-pdf_to_ignore<-c("Li, Z et al 2005.pdf" #a book inside lung
-)
-
-
+#Biodistribution
 
 setwd("~/Dev_pdf_poppler_output/Biodistribution/")
 pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
 res_Biodistribution<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+res_Biodistribution_Results<-run_extraction_results(pdf_list, pdf_to_ignore)
 file.copy(res_Biodistribution$articles, "/home/NET1/rollaet/Articles_bug/")
+file.copy(gsub("pdf", "pdf.output_poppler.txt", res_Biodistribution$articles), "/home/NET1/rollaet/Articles_bug/")
 gc()
+
+
+#Cardiotoxicity
+
+
+pdf_to_ignore<-c("Eckardt, Kai-Uwe 2013.pdf", #not an article, communication
+                 "Holland N 2014.pdf" #PhD thesis
+)
 
 setwd("~/Dev_pdf_poppler_output/Cardiotoxicity/")
 pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
 res_Cardiotoxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+res_Cardiotoxicity_Results<-run_extraction_results(pdf_list, pdf_to_ignore)
 file.copy(res_Cardiotoxicity$articles, "/home/NET1/rollaet/Articles_bug/")
+file.copy(gsub("pdf", "pdf.output_poppler.txt", res_Cardiotoxicity$articles), "/home/NET1/rollaet/Articles_bug/")
+
 
 gc()
+
+# Genotoxicity
+
+pdf_to_ignore<-c("Kwon, J Y et al 2014.pdf", #not an article, erratum
+                 "Lv, H et al 2006.pdf", #Review
+                 "Ma Y et al 2016.pdf", #not an article ? scientific report #bug because no introduction and different
+                  #font between References and Aknowledgement and other section
+                 "Stone, V et al 2009.pdf", #review
+                 "Valdiglesias, V et al 2015.pdf", #review
+                 "Yoshida, R et al 2009.pdf" #letter
+)
 
 setwd("~/Dev_pdf_poppler_output/Genotoxicity/")
 pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
 res_Genotoxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+res_Genotoxicity_Results<-run_extraction_results(pdf_list, pdf_to_ignore)
 file.copy(res_Genotoxicity$articles, "/home/NET1/rollaet/Articles_bug/")
+file.copy(gsub("pdf", "pdf.output_poppler.txt", res_Genotoxicity$articles), "/home/NET1/rollaet/Articles_bug/")
 
 gc()
 
+#Hemato
+
+pdf_to_ignore<-c("Girard, D 2014.pdf", #letter
+                 "Helen Vallhov et al 2006.pdf", #letter
+                 "Jones C, Brooks AE et al 2012.pdf", #supplementary information
+                 "Juliano, RL 1983.pdf", #book, scanned
+                 "Semberova, J et al 2009.pdf", #letter
+                 "Thomson, H et al 2008.pdf", #correspondance
+                 "Zbinden, G 1989.pdf" ##book, scanned
+                 
+)
 
 setwd("~/Dev_pdf_poppler_output/Heamcompatibility/")
 pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
 res_Heamcompatibility<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+res_Heamcompatibility_Results<-run_extraction_results(pdf_list, pdf_to_ignore)
 file.copy(res_Heamcompatibility$articles, "/home/NET1/rollaet/Articles_bug/")
+file.copy(gsub("pdf", "pdf.output_poppler.txt", res_Heamcompatibility$articles), "/home/NET1/rollaet/Articles_bug/")
 
 gc()
+
+pdf_to_ignore<-c("Cheung, K L et al 2012.pdf", #Communication
+                 "Deng et al 2011.pdf", #Letter
+                 "Halets, I et al 2013.pdf", #Note
+                 "Inoue, K I et al 2011.pdf",#Communication or something like this
+                 "Journeay, W S et al 2014.pdf", #Weird Stuff
+                 "Junnila, S K 2015.pdf", #Med hypothesis
+                 "Lanone, S et al 2011.pdf", #Editorial
+                 "Moghimi, S M et al 2010.pdf", #Is this an article ? Crazy sections titles
+                 "Preedia Babu, E et al 2017.pdf", #Scientific report
+                 "Rolland, A et al 1995.pdf", #scan of an article
+                 "Shvedova, A A et al 2013.pdf", #communication
+                 "Szebeni, J 2005.pdf", #Is this an article ? Strange sections titles
+                 "Toyama, T et al 2008.pdf" #Case report
+                 
+)
 
 setwd("~/Dev_pdf_poppler_output/Immune Effects/")
 pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
 res_Immune_Effects<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+res_Immune_Effects_Results<-run_extraction_results(pdf_list, pdf_to_ignore)
 file.copy(res_Immune_Effects$articles, "/home/NET1/rollaet/Articles_bug/")
+file.copy(gsub("pdf", "pdf.output_poppler.txt", res_Immune_Effects$articles), "/home/NET1/rollaet/Articles_bug/")
 
 gc()
+
+pdf_to_ignore<-c("Yang, B et al 2010.pdf" #Abstracts
+                 
+)
+
 
 setwd("~/Dev_pdf_poppler_output/Liver Toxicity/")
 pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
 res_Liver_Toxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+res_Liver_Toxicity_Results<-run_extraction_results(pdf_list, pdf_to_ignore)
 file.copy(res_Liver_Toxicity$articles, "/home/NET1/rollaet/Articles_bug/")
+file.copy(gsub("pdf", "pdf.output_poppler.txt", res_Liver_Toxicity$articles), "/home/NET1/rollaet/Articles_bug/")
+
 
 gc()
+
+
+
+pdf_to_ignore<-c("Li, Z et al 2005.pdf", #a book inside lung
+                 "Braakhuis H M, Park M et al 2014.pdf", #Review
+                 "Chen, H et al 2017.pdf", #Supplemental table
+                 "Erdely A et al 2009.pdf", #Nano letter
+                 "Fytianos, K et al 2016.pdf", #Letter
+                 "Gilbert, N 2009.pdf", #News
+                 "Inoue K 2011.pdf", #Review
+                 "Inoue K, Takano H 2011.pdf", #Review
+                 "Li, Junyi et al 2016.pdf", #Scientific Report
+                 "Liu, H-L L et al 2011.pdf", #Supplemental data
+                 "Wu, Tianshu 2014.pdf" #Review
+                 
+)
 
 setwd("~/Dev_pdf_poppler_output/Lung Toxicity/")
 pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
 res_Lung_Toxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+res_Lung_Toxicity_Results<-run_extraction_results(pdf_list, pdf_to_ignore)
 file.copy(res_Lung_Toxicity$articles, "/home/NET1/rollaet/Articles_bug/")
+file.copy(gsub("pdf", "pdf.output_poppler.txt", res_Lung_Toxicity$articles), "/home/NET1/rollaet/Articles_bug/")
 
 gc()
+
+pdf_to_ignore<-c("")
+
 
 setwd("~/Dev_pdf_poppler_output/Nephrotoxicity/")
 pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
 res_Nephrotoxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+res_Nephrotoxicity_Results<-run_extraction_results(pdf_list, pdf_to_ignore)
 file.copy(res_Nephrotoxicity$articles, "/home/NET1/rollaet/Articles_bug/")
+file.copy(gsub("pdf", "pdf.output_poppler.txt", res_Nephrotoxicity$articles), "/home/NET1/rollaet/Articles_bug/")
 
 gc()
+
+
+pdf_to_ignore<-c("Boyes WK et al 2012.pdf", # Summary of a symposium
+                 "Dobson A et al 2012.pdf", #can't be read
+                 "Wang, J et al 2007.pdf", #Article in chinese
+                 "Zhang, Q L et al 2011.pdf", #Scan of article
+                 "Zhang, Y et al 2013.pdf" #Communication
+                 
+                 
+)
 
 setwd("~/Dev_pdf_poppler_output/Neurotoxicity/")
 pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
 res_Neurotoxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+res_Neurotoxicity_Results<-run_extraction_results(pdf_list, pdf_to_ignore)
 file.copy(res_Neurotoxicity$articles, "/home/NET1/rollaet/Articles_bug/")
+file.copy(gsub("pdf", "pdf.output_poppler.txt", res_Neurotoxicity$articles), "/home/NET1/rollaet/Articles_bug/")
 
 gc()
+
+
+
+
 
 
 
