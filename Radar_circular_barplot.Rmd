@@ -3,10 +3,10 @@ title: "Radar plot, Circular Plot"
 author: "Etienne Rolland"
 date: "21/01/2020"
 output: 
-  # github_document:
-  #   toc: true
-  html_document :
+  github_document:
     toc: true
+  # html_document :
+  #   toc: true
 ---
 
 # Content of this Rmarkdown document
