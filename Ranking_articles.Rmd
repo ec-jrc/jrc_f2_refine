@@ -11,7 +11,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r include=FALSE}
@@ -36,7 +36,8 @@ create_quality_df <- function(material_characterisation) {
   #nb_technical_aspect<-length(material_characterisation)
   technical_aspect<-names(material_characterisation)
   names_columns<-c("Article_name", technical_aspect)
-  
+  names_columns<-c("Folder_name", technical_aspect)
+
   
   quality_evaluation_df<-as.data.frame(matrix(ncol=length(names_columns), 
                                               byrow=TRUE))
@@ -46,11 +47,12 @@ create_quality_df <- function(material_characterisation) {
   return(quality_evaluation_df)
 }
 
-init_quality_df <- function(quality_evaluation_df, pdf_name) {
+init_quality_df <- function(quality_evaluation_df, pdf_name, folder_name) {
   #create empty dataframe is such a pain in R
   #initiate the quality_df dataframe, i.e., add zero everywhere and the pdf name,
   #for the first iteration of the loop
   quality_evaluation_df[["Article_name"]]<-pdf_name
+  quality_evaluation_df[["Folder_name"]]<-folder_name
   quality_evaluation_df[is.na(quality_evaluation_df)] = 0
   
   return(quality_evaluation_df)
@@ -116,12 +118,13 @@ attribute_ranking <- function(x, i, quality_evaluation_df, technical_aspect, wor
   return(quality_evaluation_df)
 }
 
-quality_assessment <- function(x, i, pdf_name, quality_evaluation_df, ontology_material_characterisation) {
+quality_assessment <- function(x, i, pdf_name, quality_evaluation_df, ontology_material_characterisation, folder_name) {
   if (first_iteration(i)) {
-    quality_evaluation_df<-init_quality_df(quality_evaluation_df, pdf_name)
+    quality_evaluation_df<-init_quality_df(quality_evaluation_df, pdf_name, folder_name)
   } else {
     quality_evaluation_df<-rbind(quality_evaluation_df, c(0))
     quality_evaluation_df[i,]$Article_name<-pdf_name
+    quality_evaluation_df[i,]$Folder_name<-folder_name
   }
   for (technical_aspect in names(ontology_material_characterisation)) { #Size, surface area, etc
     for (word in ontology_material_characterisation[[technical_aspect]]) { #Diameter
@@ -228,8 +231,9 @@ run_assesment <- function(rds_list, ontology_material_characterisation, ontology
     i<-i+1
     x<-readRDS(file = paste0("~/Dev_pdf_poppler_output/", rds))
     pdf_name<-strsplit(rds, "/")[[1]][3]
+    folder_name<-strsplit(rds, "/")[[1]][1]
     pdf_name<-str_replace_all(pdf_name, ".rds", "")
-    quality_evaluation_df<-quality_assessment(x, i, pdf_name, quality_evaluation_df, ontology_material_characterisation)
+    quality_evaluation_df<-quality_assessment(x, i, pdf_name, quality_evaluation_df, ontology_material_characterisation, folder_name)
     quality_evaluation_df<-biological_condition_assessment(x, i, pdf_name, quality_evaluation_df, ontology_in_vitro_in_vivo) 
     if (first_iteration(i)) {
       quality_evaluation_df$Size_mm_section<-0 #size material and methods

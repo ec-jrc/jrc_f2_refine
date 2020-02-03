@@ -21,7 +21,8 @@ create_quality_df <- function(material_characterisation) {
   #nb_technical_aspect<-length(material_characterisation)
   technical_aspect<-names(material_characterisation)
   names_columns<-c("Article_name", technical_aspect)
-  
+  names_columns<-c("Folder_name", technical_aspect)
+
   
   quality_evaluation_df<-as.data.frame(matrix(ncol=length(names_columns), 
                                               byrow=TRUE))
@@ -31,11 +32,12 @@ create_quality_df <- function(material_characterisation) {
   return(quality_evaluation_df)
 }
 
-init_quality_df <- function(quality_evaluation_df, pdf_name) {
+init_quality_df <- function(quality_evaluation_df, pdf_name, folder_name) {
   #create empty dataframe is such a pain in R
   #initiate the quality_df dataframe, i.e., add zero everywhere and the pdf name,
   #for the first iteration of the loop
   quality_evaluation_df[["Article_name"]]<-pdf_name
+  quality_evaluation_df[["Folder_name"]]<-folder_name
   quality_evaluation_df[is.na(quality_evaluation_df)] = 0
   
   return(quality_evaluation_df)
@@ -101,12 +103,13 @@ attribute_ranking <- function(x, i, quality_evaluation_df, technical_aspect, wor
   return(quality_evaluation_df)
 }
 
-quality_assessment <- function(x, i, pdf_name, quality_evaluation_df, ontology_material_characterisation) {
+quality_assessment <- function(x, i, pdf_name, quality_evaluation_df, ontology_material_characterisation, folder_name) {
   if (first_iteration(i)) {
-    quality_evaluation_df<-init_quality_df(quality_evaluation_df, pdf_name)
+    quality_evaluation_df<-init_quality_df(quality_evaluation_df, pdf_name, folder_name)
   } else {
     quality_evaluation_df<-rbind(quality_evaluation_df, c(0))
     quality_evaluation_df[i,]$Article_name<-pdf_name
+    quality_evaluation_df[i,]$Folder_name<-folder_name
   }
   for (technical_aspect in names(ontology_material_characterisation)) { #Size, surface area, etc
     for (word in ontology_material_characterisation[[technical_aspect]]) { #Diameter
@@ -212,8 +215,9 @@ run_assesment <- function(rds_list, ontology_material_characterisation, ontology
     i<-i+1
     x<-readRDS(file = paste0("~/Dev_pdf_poppler_output/", rds))
     pdf_name<-strsplit(rds, "/")[[1]][3]
+    folder_name<-strsplit(rds, "/")[[1]][1]
     pdf_name<-str_replace_all(pdf_name, ".rds", "")
-    quality_evaluation_df<-quality_assessment(x, i, pdf_name, quality_evaluation_df, ontology_material_characterisation)
+    quality_evaluation_df<-quality_assessment(x, i, pdf_name, quality_evaluation_df, ontology_material_characterisation, folder_name)
     quality_evaluation_df<-biological_condition_assessment(x, i, pdf_name, quality_evaluation_df, ontology_in_vitro_in_vivo) 
     if (first_iteration(i)) {
       quality_evaluation_df$Size_mm_section<-0 #size material and methods
@@ -326,96 +330,96 @@ Finally, here is a sample of best ranked articles :
 head(df[order(df$Ranking, decreasing = TRUE),], 30)
 ```
 
-    ##                             Article_name Size Surface_area Surface_charge
-    ## 24           Chinde S, Chinde S 2017.pdf    1            1              1
-    ## 69               Kim, Y R et al 2014.pdf    1            1              1
-    ## 99       Mangalampalli, B et al 2017.pdf    1            1              1
-    ## 114         Oliveira, L T et al 2017.pdf    1            1              1
-    ## 149           Singh S P, et al 2013b.pdf    1            1              1
-    ## 242              Cowie, H et al 2015.pdf    1            1              1
-    ## 273                 Lu, X et al 2016.pdf    1            1              1
-    ## 296            Singh, S P et al 2013.pdf    1            1              1
-    ## 298           Stoccoro, A et al 2016.pdf    1            1              1
-    ## 306            Wills, J W et al 2016.pdf    1            1              1
-    ## 534              Cho, W S et al 2011.pdf    1            1              1
-    ## 537                Gosens et al 2016.pdf    1            1              1
-    ## 539 Götz AA, Vidal-Puig A et al 2011.pdf    1            1              1
-    ## 540             Götz, A A et al 2011.pdf    1            1              1
-    ## 567                Schreiber, N 2016.pdf    1            1              1
-    ## 638                Liu, Y et al 2012.pdf    1            1              1
-    ## 654               Wang, Y et al 2011.pdf    1            1              1
-    ## 13               Bellusci et al 2014.pdf    1            1              0
-    ## 18                Chen, L et al 2017.pdf    1            0              1
-    ## 25              Chinde, S et al 2017.pdf    1            0              1
-    ## 27             Chung, E J et al 2015.pdf    1            0              1
-    ## 30                 Dam DH et al 2015.pdf    1            0              1
-    ## 33             Dekkers, S et al 2017.pdf    1            0              1
-    ## 52                  Hak S et al 2015.pdf    1            0              1
-    ## 53   Harivardhan Reddy, L et al 2005.pdf    1            0              1
-    ## 63             Hureaux, J et al 2017.pdf    1            1              1
-    ## 66            Jensen, A I et al 2017.pdf    1            0              1
-    ## 67                Kaur, A et al 2017.pdf    1            0              1
-    ## 72              Kumari, M et al 2014.pdf    1            0              1
-    ## 76               Lee, I C et al 2016.pdf    1            1              1
-    ##     Chemical_composition Aggregation In_vitro In_vivo Size_mm_section
-    ## 24                     1           1      Yes     Yes             167
-    ## 69                     1           1      Yes     Yes             142
-    ## 99                     1           1      Yes     Yes             163
-    ## 114                    1           1      Yes     Yes             190
-    ## 149                    1           1      Yes     Yes             142
-    ## 242                    1           1      Yes     Yes             108
-    ## 273                    1           1      Yes      No              45
-    ## 296                    1           1      Yes     Yes              93
-    ## 298                    1           1      Yes     Yes             145
-    ## 306                    1           1      Yes     Yes             684
-    ## 534                    1           1      Yes     Yes             153
-    ## 537                    1           1      Yes     Yes             164
-    ## 539                    1           1      Yes     Yes              45
-    ## 540                    1           1      Yes     Yes              70
-    ## 567                    1           1      Yes      No             274
-    ## 638                    1           1       No     Yes             126
-    ## 654                    1           1      Yes     Yes             129
-    ## 13                     1           1      Yes     Yes             111
-    ## 18                     1           1      Yes     Yes              38
-    ## 25                     1           1      Yes     Yes             170
-    ## 27                     1           1      Yes     Yes              69
-    ## 30                     1           1      Yes     Yes              62
-    ## 33                     1           1      Yes     Yes             169
-    ## 52                     1           1      Yes     Yes             105
-    ## 53                     1           1      Yes      No             100
-    ## 63                     1           0      Yes     Yes             129
-    ## 66                     1           1      Yes     Yes             313
-    ## 67                     1           1      Yes     Yes              88
-    ## 72                     1           1      Yes     Yes             169
-    ## 76                     0           1      Yes     Yes              92
-    ##     Ranking condition
-    ## 24        5     Mixed
-    ## 69        5     Mixed
-    ## 99        5     Mixed
-    ## 114       5     Mixed
-    ## 149       5     Mixed
-    ## 242       5     Mixed
-    ## 273       5 Not_mixed
-    ## 296       5     Mixed
-    ## 298       5     Mixed
-    ## 306       5     Mixed
-    ## 534       5     Mixed
-    ## 537       5     Mixed
-    ## 539       5     Mixed
-    ## 540       5     Mixed
-    ## 567       5 Not_mixed
-    ## 638       5 Not_mixed
-    ## 654       5     Mixed
-    ## 13        4     Mixed
-    ## 18        4     Mixed
-    ## 25        4     Mixed
-    ## 27        4     Mixed
-    ## 30        4     Mixed
-    ## 33        4     Mixed
-    ## 52        4     Mixed
-    ## 53        4 Not_mixed
-    ## 63        4     Mixed
-    ## 66        4     Mixed
-    ## 67        4     Mixed
-    ## 72        4     Mixed
-    ## 76        4     Mixed
+    ##         Folder_name Size Surface_area Surface_charge Chemical_composition
+    ## 24  Biodistribution    1            1              1                    1
+    ## 69  Biodistribution    1            1              1                    1
+    ## 99  Biodistribution    1            1              1                    1
+    ## 114 Biodistribution    1            1              1                    1
+    ## 149 Biodistribution    1            1              1                    1
+    ## 151 Biodistribution    1            1              1                    1
+    ## 242    Genotoxicity    1            1              1                    1
+    ## 273    Genotoxicity    1            1              1                    1
+    ## 296    Genotoxicity    1            1              1                    1
+    ## 298    Genotoxicity    1            1              1                    1
+    ## 306    Genotoxicity    1            1              1                    1
+    ## 534   Lung Toxicity    1            1              1                    1
+    ## 537   Lung Toxicity    1            1              1                    1
+    ## 539   Lung Toxicity    1            1              1                    1
+    ## 540   Lung Toxicity    1            1              1                    1
+    ## 567   Lung Toxicity    1            1              1                    1
+    ## 638   Neurotoxicity    1            1              1                    1
+    ## 654   Neurotoxicity    1            1              1                    1
+    ## 13  Biodistribution    1            1              0                    1
+    ## 18  Biodistribution    1            0              1                    1
+    ## 25  Biodistribution    1            0              1                    1
+    ## 27  Biodistribution    1            0              1                    1
+    ## 30  Biodistribution    1            0              1                    1
+    ## 33  Biodistribution    1            0              1                    1
+    ## 52  Biodistribution    1            0              1                    1
+    ## 53  Biodistribution    1            0              1                    1
+    ## 63  Biodistribution    1            1              1                    1
+    ## 66  Biodistribution    1            0              1                    1
+    ## 67  Biodistribution    1            0              1                    1
+    ## 72  Biodistribution    1            0              1                    1
+    ##     Aggregation                         Article_name In_vitro In_vivo
+    ## 24            1          Chinde S, Chinde S 2017.pdf      Yes     Yes
+    ## 69            1              Kim, Y R et al 2014.pdf      Yes     Yes
+    ## 99            1      Mangalampalli, B et al 2017.pdf      Yes     Yes
+    ## 114           1         Oliveira, L T et al 2017.pdf      Yes     Yes
+    ## 149           1           Singh S P, et al 2013b.pdf      Yes     Yes
+    ## 151           1            Singh, S P et al 2016.pdf      Yes     Yes
+    ## 242           1              Cowie, H et al 2015.pdf      Yes     Yes
+    ## 273           1                 Lu, X et al 2016.pdf      Yes      No
+    ## 296           1            Singh, S P et al 2013.pdf      Yes     Yes
+    ## 298           1           Stoccoro, A et al 2016.pdf      Yes      No
+    ## 306           1            Wills, J W et al 2016.pdf      Yes      No
+    ## 534           1              Cho, W S et al 2011.pdf      Yes     Yes
+    ## 537           1                Gosens et al 2016.pdf      Yes     Yes
+    ## 539           1 Götz AA, Vidal-Puig A et al 2011.pdf      Yes     Yes
+    ## 540           1             Götz, A A et al 2011.pdf      Yes     Yes
+    ## 567           1                Schreiber, N 2016.pdf      Yes     Yes
+    ## 638           1                Liu, Y et al 2012.pdf       No     Yes
+    ## 654           1               Wang, Y et al 2011.pdf      Yes     Yes
+    ## 13            1              Bellusci et al 2014.pdf      Yes     Yes
+    ## 18            1               Chen, L et al 2017.pdf      Yes     Yes
+    ## 25            1             Chinde, S et al 2017.pdf      Yes     Yes
+    ## 27            1            Chung, E J et al 2015.pdf      Yes     Yes
+    ## 30            1                Dam DH et al 2015.pdf      Yes     Yes
+    ## 33            1            Dekkers, S et al 2017.pdf      Yes     Yes
+    ## 52            1                 Hak S et al 2015.pdf      Yes     Yes
+    ## 53            1  Harivardhan Reddy, L et al 2005.pdf      Yes      No
+    ## 63            0            Hureaux, J et al 2017.pdf      Yes     Yes
+    ## 66            1           Jensen, A I et al 2017.pdf      Yes     Yes
+    ## 67            1               Kaur, A et al 2017.pdf      Yes     Yes
+    ## 72            1             Kumari, M et al 2014.pdf      Yes     Yes
+    ##     Size_mm_section Ranking condition
+    ## 24              165       5     Mixed
+    ## 69              141       5     Mixed
+    ## 99              164       5     Mixed
+    ## 114             191       5     Mixed
+    ## 149             140       5     Mixed
+    ## 151             101       5     Mixed
+    ## 242             108       5     Mixed
+    ## 273              45       5 Not_mixed
+    ## 296              92       5     Mixed
+    ## 298             147       5 Not_mixed
+    ## 306             682       5 Not_mixed
+    ## 534             154       5     Mixed
+    ## 537             164       5     Mixed
+    ## 539              42       5     Mixed
+    ## 540              71       5     Mixed
+    ## 567             268       5     Mixed
+    ## 638             126       5 Not_mixed
+    ## 654             129       5     Mixed
+    ## 13              109       4     Mixed
+    ## 18               38       4     Mixed
+    ## 25              171       4     Mixed
+    ## 27               69       4     Mixed
+    ## 30               62       4     Mixed
+    ## 33              168       4     Mixed
+    ## 52              102       4     Mixed
+    ## 53               99       4 Not_mixed
+    ## 63              132       4     Mixed
+    ## 66              308       4     Mixed
+    ## 67               88       4     Mixed
+    ## 72              169       4     Mixed
