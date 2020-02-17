@@ -900,7 +900,7 @@ find_section_titles_debug <- function(vector_title, font_section, df_poppler) {
 
 #pdf_name<-"Abrams, M T et al 2010.pdf"
 
-pdf_name<-"Ziemińska, E et al 2014.pdf"
+pdf_name<-"Jensen, A I et al 2017.pdf"
 
 txt_pdf <- tabulizer::extract_text(pdf_name) #read the text from the pdf
 txt_pdf <- repair_txt(txt_pdf)
@@ -1233,8 +1233,8 @@ pdf_to_ignore<-c("Cheung, K L et al 2012.pdf", #Communication
 
 setwd("~/Dev_pdf_poppler_output/Immune Effects/")
 pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
-res_Immune_Effects<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
-path="/home/NET1/rollaet/Results/Immune/"
+#res_Immune_Effects<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+path="/home/NET1/rollaet/Results/Immune_effects/"
 res_Immune_Effects_Results<-run_extraction_results(pdf_list, pdf_to_ignore, path)
 file.copy(res_Immune_Effects$articles, "/home/NET1/rollaet/Articles_bug/")
 file.copy(gsub("pdf", "pdf.output_poppler.txt", res_Immune_Effects$articles), "/home/NET1/rollaet/Articles_bug/")
@@ -1248,8 +1248,8 @@ pdf_to_ignore<-c("Yang, B et al 2010.pdf" #Abstracts
 
 setwd("~/Dev_pdf_poppler_output/Liver Toxicity/")
 pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
-res_Liver_Toxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
-path="/home/NET1/rollaet/Results/Liver/"
+#res_Liver_Toxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+path="/home/NET1/rollaet/Results/Liver_toxicity/"
 res_Liver_Toxicity_Results<-run_extraction_results(pdf_list, pdf_to_ignore, path)
 file.copy(res_Liver_Toxicity$articles, "/home/NET1/rollaet/Articles_bug/")
 file.copy(gsub("pdf", "pdf.output_poppler.txt", res_Liver_Toxicity$articles), "/home/NET1/rollaet/Articles_bug/")
@@ -1275,8 +1275,8 @@ pdf_to_ignore<-c("Li, Z et al 2005.pdf", #a book inside lung
 
 setwd("~/Dev_pdf_poppler_output/Lung Toxicity/")
 pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
-res_Lung_Toxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
-path="/home/NET1/rollaet/Results/Lung/"
+#res_Lung_Toxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+path="/home/NET1/rollaet/Results/Lung_toxicity/"
 res_Lung_Toxicity_Results<-run_extraction_results(pdf_list, pdf_to_ignore, path)
 file.copy(res_Lung_Toxicity$articles, "/home/NET1/rollaet/Articles_bug/")
 file.copy(gsub("pdf", "pdf.output_poppler.txt", res_Lung_Toxicity$articles), "/home/NET1/rollaet/Articles_bug/")
@@ -1289,7 +1289,7 @@ pdf_to_ignore<-c("")
 setwd("~/Dev_pdf_poppler_output/Nephrotoxicity/")
 pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
 res_Nephrotoxicity<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
-path="/home/NET1/rollaet/Results/Lung/"
+path="/home/NET1/rollaet/Results/Nephrotoxicity/"
 res_Nephrotoxicity_Results<-run_extraction_results(pdf_list, pdf_to_ignore, path)
 file.copy(res_Nephrotoxicity$articles, "/home/NET1/rollaet/Articles_bug/")
 file.copy(gsub("pdf", "pdf.output_poppler.txt", res_Nephrotoxicity$articles), "/home/NET1/rollaet/Articles_bug/")
