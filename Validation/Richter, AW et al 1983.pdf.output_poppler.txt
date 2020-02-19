@@ -1,0 +1,120 @@
+Page 1/8:
+---
+[Downloaded] @ ( x=571.769 y=751.889 w=4.1625 h=25.011 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[by:] @ ( x=571.769 y=744.635 w=4.1625 h=6.003 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Univ.] @ ( x=577.399 y=766.649 w=4.1625 h=10.251 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[of] @ ( x=577.399 y=761.645 w=4.1625 h=3.753 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Michigan,] @ ( x=577.399 y=741.139 w=4.1625 h=19.2555 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Taubman] @ ( x=577.399 y=720.88 w=4.1625 h=19.008 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Med.Lib.] @ ( x=577.399 y=702.371 w=4.1625 h=17.2575 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[141.213.236.110] @ ( x=583.019 y=743.123 w=4.1625 h=33.777 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[-] @ ( x=583.019 y=740.373 w=4.1625 h=1.4985 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[8/7/2013] @ ( x=583.019 y=721.609 w=4.1625 h=17.514 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[12:52:17] @ ( x=583.019 y=702.844 w=4.1625 h=17.514 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[AM] @ ( x=583.019 y=694.842 w=4.1625 h=6.75 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+---
+Page 2/8:
+---
+[Downloaded] @ ( x=571.769 y=751.889 w=4.1625 h=25.011 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[by:] @ ( x=571.769 y=744.635 w=4.1625 h=6.003 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Univ.] @ ( x=577.399 y=766.649 w=4.1625 h=10.251 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[of] @ ( x=577.399 y=761.645 w=4.1625 h=3.753 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Michigan,] @ ( x=577.399 y=741.139 w=4.1625 h=19.2555 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Taubman] @ ( x=577.399 y=720.88 w=4.1625 h=19.008 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Med.Lib.] @ ( x=577.399 y=702.371 w=4.1625 h=17.2575 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[141.213.236.110] @ ( x=583.019 y=743.123 w=4.1625 h=33.777 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[-] @ ( x=583.019 y=740.373 w=4.1625 h=1.4985 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[8/7/2013] @ ( x=583.019 y=721.609 w=4.1625 h=17.514 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[12:52:17] @ ( x=583.019 y=702.844 w=4.1625 h=17.514 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[AM] @ ( x=583.019 y=694.842 w=4.1625 h=6.75 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+---
+Page 3/8:
+---
+[Downloaded] @ ( x=571.769 y=751.889 w=4.1625 h=25.011 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[by:] @ ( x=571.769 y=744.635 w=4.1625 h=6.003 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Univ.] @ ( x=577.399 y=766.649 w=4.1625 h=10.251 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[of] @ ( x=577.399 y=761.645 w=4.1625 h=3.753 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Michigan,] @ ( x=577.399 y=741.139 w=4.1625 h=19.2555 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Taubman] @ ( x=577.399 y=720.88 w=4.1625 h=19.008 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Med.Lib.] @ ( x=577.399 y=702.371 w=4.1625 h=17.2575 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[141.213.236.110] @ ( x=583.019 y=743.123 w=4.1625 h=33.777 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[-] @ ( x=583.019 y=740.373 w=4.1625 h=1.4985 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[8/7/2013] @ ( x=583.019 y=721.609 w=4.1625 h=17.514 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[12:52:17] @ ( x=583.019 y=702.844 w=4.1625 h=17.514 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[AM] @ ( x=583.019 y=694.842 w=4.1625 h=6.75 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+---
+Page 4/8:
+---
+[Downloaded] @ ( x=571.769 y=751.889 w=4.1625 h=25.011 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[by:] @ ( x=571.769 y=744.635 w=4.1625 h=6.003 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Univ.] @ ( x=577.399 y=766.649 w=4.1625 h=10.251 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[of] @ ( x=577.399 y=761.645 w=4.1625 h=3.753 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Michigan,] @ ( x=577.399 y=741.139 w=4.1625 h=19.2555 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Taubman] @ ( x=577.399 y=720.88 w=4.1625 h=19.008 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Med.Lib.] @ ( x=577.399 y=702.371 w=4.1625 h=17.2575 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[141.213.236.110] @ ( x=583.019 y=743.123 w=4.1625 h=33.777 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[-] @ ( x=583.019 y=740.373 w=4.1625 h=1.4985 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[8/7/2013] @ ( x=583.019 y=721.609 w=4.1625 h=17.514 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[12:52:17] @ ( x=583.019 y=702.844 w=4.1625 h=17.514 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[AM] @ ( x=583.019 y=694.842 w=4.1625 h=6.75 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+---
+Page 5/8:
+---
+[Downloaded] @ ( x=571.769 y=751.889 w=4.1625 h=25.011 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[by:] @ ( x=571.769 y=744.635 w=4.1625 h=6.003 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Univ.] @ ( x=577.399 y=766.649 w=4.1625 h=10.251 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[of] @ ( x=577.399 y=761.645 w=4.1625 h=3.753 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Michigan,] @ ( x=577.399 y=741.139 w=4.1625 h=19.2555 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Taubman] @ ( x=577.399 y=720.88 w=4.1625 h=19.008 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Med.Lib.] @ ( x=577.399 y=702.371 w=4.1625 h=17.2575 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[141.213.236.110] @ ( x=583.019 y=743.123 w=4.1625 h=33.777 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[-] @ ( x=583.019 y=740.373 w=4.1625 h=1.4985 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[8/7/2013] @ ( x=583.019 y=721.609 w=4.1625 h=17.514 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[12:52:17] @ ( x=583.019 y=702.844 w=4.1625 h=17.514 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[AM] @ ( x=583.019 y=694.842 w=4.1625 h=6.75 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+---
+Page 6/8:
+---
+[Downloaded] @ ( x=571.769 y=751.889 w=4.1625 h=25.011 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[by:] @ ( x=571.769 y=744.635 w=4.1625 h=6.003 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Univ.] @ ( x=577.399 y=766.649 w=4.1625 h=10.251 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[of] @ ( x=577.399 y=761.645 w=4.1625 h=3.753 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Michigan,] @ ( x=577.399 y=741.139 w=4.1625 h=19.2555 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Taubman] @ ( x=577.399 y=720.88 w=4.1625 h=19.008 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Med.Lib.] @ ( x=577.399 y=702.371 w=4.1625 h=17.2575 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[141.213.236.110] @ ( x=583.019 y=743.123 w=4.1625 h=33.777 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[-] @ ( x=583.019 y=740.373 w=4.1625 h=1.4985 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[8/7/2013] @ ( x=583.019 y=721.609 w=4.1625 h=17.514 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[12:52:17] @ ( x=583.019 y=702.844 w=4.1625 h=17.514 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[AM] @ ( x=583.019 y=694.842 w=4.1625 h=6.75 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+---
+Page 7/8:
+---
+[Downloaded] @ ( x=571.769 y=751.889 w=4.1625 h=25.011 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[by:] @ ( x=571.769 y=744.635 w=4.1625 h=6.003 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Univ.] @ ( x=577.399 y=766.649 w=4.1625 h=10.251 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[of] @ ( x=577.399 y=761.645 w=4.1625 h=3.753 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Michigan,] @ ( x=577.399 y=741.139 w=4.1625 h=19.2555 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Taubman] @ ( x=577.399 y=720.88 w=4.1625 h=19.008 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Med.Lib.] @ ( x=577.399 y=702.371 w=4.1625 h=17.2575 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[141.213.236.110] @ ( x=583.019 y=743.123 w=4.1625 h=33.777 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[-] @ ( x=583.019 y=740.373 w=4.1625 h=1.4985 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[8/7/2013] @ ( x=583.019 y=721.609 w=4.1625 h=17.514 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[12:52:17] @ ( x=583.019 y=702.844 w=4.1625 h=17.514 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[AM] @ ( x=583.019 y=694.842 w=4.1625 h=6.75 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+---
+Page 8/8:
+---
+[Downloaded] @ ( x=571.769 y=751.889 w=4.1625 h=25.011 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[by:] @ ( x=571.769 y=744.635 w=4.1625 h=6.003 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Univ.] @ ( x=577.399 y=766.649 w=4.1625 h=10.251 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[of] @ ( x=577.399 y=761.645 w=4.1625 h=3.753 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Michigan,] @ ( x=577.399 y=741.139 w=4.1625 h=19.2555 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Taubman] @ ( x=577.399 y=720.88 w=4.1625 h=19.008 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[Med.Lib.] @ ( x=577.399 y=702.371 w=4.1625 h=17.2575 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[141.213.236.110] @ ( x=583.019 y=743.123 w=4.1625 h=33.777 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[-] @ ( x=583.019 y=740.373 w=4.1625 h=1.4985 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[8/7/2013] @ ( x=583.019 y=721.609 w=4.1625 h=17.514 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[12:52:17] @ ( x=583.019 y=702.844 w=4.1625 h=17.514 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+[AM] @ ( x=583.019 y=694.842 w=4.1625 h=6.75 )( fontname=Helvetica fontsize=4.5 wmode=0 )
+---
