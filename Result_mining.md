@@ -3,19 +3,6 @@ Results\_mining
 Etienne Rolland
 11/02/2020
 
-  - [Ranking of the material and method
-    section](#ranking-of-the-material-and-method-section)
-  - [Mining of the results](#mining-of-the-results)
-      - [Ontologies and functions](#ontologies-and-functions)
-      - [Graph point 1](#graph-point-1)
-      - [Graph point 2](#graph-point-2)
-      - [Graph point 3](#graph-point-3)
-      - [Graph point 4](#graph-point-4)
-      - [Rules approach for immune
-        effects](#rules-approach-for-immune-effects)
-      - [Graph for Susanne’s
-        presentation](#graph-for-susannes-presentation)
-
 # Ranking of the material and method section
 
 ``` r
@@ -776,11 +763,12 @@ results_df_vitro$Culture<-"In Vitro"
 result_vivo_vs_vitro<-(rbind(results_df_vivo, results_df_vitro))
 
 result_vivo_vs_vitro<-melt(result_vivo_vs_vitro, id="Culture")
-
+result_vivo_vs_vitro<-result_vivo_vs_vitro[-c(1,2),]
 p <- ggplot(data=result_vivo_vs_vitro, aes(x=variable, y=value, fill=Culture)) +
   geom_bar(stat="identity", position=position_dodge()) + 
   geom_text(aes(label=value), vjust=1.6, color="white", position = position_dodge(0.9), size=3.5)+
-  scale_fill_brewer(palette="Blues") +
+  #scale_fill_brewer(palette="Blues") +
+  scale_fill_manual(values=c("#999999", "#56B4E9")) +
   theme_minimal()
 
 p
@@ -1309,44 +1297,38 @@ rules_mining(data, new_ontologies)
     ## [15] {dendrimer,                                                                  
     ##       titanium dioxide NP} => {accumulation} 0.002415459       1.00 2.202128     1
     ## [1] "\n\n\n"
-    ##      lhs                rhs            support confidence     lift count
-    ## [1]  {gold NP,                                                          
-    ##       peptide NP}    => {necrosis} 0.002415459          1 4.758621     1
-    ## [2]  {cerium NP,                                                        
-    ##       lipid_based}   => {necrosis} 0.002415459          1 4.758621     1
-    ## [3]  {fullerene,                                                        
-    ##       gold NP}       => {necrosis} 0.002415459          1 4.758621     1
-    ## [4]  {iron oxide NP,                                                    
-    ##       quantum dot}   => {necrosis} 0.002415459          1 4.758621     1
-    ## [5]  {carbon NP,                                                        
-    ##       quantum dot}   => {necrosis} 0.002415459          1 4.758621     1
-    ## [6]  {gold NP,                                                          
-    ##       manganese NP}  => {necrosis} 0.002415459          1 4.758621     1
-    ## [7]  {carbon NP,                                                        
-    ##       manganese NP}  => {necrosis} 0.002415459          1 4.758621     1
-    ## [8]  {copper NP,                                                        
-    ##       silver NP}     => {necrosis} 0.002415459          1 4.758621     1
-    ## [9]  {fullerene,                                                        
-    ##       gold NP,                                                          
-    ##       lipid_based}   => {necrosis} 0.002415459          1 4.758621     1
-    ## [10] {carbon NP,                                                        
-    ##       fullerene,                                                        
-    ##       gold NP}       => {necrosis} 0.002415459          1 4.758621     1
-    ## [11] {iron oxide NP,                                                    
-    ##       manganese NP,                                                     
-    ##       quantum dot}   => {necrosis} 0.002415459          1 4.758621     1
-    ## [12] {manganese NP,                                                     
-    ##       quantum dot,                                                      
-    ##       zinc oxide NP} => {necrosis} 0.002415459          1 4.758621     1
-    ## [13] {gold NP,                                                          
-    ##       manganese NP,                                                     
-    ##       quantum dot}   => {necrosis} 0.002415459          1 4.758621     1
-    ## [14] {carbon NP,                                                        
-    ##       manganese NP,                                                     
-    ##       quantum dot}   => {necrosis} 0.002415459          1 4.758621     1
-    ## [15] {manganese NP,                                                     
-    ##       quantum dot,                                                      
-    ##       silver NP}     => {necrosis} 0.002415459          1 4.758621     1
+    ##      lhs                                         rhs        support    
+    ## [1]  {gold NP,peptide NP}                     => {necrosis} 0.002415459
+    ## [2]  {cerium NP,lipid_based}                  => {necrosis} 0.002415459
+    ## [3]  {fullerene,gold NP}                      => {necrosis} 0.002415459
+    ## [4]  {iron oxide NP,quantum dot}              => {necrosis} 0.002415459
+    ## [5]  {carbon NP,quantum dot}                  => {necrosis} 0.002415459
+    ## [6]  {gold NP,manganese NP}                   => {necrosis} 0.002415459
+    ## [7]  {carbon NP,manganese NP}                 => {necrosis} 0.002415459
+    ## [8]  {copper NP,silver NP}                    => {necrosis} 0.002415459
+    ## [9]  {fullerene,gold NP,lipid_based}          => {necrosis} 0.002415459
+    ## [10] {carbon NP,fullerene,gold NP}            => {necrosis} 0.002415459
+    ## [11] {iron oxide NP,manganese NP,quantum dot} => {necrosis} 0.002415459
+    ## [12] {manganese NP,quantum dot,zinc oxide NP} => {necrosis} 0.002415459
+    ## [13] {gold NP,manganese NP,quantum dot}       => {necrosis} 0.002415459
+    ## [14] {carbon NP,manganese NP,quantum dot}     => {necrosis} 0.002415459
+    ## [15] {manganese NP,quantum dot,silver NP}     => {necrosis} 0.002415459
+    ##      confidence lift     count
+    ## [1]  1          4.758621 1    
+    ## [2]  1          4.758621 1    
+    ## [3]  1          4.758621 1    
+    ## [4]  1          4.758621 1    
+    ## [5]  1          4.758621 1    
+    ## [6]  1          4.758621 1    
+    ## [7]  1          4.758621 1    
+    ## [8]  1          4.758621 1    
+    ## [9]  1          4.758621 1    
+    ## [10] 1          4.758621 1    
+    ## [11] 1          4.758621 1    
+    ## [12] 1          4.758621 1    
+    ## [13] 1          4.758621 1    
+    ## [14] 1          4.758621 1    
+    ## [15] 1          4.758621 1
 
 ``` r
 data<-result_df2
@@ -1420,43 +1402,38 @@ rules_mining(data, new_ontologies)
     ## checking subsets of size 1 2 3 4 5 done [0.00s].
     ## writing ... [23 rule(s)] done [0.00s].
     ## creating S4 object  ... done [0.00s].
-    ##      lhs                rhs                support confidence     lift count
-    ## [1]  {lipid_based,                                                          
-    ##       polymer_based} => {accumulation} 0.009661836          1 2.202128     4
-    ## [2]  {metal_based,                                                          
-    ##       peptide NP}    => {necrosis}     0.002415459          1 4.758621     1
-    ## [3]  {metal_based,                                                          
-    ##       peptide NP}    => {inflammation} 0.002415459          1 3.136364     1
-    ## [4]  {metal_based,                                                          
-    ##       peptide NP}    => {accumulation} 0.002415459          1 2.202128     1
-    ## [5]  {carbon NP,                                                            
-    ##       quantum dot}   => {apoptosis}    0.002415459          1 4.600000     1
-    ## [6]  {carbon NP,                                                            
-    ##       quantum dot}   => {necrosis}     0.002415459          1 4.758621     1
-    ## [7]  {carbon NP,                                                            
-    ##       quantum dot}   => {inflammation} 0.002415459          1 3.136364     1
-    ## [8]  {fullerene,                                                            
-    ##       metal_based}   => {necrosis}     0.002415459          1 4.758621     1
-    ## [9]  {fullerene,                                                            
-    ##       metal_based}   => {inflammation} 0.002415459          1 3.136364     1
-    ## [10] {carbon NP,                                                            
-    ##       dendrimer,                                                            
-    ##       metal_based}   => {accumulation} 0.002415459          1 2.202128     1
-    ## [11] {carbon NP,                                                            
-    ##       metal_based,                                                          
-    ##       quantum dot}   => {apoptosis}    0.002415459          1 4.600000     1
-    ## [12] {carbon NP,                                                            
-    ##       metal_based,                                                          
-    ##       quantum dot}   => {necrosis}     0.002415459          1 4.758621     1
-    ## [13] {carbon NP,                                                            
-    ##       metal_based,                                                          
-    ##       quantum dot}   => {inflammation} 0.002415459          1 3.136364     1
-    ## [14] {fullerene,                                                            
-    ##       lipid_based,                                                          
-    ##       metal_based}   => {necrosis}     0.002415459          1 4.758621     1
-    ## [15] {fullerene,                                                            
-    ##       lipid_based,                                                          
-    ##       metal_based}   => {inflammation} 0.002415459          1 3.136364     1
+    ##      lhs                                    rhs            support    
+    ## [1]  {lipid_based,polymer_based}         => {accumulation} 0.009661836
+    ## [2]  {metal_based,peptide NP}            => {necrosis}     0.002415459
+    ## [3]  {metal_based,peptide NP}            => {inflammation} 0.002415459
+    ## [4]  {metal_based,peptide NP}            => {accumulation} 0.002415459
+    ## [5]  {carbon NP,quantum dot}             => {apoptosis}    0.002415459
+    ## [6]  {carbon NP,quantum dot}             => {necrosis}     0.002415459
+    ## [7]  {carbon NP,quantum dot}             => {inflammation} 0.002415459
+    ## [8]  {fullerene,metal_based}             => {necrosis}     0.002415459
+    ## [9]  {fullerene,metal_based}             => {inflammation} 0.002415459
+    ## [10] {carbon NP,dendrimer,metal_based}   => {accumulation} 0.002415459
+    ## [11] {carbon NP,metal_based,quantum dot} => {apoptosis}    0.002415459
+    ## [12] {carbon NP,metal_based,quantum dot} => {necrosis}     0.002415459
+    ## [13] {carbon NP,metal_based,quantum dot} => {inflammation} 0.002415459
+    ## [14] {fullerene,lipid_based,metal_based} => {necrosis}     0.002415459
+    ## [15] {fullerene,lipid_based,metal_based} => {inflammation} 0.002415459
+    ##      confidence lift     count
+    ## [1]  1          2.202128 4    
+    ## [2]  1          4.758621 1    
+    ## [3]  1          3.136364 1    
+    ## [4]  1          2.202128 1    
+    ## [5]  1          4.600000 1    
+    ## [6]  1          4.758621 1    
+    ## [7]  1          3.136364 1    
+    ## [8]  1          4.758621 1    
+    ## [9]  1          3.136364 1    
+    ## [10] 1          2.202128 1    
+    ## [11] 1          4.600000 1    
+    ## [12] 1          4.758621 1    
+    ## [13] 1          3.136364 1    
+    ## [14] 1          4.758621 1    
+    ## [15] 1          3.136364 1    
     ## [1] "\n\n\n"
     ##      lhs              rhs                support confidence     lift count
     ## [1]  {metal_based,                                                        
