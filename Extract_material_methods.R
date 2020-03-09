@@ -1317,6 +1317,16 @@ file.copy(gsub("pdf", "pdf.output_poppler.txt", res_Neurotoxicity$articles), "/h
 gc()
 
 
+##### Extract MM validation
+
+pdf_to_ignore<-c()
+
+setwd("~/Validation/")
+pdf_list<-list.files(pattern = "\\.pdf$", recursive = TRUE)
+res_Validation<-run_tests_with_error_count_bib_removed(pdf_list, pdf_to_ignore)
+
+
+
 
 
 

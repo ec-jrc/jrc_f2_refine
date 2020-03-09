@@ -4,14 +4,14 @@ author: "Etienne Rolland"
 date: "11/02/2020"
 output:
 #  html_document:
-  github_document:
+github_document:
     toc: true
     toc_depth: 2
 ---
 
 ```{r setup, include=FALSE}
-#knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
+#knitr::opts_chunk$set(echo = FALSE)
 ```
 
 
@@ -752,11 +752,12 @@ results_df_vitro$Culture<-"In Vitro"
 result_vivo_vs_vitro<-(rbind(results_df_vivo, results_df_vitro))
 
 result_vivo_vs_vitro<-melt(result_vivo_vs_vitro, id="Culture")
-
+result_vivo_vs_vitro<-result_vivo_vs_vitro[-c(1,2),]
 p <- ggplot(data=result_vivo_vs_vitro, aes(x=variable, y=value, fill=Culture)) +
   geom_bar(stat="identity", position=position_dodge()) + 
   geom_text(aes(label=value), vjust=1.6, color="white", position = position_dodge(0.9), size=3.5)+
-  scale_fill_brewer(palette="Blues") +
+  #scale_fill_brewer(palette="Blues") +
+  scale_fill_manual(values=c("#999999", "#56B4E9")) +
   theme_minimal()
 
 p
