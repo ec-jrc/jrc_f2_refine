@@ -283,7 +283,7 @@ df = within(df, {
   condition = ifelse((In_vitro == "Yes" & In_vivo == "Yes"), "Mixed", "Not_mixed")
 })
 
-p <- ggplot(df, aes(x=Ranking)) + geom_bar(fill="steelblue") +  geom_text(stat='count', aes(label=..count..), vjust=1.6, color="white") + theme_minimal() + ggtitle("Count of articles for each rank in the complete corpus") 
+p <- ggplot(df, aes(x=Ranking)) + geom_bar(fill="steelblue") +  geom_text(stat='count', aes(label=stat(count)), vjust=1.6, color="white") + theme_minimal() + scale_x_discrete(name ="Ranking",  limits=c(0,1,2, 3, 4, 5)) + ggtitle("Count of articles for each rank in the complete corpus") 
 p
 ```
 
@@ -346,9 +346,9 @@ head(df[order(df$Ranking, decreasing = TRUE),], 30)
     ## 537   Lung Toxicity    1            1              1                    1
     ## 539   Lung Toxicity    1            1              1                    1
     ## 540   Lung Toxicity    1            1              1                    1
-    ## 567   Lung Toxicity    1            1              1                    1
-    ## 638   Neurotoxicity    1            1              1                    1
-    ## 654   Neurotoxicity    1            1              1                    1
+    ## 568   Lung Toxicity    1            1              1                    1
+    ## 639   Neurotoxicity    1            1              1                    1
+    ## 655   Neurotoxicity    1            1              1                    1
     ## 13  Biodistribution    1            1              0                    1
     ## 18  Biodistribution    1            0              1                    1
     ## 25  Biodistribution    1            0              1                    1
@@ -377,9 +377,9 @@ head(df[order(df$Ranking, decreasing = TRUE),], 30)
     ## 537           1                Gosens et al 2016.pdf      Yes     Yes
     ## 539           1 Götz AA, Vidal-Puig A et al 2011.pdf      Yes     Yes
     ## 540           1             Götz, A A et al 2011.pdf      Yes     Yes
-    ## 567           1                Schreiber, N 2016.pdf      Yes     Yes
-    ## 638           1                Liu, Y et al 2012.pdf       No     Yes
-    ## 654           1               Wang, Y et al 2011.pdf      Yes     Yes
+    ## 568           1                Schreiber, N 2016.pdf      Yes     Yes
+    ## 639           1                Liu, Y et al 2012.pdf       No     Yes
+    ## 655           1               Wang, Y et al 2011.pdf      Yes     Yes
     ## 13            1              Bellusci et al 2014.pdf      Yes     Yes
     ## 18            1               Chen, L et al 2017.pdf      Yes     Yes
     ## 25            1             Chinde, S et al 2017.pdf      Yes     Yes
@@ -408,9 +408,9 @@ head(df[order(df$Ranking, decreasing = TRUE),], 30)
     ## 537             164       5     Mixed
     ## 539              42       5     Mixed
     ## 540              71       5     Mixed
-    ## 567             268       5     Mixed
-    ## 638             126       5 Not_mixed
-    ## 654             129       5     Mixed
+    ## 568             268       5     Mixed
+    ## 639             126       5 Not_mixed
+    ## 655             129       5     Mixed
     ## 13              109       4     Mixed
     ## 18               38       4     Mixed
     ## 25              171       4     Mixed
