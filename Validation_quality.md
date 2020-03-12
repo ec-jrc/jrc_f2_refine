@@ -367,4 +367,27 @@ data <- data[order(data$Articles),]
 quality_evaluation_df<-quality_evaluation_df %>% filter(Article_name %in% articles)
 quality_evaluation_df <- quality_evaluation_df [order(quality_evaluation_df$Article_name),]
 data$Automatic_ranking<-quality_evaluation_df$Ranking
+data$Articles<-as.factor(data$Articles)
 ```
+
+``` r
+n <- length(data$Manual_ranking)
+d <- data.frame(y = c(data$Manual_ranking, data$Automatic_ranking), 
+                x = rep(c(1,2), each=n),
+                id = factor(rep(1:n,2)))
+```
+
+``` r
+set.seed(321)    
+d$xj <- jitter(d$x, amount=.10)
+d$yj<- jitter(d$y, amount=.1)
+ggplot(data=d, aes(y=y)) +
+  geom_boxplot(aes(x=x, group=x), width=0.3, outlier.shape = NA, notch=FALSE) +
+  geom_point(aes(x=xj, y=yj), alpha=0.5) +
+  geom_line(aes(x=xj, y=yj, group=id), alpha=0.3) +
+  xlab("Ranking method") + ylab("Score") +
+  scale_x_continuous(breaks=c(1,2), labels=c("Manual", "Automatic"), limits=c(0.5, 2.5)) +
+  theme_minimal()
+```
+
+![](Validation_quality_files/figure-gfm/manual_vs_automatic-1.jpeg)<!-- -->

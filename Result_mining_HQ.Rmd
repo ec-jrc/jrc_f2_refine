@@ -2,13 +2,15 @@
 title: "Result_mining_HQ"
 author: "Etienne Rolland"
 date: "10/03/2020"
-# output: html_document
+# output: 
+#   html_document :
+#     toc : true
 output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-#knitr::opts_chunk$set(echo = FALSE)
+#knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r include=FALSE}
@@ -26,6 +28,7 @@ library(ggraph)
 library(ggplot2)
 library(tidyr)
 library(reshape)
+library(xlsx)
 ```
 
 # Ranking of the material and method section
@@ -670,12 +673,12 @@ plot_toxicity <- function(results_df, title) {
     theme_minimal() +
     ggtitle(label=title)
   
-  p 
+  p
 }
 ```
 
 
-```{r}
+```{r barplot1}
 folder<-"Biodistribution"
 results_df_filtered<-filter_results(quality_evaluation_df, result_df, folder) 
 for (folder in unique(result_df$Original_folder)) {
@@ -686,7 +689,18 @@ for (folder in unique(result_df$Original_folder)) {
 }
 plot_toxicity(results_df_filtered, title="Count of articles per toxicity, after filtering for quality")
 
+```
 
+The data of the graph are exported in the following sheet :
+
+```{r, echo=TRUE}
+data_excel<-results_df_filtered %>% select(names(ontology_classification)) %>% mutate_all(funs(sum), na.rm = TRUE) %>% gather(key=toxicity, value=Number_of_articles) %>% unique()
+
+write.xlsx(data_excel, file = "data.xlsx", sheetName = "Barplot1", append = TRUE)
+```
+
+
+```{r barplot2}
 folder<-"Biodistribution"
 results_df_filtered<-filter_results_in_vivo(quality_evaluation_df, result_df, folder) 
 for (folder in unique(result_df$Original_folder)) {
@@ -695,9 +709,18 @@ for (folder in unique(result_df$Original_folder)) {
   }
   results_df_filtered<-rbind(results_df_filtered, filter_results_in_vivo(quality_evaluation_df, result_df, folder))
 }
-plot_toxicity(results_df_filtered, title="Count of articles per toxicity, after filtering for quality, articles in vivo")
+plot_toxicity(results_df_filtered, title ="Count of articles per toxicity, after filtering for quality, articles in vivo")
+```
+
+The data of the graph are exported in the following sheet :
+
+```{r, echo=TRUE}
+data_excel<-results_df_filtered %>% select(names(ontology_classification)) %>% mutate_all(funs(sum), na.rm = TRUE) %>% gather(key=toxicity, value=Number_of_articles) %>% unique()
+write.xlsx(data_excel, file = "data.xlsx", sheetName = "Barplot2", append = TRUE)
+```
 
 
+```{r barplot3}
 folder<-"Biodistribution"
 results_df_filtered<-filter_results_in_vitro(quality_evaluation_df, result_df, folder) 
 for (folder in unique(result_df$Original_folder)) {
@@ -707,13 +730,21 @@ for (folder in unique(result_df$Original_folder)) {
   results_df_filtered<-rbind(results_df_filtered, filter_results_in_vitro(quality_evaluation_df, result_df, folder))
 }
 plot_toxicity(results_df_filtered, title="Count of articles per toxicity, after filtering for quality, articles in vitro")
-
 ```
+
+The data of the graph are exported in the following sheet :
+
+```{r, echo=TRUE}
+data_excel<-results_df_filtered %>% select(names(ontology_classification)) %>% mutate_all(funs(sum), na.rm = TRUE) %>% gather(key=toxicity, value=Number_of_articles) %>% unique()
+write.xlsx(data_excel, file = "data.xlsx", sheetName = "Barplot 3", append = TRUE)
+```
+
+
 
 
 ### Double barplot
 
-```{r, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
+```{r double barplot, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
 
 folder<-"Biodistribution"
 results_df_vivo<-filter_results_in_vivo(quality_evaluation_df, result_df, folder) 
@@ -759,6 +790,12 @@ p <- ggplot(data=result_vivo_vs_vitro, aes(x=variable, y=value, fill=Culture)) +
 p
 ```
 
+The data of the graph are exported in the following sheet :
+```{r, echo=TRUE}
+write.xlsx(result_vivo_vs_vitro, file = "data.xlsx",sheetName = "double_barplot", append = TRUE)
+```
+
+
 ## Graph point 2
 
 ### Function to made the plot
@@ -785,13 +822,17 @@ plot_circular_toxicity <- function(result_df, ontology_classification, ontology_
   data[which(data$NP %in% ontology_nanoparticles[["Metal_NPs"]]),]$NP_Type<-"Metal"
   data[which(data$NP %in% c("lipid NP", "liposome")),]$NP_Type<-"Lipid"
   
-  
+  sheet_name<-paste0(title_circle, " point 2")
+  print(paste0("data exported to ", sheet_name))
+  write.xlsx(data, file = "data.xlsx",sheetName = paste0(title_circle, " point 2"), append = TRUE)
+
   empty_bar=3
   to_add = data.frame(matrix(NA, empty_bar*nlevels(as.factor(data$NP_Type)), ncol(data))) 
   colnames(to_add) = colnames(data)
   to_add$NP_Type=rep(levels(as.factor(data$NP_Type)), each=empty_bar)
   data=rbind(data, to_add)
   data=data %>% arrange(NP_Type)
+
   
   if (dim(data[-which(data$value==0),])[1]>0) {
     
@@ -914,13 +955,13 @@ result_df2<-results_df_filtered %>% filter(Liver_toxicity == 1)
 
 After filtering of papers about liver toxicity into result_df2, plotting using the function defined above :
 
-```{r, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
+```{r graph_point_2_liver, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
 plot_circular_toxicity(result_df2, ontology_classification, ontology_nanoparticles, "Liver toxicity")
 
 ```
 
 
-```{r, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
+```{r graph_point_2_immune, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
 result_df2<-results_df_filtered %>% filter(Immune_effects == 1) 
 
 plot_circular_toxicity(result_df2, ontology_classification, ontology_nanoparticles, "Immune effects")
@@ -976,7 +1017,7 @@ result_df2<-post_process_not_specific(result_df2)
 
 ### Plot
 
-```{r fig.height=10, fig.width=10}
+```{r graph_part_3, fig.height=10, fig.width=10}
 data<-result_df2
 
 #Lipid based NP
@@ -1046,6 +1087,12 @@ for (NP in new_ontologies) {
 data<-data_NP
 data<-data[-which(data$value==0),]
 
+#### Excel part
+
+print(paste0("data exported to graph point 3"))
+write.xlsx(data, file = "data.xlsx", sheetName = paste0("graph point 3"), append = TRUE)
+
+####
 
 empty_bar=3
 data$NP<-as.factor(data$NP)
@@ -1564,6 +1611,11 @@ for (NP in new_ontologies) {
   data_NP_loop$NP<-NP
   data_NP<-rbind(data_NP,data_NP_loop)
 }
+##Excel part
+sheet_name<-paste0("Graph point 4")
+print(paste0("data exported to ", sheet_name))
+write.xlsx(data, file = "data.xlsx", sheetName = sheet_name, append = TRUE)
+
 
 data<-data_NP
 data<-data[-which(data$value==0),]
@@ -1582,7 +1634,7 @@ data$id=seq(1, nrow(data))
 
 ```
 
-```{r, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
+```{r graph_point_4, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
 
 # Get the name and the y position of each label
 label_data=data
@@ -1648,7 +1700,7 @@ p
 ```
 
 
-```{r, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
+```{r graph_point_4_second_version, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
 
 # Make the plot
 p = ggplot(data, aes(x=as.factor(id), y=value, fill=Toxicity)) +    
@@ -1719,7 +1771,7 @@ vector_effect_nephrotoxicity <- c("interstitial nephritis", "glomerulonephritis"
 ```
 
 
-```{r, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
+```{r}
 
 
 merging_NP <- function(data) {
@@ -1813,6 +1865,12 @@ plot_circular_toxicity_per_np <- function(data, new_ontologies, vector_effect, c
   data<-data_NP
   data<-data[-which(data$value==0),]
   
+  ##Excel part
+  sheet_name<-paste0(circle_title, " Graph point 4")
+  print(paste0("data exported to ", sheet_name))
+  write.xlsx(data, file = "data.xlsx",sheetName = sheet_name, append = TRUE)
+
+  
   data<-data %>% arrange(desc(value)) %>%  arrange(Toxicity)
   
   empty_bar=3
@@ -1892,23 +1950,23 @@ plot_circular_toxicity_per_np <- function(data, new_ontologies, vector_effect, c
 
 ```
 
-```{r, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
+```{r graph_point_4_liver, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
 plot_circular_toxicity_per_np(data, new_ontologies, vector_effect_liver_toxicity, "Liver toxicity")
 ```
 
-```{r, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
+```{r graph_point_4_geno, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
 plot_circular_toxicity_per_np(data, new_ontologies, vector_effect_genotoxicity, "Genotoxicy")
 ```
 
-```{r, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
+```{r graph_point_4_immune, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
 plot_circular_toxicity_per_np(data, new_ontologies, vector_effect_immuno, "Immune Effects")
 ```
 
-```{r, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
+```{r graph_point_4_lung, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
 plot_circular_toxicity_per_np(data, new_ontologies, vector_effect_lung_toxicity, "Lung toxicity")
 ```
 
-```{r, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
+```{r graph_point_4_nephro, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
 plot_circular_toxicity_per_np(data, new_ontologies, vector_effect_nephrotoxicity, "Nephrotoxicity")
 ```
 
@@ -2016,7 +2074,7 @@ data<-merging_NP(data)
 ```
 
 
-```{r, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
+```{r graph_susanne_presentation, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
 new_ontologies<-unlist(ontology_nanoparticles, use.names = FALSE)
 
 idx<-which(new_ontologies %in% (c(ontology_nanoparticles[["Metal_NPs"]], "lipid NP", "liposome",
@@ -2062,6 +2120,11 @@ data<-data_toxicity
 data<-data[-which(data$value==0),]
 
 data <- data %>% arrange(desc(value)) %>%  arrange(Toxicity)
+
+##Excel part
+sheet_name<-paste0("Graph for susanne's presentation 4")
+print(paste0("data exported to ", sheet_name))
+write.xlsx(data, file = "data.xlsx",sheetName = sheet_name, append = TRUE)
 
 
 

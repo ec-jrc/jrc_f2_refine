@@ -3,10 +3,10 @@ title: "Ranking of articles"
 author: "Etienne Rolland"
 date: "20/01/2020"
 output: 
-#   html_document :
-#     toc : true
-  github_document:
-    toc: true
+  html_document :
+    toc : true
+  # github_document:
+  #   toc: true
     
 ---
 
@@ -21,6 +21,7 @@ library(stringr)
 library(tabulizer)
 library(tm)
 library(ggplot2)
+library(xlsx)
 ```
 
 ## Ranking of the material and method section
@@ -297,7 +298,7 @@ quality_evaluation_df<-run_assesment(rds_list, ontology_material_characterisatio
 
 This section shows the results of the automated ranking of the articles. The following plot show the number of articles for each ranking number :
 
-```{r}
+```{r ranking, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
 df <- quality_evaluation_df
 
 df = within(df, {
@@ -307,6 +308,13 @@ df = within(df, {
 p <- ggplot(df, aes(x=Ranking)) + geom_bar(fill="steelblue") +  geom_text(stat='count', aes(label=stat(count)), vjust=1.6, color="white") + theme_minimal() + scale_x_discrete(name ="Ranking",  limits=c(0,1,2, 3, 4, 5)) + ggtitle("Count of articles for each rank in the complete corpus") 
 p
 ```
+
+```{r}
+data_excel<-  table(df$Ranking)
+
+write.xlsx(data_excel, file = "quality_evaluation.xlsx", sheetName = "quality_evaluation", append = TRUE)
+```
+
 
 The following plot shows the ranking for the articles that has been automatically classified has containing in vivo experiments :
 
