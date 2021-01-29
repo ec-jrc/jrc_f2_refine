@@ -1,23 +1,24 @@
 # jrc_f2_refine 
 
-This repository is ...
+This repository host the code for project conducted inside the [Horizon 2020 project REFINE](http://refine-nanomed.com/), a project aiming to develop a regulatory science framework for the risk-benefit assessment of medical products based on nanotechnology at the Joint Research Centre, Directorate F - Health, Consumers and Reference Materials, Ispra (VA), Italy.
 
-the [Horizon 2020 project REFINE](http://refine-nanomed.com/), a project aiming to develop a regulatory science framework for the risk-benefit assessment of medical products based on nanotechnology.
-
-Joint Research Centre, Directorate F - Health, Consumers and Reference Materials, Ispra (VA), Italy.
-
+Please refer to the following publication : *Applying of automatic tools for a systematic review of safety effects of nanomedicines, Blanka Halamoda-Kenzaoui, Etienne Rolland, Jacopo Piovesan, Antonio Puertas Gallardo, Susanne Bremer-Hoffmann*.
 
 ## Organisation of the repository
 
-* Analyses_of_corpus
-* DOIs_articles_corpus
-* segmenteR 
+* **Analyses_of_corpus :**
+* **DOIs_articles_corpus :**
+* **segmenteR :** 
+
+## About the corpus
+
+The pdf and the rds files ...
 
 ## segmenteR
 
 segmenteR is a tool to extract a section, for example, "material and methods", from the pdf of an article, using the fonts information from the pdf and natural language processing.
 
-## Introduction
+### Introduction
 
 segmenteR is a tool to segment articles that has been elaborated in the context of the [Horizon 2020 project REFINE](http://refine-nanomed.com/), a project aiming to develop a regulatory science framework for the risk-benefit assessment of medical products based on nanotechnology.
 
@@ -29,7 +30,7 @@ In order to evaluate the quality of the reporting inside each articles and parse
 
 If you use this tool, please cite to the following publication : *Applying of automatic tools for a systematic review of safety effects of nanomedicines, Blanka Halamoda-Kenzaoui, Etienne Rolland, Jacopo Piovesan, Antonio Puertas Gallardo, Susanne Bremer-Hoffmann* .
 
-## Requirement
+### Requirement
 
 To extract the information on the fonts inside the pdf we use poppler, a [PDF rendering library](https://poppler.freedesktop.org/) and the cpp API of poppler. 
 The package require a **version of poppler >= 0.89** as well as a recent version of pdftools. 
@@ -42,9 +43,9 @@ devtools::install_github("Cdk29/pdftools") #until the PR is integrated into the 
 devtools::install_github("ec-jrc/jrc_f2_refine", subdir="segmenteR") 
 ```
 
-## Getting started
+### Getting started
 
-### The short way
+#### The short way
 
 Download an open access article that was part of the corpus : 
 
@@ -69,7 +70,7 @@ material_and_methods <- segmenteR::extract_section_from_pdf(pdf_name="Abrams, M 
 You have your material and methods section in ConLL-U format inside the dataframe material_and_methods, a format suitable for parsing, etc.
 You can stop reading the example here.
 
-### A more in-depth example
+#### A more in-depth example
 
 This example show the inner working of the function extract_section_from_pdf() :
 
