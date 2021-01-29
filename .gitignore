@@ -1,2 +1,7 @@
 Dev_pdf_poppler_output/
 *.txt
+segmenteR/..Rcheck/
+segmenteR/.RData
+segmenteR/.Rbuildignore
+segmenteR/.Rhistory
+segmenteR/.Rproj.user/

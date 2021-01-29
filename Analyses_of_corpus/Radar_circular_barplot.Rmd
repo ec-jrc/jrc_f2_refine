@@ -1,0 +1,1146 @@
+---
+title: "Radar plot, Circular Plot"
+author: "Etienne Rolland"
+date: "21/01/2020"
+output: 
+  github_document:
+    toc: true
+  # html_document :
+  #   toc: true
+---
+
+# Content of this Rmarkdown document
+
+This document present different graphs used to visualized how the different aspects of the material characterisation are present in the "material and method" sections. Two visualization technics are used : 
+
+- the radar plot : a two-dimensional chart type designed to plot one or more series of values over multiple quantitative variables. The variable here are the percentage of article with the characterisation.
+
+- the circular barploy : a barplot, with each bar displayed along a circle instead of a line. 
+
+# Radar plots
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r include=FALSE}
+library(udpipe)
+library(dplyr)
+library(readr)
+library(stringr)
+library(tabulizer)
+library(tm)
+
+library(tidyverse)
+library(viridis)
+library(patchwork)
+library(hrbrthemes)
+library(fmsb)
+library(colormap)
+
+
+create_quality_df <- function(material_characterisation) {
+  #this function create the dataframe quality_evaluation that store the informations
+  #of the quality evalution assessment
+  
+  #nb_technical_aspect<-length(material_characterisation)
+  technical_aspect<-names(material_characterisation)
+  names_columns<-c("Article_name", technical_aspect)
+  
+  
+  quality_evaluation_df<-as.data.frame(matrix(ncol=length(names_columns), 
+                                              byrow=TRUE))
+  
+  colnames(quality_evaluation_df)<-names_columns
+  
+  return(quality_evaluation_df)
+}
+
+init_quality_df <- function(quality_evaluation_df, pdf_name) {
+  #create empty dataframe is such a pain in R
+  #initiate the quality_df dataframe, i.e., add zero everywhere and the pdf name,
+  #for the first iteration of the loop
+  quality_evaluation_df[["Article_name"]]<-pdf_name
+  quality_evaluation_df[is.na(quality_evaluation_df)] = 0
+  
+  return(quality_evaluation_df)
+}
+
+is_double_space <- function(word) {
+  res<-str_split(word, "\\s")[[1]]
+  if (length(res)==3) {
+    return(TRUE)
+  }
+  return(FALSE)
+}
+
+is_space <- function(word) {
+  res<-str_split(word, "\\s")[[1]]
+  if (length(res)==2) {
+    return(TRUE)
+  }
+  return(FALSE)
+}
+
+is_not_space <- function(word) {
+  res<-str_split(word, "\\s")[[1]]
+  if (length(res)==1) {
+    return(TRUE)
+  }
+  return(FALSE)
+}
+
+cut_word <- function(word) {
+  res<-str_split(word, "\\s")[[1]]
+  return(res)
+}
+
+attribute_ranking_split_word <- function(x, i, quality_evaluation_df, technical_aspect, word) {
+  res<-cut_word(word)
+  first_word<-res[1]
+  second_word<-res[2]
+  idx<-which(x$lemma==first_word) #firstword
+  
+  if (length(idx)>0) { #if the word is present as lemma
+    for (id in idx) {   #if several times the word, simply
+      if (x[(id+1),]$lemma==second_word) {
+        quality_evaluation_df[i,][[technical_aspect]]<-1
+      }
+    }
+  }
+  
+  return(quality_evaluation_df)
+}
+
+attribute_ranking <- function(x, i, quality_evaluation_df, technical_aspect, word) {
+  idx<-which(x$lemma==word)
+  if (length(idx)>0) { #if the word is present as lemma
+    for (id in idx){
+      sentence<-x[id,]$sentence
+    }
+    quality_evaluation_df[i,][[technical_aspect]]<-1
+    # if (word=="size") {
+    #   print(x[idx,]$sentence)
+    # }
+  }
+  return(quality_evaluation_df)
+}
+
+quality_assessment <- function(x, i, pdf_name, quality_evaluation_df, ontology_material_characterisation) {
+  if (first_iteration(i)) {
+    quality_evaluation_df<-init_quality_df(quality_evaluation_df, pdf_name)
+  } else {
+    quality_evaluation_df<-rbind(quality_evaluation_df, c(0))
+    quality_evaluation_df[i,]$Article_name<-pdf_name
+  }
+  for (technical_aspect in names(ontology_material_characterisation)) { #Size, surface area, etc
+    for (word in ontology_material_characterisation[[technical_aspect]]) { #Diameter
+      if (is_space(word)) {
+        quality_evaluation_df<-attribute_ranking_split_word(x, i, quality_evaluation_df, technical_aspect, word)
+      }
+      else {
+        quality_evaluation_df<-attribute_ranking(x, i, quality_evaluation_df, technical_aspect, word)
+      }
+    }
+  }
+  
+  return(quality_evaluation_df)
+}
+
+first_iteration <- function(i) {
+  if (i==1) {
+    return(TRUE)
+  }
+  return(FALSE)
+}
+
+biological_condition <- function(x, i, quality_evaluation_df, condition, word) {
+  idx<-which(x$lemma==word | x$token==word) #firstword
+  if (length(idx)>0) { #if the word is present as lemma
+    quality_evaluation_df[i,][[condition]]<-"Yes"
+    # if (word=="size") {
+    #   print(x[idx,]$sentence)
+    # }
+  }
+  return(quality_evaluation_df)
+}
+
+biological_condition_split_word <- function(x, i, quality_evaluation_df, condition, word) {
+  res<-cut_word(word)
+  first_word<-res[1]
+  second_word<-res[2]
+  idx<-which(x$lemma==first_word | x$token==first_word) #firstword
+  
+  if (length(idx)>0) { #if the word is present as lemma
+    for (id in idx) {   #if several times the word in the article
+      if (x[(id+1),]$lemma==second_word | x[(id+1),]$token==second_word) {
+        quality_evaluation_df[i,][[condition]]<-"Yes"
+      }
+    }
+  }
+  
+  return(quality_evaluation_df)
+}
+
+biological_condition_double_space_word <- function(x, i, quality_evaluation_df, condition, word) {
+  res<-cut_word(word)
+  first_word<-res[1]
+  second_word<-res[2]
+  third_word<-res[3]
+  idx<-which(x$lemma==first_word | x$token==first_word) #firstword
+  
+  if (length(idx)>0) { #if the word is present as lemma
+    for (id in idx) {   #if several times the word in the article
+      if (x[(id+1),]$lemma==second_word | x[(id+1),]$token==second_word) {
+        if (x[(id+2),]$lemma==third_word | x[(id+2),]$token==third_word) {
+          quality_evaluation_df[i,][[condition]]<-"Yes"
+        }
+      }
+    }
+  }
+  
+  return(quality_evaluation_df)
+}
+
+biological_condition_assessment <- function(x, i, pdf_name, quality_evaluation_df, ontology_in_vitro_in_vivo) {
+  if (first_iteration(i)) {
+    quality_evaluation_df$In_vitro<-"No"
+    quality_evaluation_df$In_vivo<-"No"
+  } else {
+    quality_evaluation_df[i,]$In_vitro<-"No"
+    quality_evaluation_df[i,]$In_vivo<-"No"
+  }
+  
+  for (condition in names(ontology_in_vitro_in_vivo)) { 
+    for (word in ontology_in_vitro_in_vivo[[condition]]) { 
+      if (is_double_space(word)){
+        quality_evaluation_df<-biological_condition_double_space_word(x, i, quality_evaluation_df, condition, word)
+      }
+      else if (is_space(word)) {
+        quality_evaluation_df<-biological_condition_split_word(x, i, quality_evaluation_df, condition, word)
+      }
+      else if (is_not_space(word)){
+        quality_evaluation_df<-biological_condition(x, i, quality_evaluation_df, condition, word)
+      }
+    }
+  }
+  
+  return(quality_evaluation_df)
+}
+
+
+#ontology of terms
+ontology_material_characterisation <- list( Size = c("diameter", "size", "dimension", "radius", "nm"), 
+                                            Surface_area = c("surface area"), 
+                                            Surface_charge = c("zeta potential", "surface charge", "mv"),
+                                            Chemical_composition = c("chemical composition", "coating", "core",
+                                                                     "shell", "content", "configuration", 
+                                                                     "molecular ratio"),
+                                            Concentration = c("final concentration", "dilution", "diluted", "mM"),
+                                            Aggregation = c("aggregation", "aggregate", "polydisperse", "monodisperse",
+                                                            "stability", "agglomeration", "stable", "agglomerate"),
+                                            Wavelenght = c("wavelenght", "excitation wavelenght", "excitation", "emission",
+                                                           "emission wavelenght")
+)
+
+
+
+
+ontology_in_vitro_in_vivo <- list( In_vitro = c("incubation temperature", "incubator", "incubated", "viability",
+                                                "cells/ml", "cells/mL",  "cells/well", "cells per well", 
+                                                "cultured", "culture", "medium", "media", "penicillin", 
+                                                "streptomycin", "well plates", "well plate", "cell line", "cells", "% of CO"
+), 
+
+In_vivo = c("age", "year old", "month old", "year-old", "month-old",
+            "cage", "holding rooms", "housed", "facility", "diet", "ad libitum",
+            "dark cycle", "light cycle", "euthanized", "acclimate", "acclimatized", 
+            "body weight", "administration route", "dose in mg/kg")
+)
+
+
+rds_list<-list.files(path="~/Dev_pdf_poppler_output/", pattern = "\\.rds$", recursive=TRUE)
+
+run_assesment <- function(rds_list, ontology_material_characterisation, ontology_in_vitro_in_vivo) {
+  i<-0
+  quality_evaluation_df<-create_quality_df(ontology_material_characterisation)
+  for (rds in rds_list) {
+    i<-i+1
+    x<-readRDS(file = paste0("~/Dev_pdf_poppler_output/", rds))
+    pdf_name<-strsplit(rds, "/")[[1]][3]
+    pdf_name<-str_replace_all(pdf_name, ".rds", "")
+    folder_name<-strsplit(rds, "/")[[1]][1] #"Neurotoxicity"
+    quality_evaluation_df<-quality_assessment(x, i, pdf_name, quality_evaluation_df, ontology_material_characterisation)
+    quality_evaluation_df<-biological_condition_assessment(x, i, pdf_name, quality_evaluation_df, ontology_in_vitro_in_vivo) 
+    if (first_iteration(i)) {
+      quality_evaluation_df$Size_mm_section<-0 #size material and methods
+      quality_evaluation_df$Folder<-"A"
+    }
+    quality_evaluation_df[i,]$Size_mm_section<-length(unique(x$sentence))
+    quality_evaluation_df[i,]$Folder<-folder_name
+  }
+  #compute the score
+  quality_evaluation_df$Ranking<-rowSums(quality_evaluation_df[, names(ontology_material_characterisation)])
+  return(quality_evaluation_df)
+}
+
+quality_evaluation_df<-create_quality_df(ontology_material_characterisation)
+
+quality_evaluation_df<-run_assesment(rds_list, ontology_material_characterisation, ontology_in_vitro_in_vivo)
+
+```
+
+## Radar plot, for all the articles :
+
+The following radar plot display the percentage of articles that have the aspects of the material characterisation shown in axis, for all the articles for which the extraction was successufull.
+
+```{r warning=FALSE, fig.height=8, fig.width=8}
+data<-quality_evaluation_df
+
+data$Article_name<-NULL
+data$Size_mm_section<-NULL
+data$Ranking<-NULL
+data$In_vitro<-NULL
+data$In_vivo<-NULL
+data$Folder<-NULL
+data$Wavelenght<-NULL
+data$Concentration<-NULL
+
+
+data<-as.data.frame(t(colMeans(data)))
+data <- rbind(rep(1) , rep(0) , data)
+
+radarchart( data, axistype=1, 
+            
+            #custom polygon
+            pcol=rgb(0.2,0.5,0.5,0.9) , pfcol=rgb(0.2,0.5,0.5,0.5) , plwd=4 , 
+            
+            #custom the grid
+            cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,0.2,5), cglwd=0.8,
+            
+            #custom labels
+            vlcex=0.8,
+            
+            #title
+            title="Radar plot for the article\n with a ranking of 1 only."
+            
+
+) 
+```
+
+## Radar plot, for the articles with a ranking of 1 :
+
+The following radar plot display the percentage of articles that have the aspects of the material characterisation shown in axis, uniquely for the article with a ranking of 1. 
+
+```{r warning=FALSE, fig.height=8, fig.width=8}
+data<-quality_evaluation_df
+
+data<-quality_evaluation_df[which(quality_evaluation_df$Ranking==1),]
+
+data$Article_name<-NULL
+data$Size_mm_section<-NULL
+data$Ranking<-NULL
+data$In_vitro<-NULL
+data$In_vivo<-NULL
+data$Folder<-NULL
+data$Wavelenght<-NULL
+data$Concentration<-NULL
+
+
+data<-as.data.frame(t(colMeans(data)))
+data <- rbind(rep(1) , rep(0) , data)
+
+radarchart( data, axistype=1, 
+            
+            #custom polygon
+            pcol=rgb(0.2,0.5,0.5,0.9) , pfcol=rgb(0.2,0.5,0.5,0.5) , plwd=4 , 
+            
+            #custom the grid
+            cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,0.2,5), cglwd=0.8,
+            
+            #custom labels
+            vlcex=0.8,
+            
+            #title
+            title="Radar plot for the article\n with a ranking of 1 only."
+            
+
+) 
+```
+
+## Radar plot, for the articles with a ranking of 2 :
+
+The following radar plot display the percentage of articles that have the aspects of the material characterisation shown in axis, uniquely for the article with a ranking of 2. 
+
+```{r warning=FALSE, fig.height=8, fig.width=8}
+data<-quality_evaluation_df
+
+data<-quality_evaluation_df[which(quality_evaluation_df$Ranking==2),]
+
+data$Article_name<-NULL
+data$Size_mm_section<-NULL
+data$Ranking<-NULL
+data$In_vitro<-NULL
+data$In_vivo<-NULL
+data$Folder<-NULL
+data$Wavelenght<-NULL
+data$Concentration<-NULL
+
+
+data<-as.data.frame(t(colMeans(data)))
+data <- rbind(rep(1) , rep(0) , data)
+
+radarchart( data, axistype=1, 
+            
+            #custom polygon
+            pcol=rgb(0.2,0.5,0.5,0.9) , pfcol=rgb(0.2,0.5,0.5,0.5) , plwd=4 , 
+            
+            #custom the grid
+            cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,0.2,5), cglwd=0.8,
+            
+            #custom labels
+            vlcex=0.8,
+            
+            #title
+            title="Radar plot for the article\n with a ranking of 2 only."
+            
+
+) 
+```
+
+
+## Radar plot, for the articles with a minimum ranking of 2 :
+
+The following radar plot display the percentage of articles that have the aspects of the material characterisation shown in axis, uniquely for the article with a minimum ranking of 2. 
+
+```{r warning=FALSE, fig.height=8, fig.width=8}
+data<-quality_evaluation_df
+
+data<-quality_evaluation_df[which(quality_evaluation_df$Ranking>1),]
+
+data$Article_name<-NULL
+data$Size_mm_section<-NULL
+data$Ranking<-NULL
+data$In_vitro<-NULL
+data$In_vivo<-NULL
+data$Folder<-NULL
+data$Wavelenght<-NULL
+data$Concentration<-NULL
+
+
+data<-as.data.frame(t(colMeans(data)))
+data <- rbind(rep(1) , rep(0) , data)
+
+radarchart( data, axistype=1, 
+            
+            #custom polygon
+            pcol=rgb(0.2,0.5,0.5,0.9) , pfcol=rgb(0.2,0.5,0.5,0.5) , plwd=4 , 
+            
+            #custom the grid
+            cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,0.2,5), cglwd=0.8,
+            
+            #custom labels
+            vlcex=0.8,
+            
+            #title
+            title="Radar plot for the article\n with a minimum ranking of 2 only."
+            
+
+) 
+```
+
+## Radar plot, all the articles, in vitro :
+
+The following radar plot display the percentage of articles that have the aspects of the material characterisation shown in axis, uniquely for the article that are categorized has "In vitro". 
+
+```{r warning=FALSE, fig.height=8, fig.width=8}
+data<-quality_evaluation_df
+
+data<-data[which(data$In_vitro=="Yes"),]
+
+
+data$Article_name<-NULL
+data$Size_mm_section<-NULL
+data$Ranking<-NULL
+data$In_vitro<-NULL
+data$In_vivo<-NULL
+data$Folder<-NULL
+data$Wavelenght<-NULL
+data$Concentration<-NULL
+
+
+data<-as.data.frame(t(colMeans(data)))
+data <- rbind(rep(1) , rep(0) , data)
+
+radarchart( data, axistype=1, 
+            
+            #custom polygon
+            pcol=rgb(0.2,0.5,0.5,0.9) , pfcol=rgb(0.2,0.5,0.5,0.5) , plwd=4 , 
+            
+            #custom the grid
+            cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,0.2,5), cglwd=0.8,
+            
+            #custom labels
+            vlcex=0.8,
+            
+            #title
+            title="Radar plot for the article\n that are categorized as In Vitro."
+)
+
+```
+
+## Radar plot, all the articles, in vivo :
+
+The following radar plot display the percentage of articles that have the aspects of the material characterisation shown in axis, uniquely for the article that are categorized has "In vivo". 
+
+```{r warning=FALSE, fig.height=10, fig.width=8}
+data<-quality_evaluation_df
+
+data<-data[which(data$In_vivo=="Yes"),]
+
+data$Article_name<-NULL
+data$Size_mm_section<-NULL
+data$Ranking<-NULL
+data$In_vitro<-NULL
+data$In_vivo<-NULL
+data$Folder<-NULL
+data$Wavelenght<-NULL
+data$Concentration<-NULL
+
+
+data<-as.data.frame(t(colMeans(data)))
+data <- rbind(rep(1) , rep(0) , data)
+
+radarchart( data, axistype=1, 
+            
+            #custom polygon
+            pcol=rgb(0.2,0.5,0.5,0.9) , pfcol=rgb(0.2,0.5,0.5,0.5) , plwd=4 , 
+            
+            #custom the grid
+            cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,0.2,5), cglwd=0.8,
+            
+            #custom labels
+            vlcex=0.8,
+            
+            #title
+            title="Radar plot for the article\n categorised as in vivo")
+
+```
+
+
+## Radar Plot for each subtype of articles, with a minumum score of 2 : 
+
+The following radar plots display the percentage of articles that have the aspects of the material characterisation shown in axis, uniquely for the article that have a minimum ranking of 2.
+
+```{r, warning=FALSE, fig.height=16, fig.width=8}
+
+data<-quality_evaluation_df
+data<-data[which(data$Ranking>1),] 
+
+data$Article_name<-NULL
+data$Size_mm_section<-NULL
+data$Ranking<-NULL
+data$In_vitro<-NULL
+data$In_vivo<-NULL
+data$Wavelenght<-NULL
+data$Concentration<-NULL
+
+
+data<-aggregate(data, by = list(data$Folder), FUN = mean)
+data$Folder<-data$Group.1
+data$Group.1<-NULL
+
+
+
+mytitle <- data$Folder
+data <- rbind(rep(1) , rep(0) , data)
+data$Folder<-NULL
+
+par(mar=rep(0.8,4))
+par(mfrow=c(5,2))
+# Prepare color
+colors_border=colormap(colormap=colormaps$viridis, nshades=9, alpha=1)
+colors_in=colormap(colormap=colormaps$viridis, nshades=9, alpha=0.3)
+
+
+# Loop for each plot
+for(i in 1:9){
+  
+  # Custom the radarChart !
+  radarchart( data[c(1,2,i+2),], axistype=1, 
+              
+              #custom polygon
+              pcol=colors_border[i] , pfcol=colors_in[i] , plwd=2, plty=1 , 
+              
+              #custom the grid
+              cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,0.2,5), cglwd=0.8,
+              
+              #custom labels
+              vlcex=0.9,
+              
+              #title
+              title=mytitle[i]
+  )
+}
+
+```
+
+
+# Circular barplots
+
+## Circularbar plot, for the article with a Ranking of 1 only
+
+Similar to the radar plot in a previous section,this circular plot display the percentage of articles that have the specified aspects of the material characterisation, uniquely for the article with a quality of 1. 
+
+```{r warning=FALSE, fig.height=8, fig.width=8}
+
+data<-quality_evaluation_df
+data<-quality_evaluation_df[which(quality_evaluation_df$Ranking==1),]
+
+data$Article_name<-NULL
+data$Size_mm_section<-NULL
+data$Ranking<-NULL
+data$In_vitro<-NULL
+data$In_vivo<-NULL
+data$Wavelenght<-NULL
+data$Concentration<-NULL
+
+
+data<-aggregate(data, by = list(data$Folder), FUN = mean)
+data$Folder<-data$Group.1
+data$Group.1<-NULL
+
+data<-cbind(data$Folder, gather(data[1:5]))
+colnames(data)<-c("folder", "feature", "value")
+
+data$feature<-as.factor(data$feature)
+empty_bar=3
+to_add = data.frame( matrix(NA, empty_bar*nlevels(data$feature), ncol(data)) )
+colnames(to_add) = colnames(data)
+to_add$feature=rep(levels(data$feature), each=empty_bar)
+data=rbind(data, to_add)
+data=data %>% arrange(feature)
+
+
+data$id=seq(1, nrow(data))
+
+
+
+# Get the name and the y position of each label
+label_data=data
+number_of_bar=nrow(label_data)
+angle= 90 - 360 * (label_data$id-0.5) /number_of_bar     # I substract 0.5 because the letter must have the angle of the center of the bars. Not extreme right(1) or extreme left (0)
+label_data$hjust<-ifelse( angle < -90, 1, 0)
+label_data$angle<-ifelse(angle < -90, angle+180, angle)
+
+
+# prepare a data frame for base lines
+base_data=data %>% 
+  group_by(feature) %>% 
+  summarize(start=min(id), end=max(id) - empty_bar) %>% 
+  rowwise() %>% 
+  mutate(title=mean(c(start, end)))
+
+# prepare a data frame for grid (scales)
+grid_data = base_data
+grid_data$end = grid_data$end[ c( nrow(grid_data), 1:nrow(grid_data)-1)] + 1
+grid_data$start = grid_data$start - 1
+grid_data=grid_data[-1,]
+
+data$value<-data$value*100
+
+# Make the plot
+p = ggplot(data, aes(x=as.factor(id), y=value, fill=folder)) +    
+  
+  geom_bar(aes(x=as.factor(id), y=value, fill=folder), stat="identity", alpha=0.5) +
+  
+  # Add a val=100/75/50/25 lines. I do it at the beginning to make sur barplots are OVER it.
+  geom_segment(data=grid_data, aes(x = end, y = 80, xend = start, yend = 80), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 60, xend = start, yend = 60), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 40, xend = start, yend = 40), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 20, xend = start, yend = 20), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  
+  # Add text showing the value of each 100/75/50/25 lines
+  annotate("text", x = rep(max(data$id),4), y = c(20, 40, 60, 80), label = c("20", "40", "60", "80") , color="grey", size=3 , angle=0, fontface="bold", hjust=1) +
+  
+  geom_bar(aes(x=as.factor(id), y=value, fill=folder), stat="identity", alpha=0.5) +
+  ylim(-100,120) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    plot.margin = unit(rep(-1,4), "cm") 
+  ) +
+  coord_polar() + 
+  geom_text(data=label_data, aes(x=id, y=value+10, label=folder, hjust=hjust), color="black", fontface="bold",alpha=0.6, size=2.5, angle= label_data$angle, inherit.aes = FALSE ) +
+  
+  geom_segment(data=base_data, aes(x = start, y = -5, xend = end, yend = -5), colour = "black", alpha=0.8, size=0.4 , inherit.aes = FALSE )  +
+  geom_text(data=base_data, aes(x = title, y = -30, label=feature), colour = "black", alpha=0.8, size=3, fontface="bold", inherit.aes = FALSE) #+
+
+  # ggtitle("\n \n \nCircular Barplot, for the article with a ranking of 1.") + theme(plot.title = element_text(hjust = 0.5, vjust = 0.8))
+
+p
+```
+
+
+## Circular barplot, for the article with a Ranking of 2 only
+
+Similar to the radar plot above, this circular plot display the percentage of articles that have the specified aspects of the material characterisation, uniquely for the article with a quality of 2. 
+
+```{r warning=FALSE, fig.height=8, fig.width=8}
+
+data<-quality_evaluation_df
+data<-quality_evaluation_df[which(quality_evaluation_df$Ranking==2),]
+
+data$Article_name<-NULL
+data$Size_mm_section<-NULL
+data$Ranking<-NULL
+data$In_vitro<-NULL
+data$In_vivo<-NULL
+data$Wavelenght<-NULL
+data$Concentration<-NULL
+
+
+data<-aggregate(data, by = list(data$Folder), FUN = mean)
+data$Folder<-data$Group.1
+data$Group.1<-NULL
+
+data<-cbind(data$Folder, gather(data[1:5]))
+colnames(data)<-c("folder", "feature", "value")
+
+data$feature<-as.factor(data$feature)
+empty_bar=3
+to_add = data.frame( matrix(NA, empty_bar*nlevels(data$feature), ncol(data)) )
+colnames(to_add) = colnames(data)
+to_add$feature=rep(levels(data$feature), each=empty_bar)
+data=rbind(data, to_add)
+data=data %>% arrange(feature)
+
+
+data$id=seq(1, nrow(data))
+
+
+
+# Get the name and the y position of each label
+label_data=data
+number_of_bar=nrow(label_data)
+angle= 90 - 360 * (label_data$id-0.5) /number_of_bar     # I substract 0.5 because the letter must have the angle of the center of the bars. Not extreme right(1) or extreme left (0)
+label_data$hjust<-ifelse( angle < -90, 1, 0)
+label_data$angle<-ifelse(angle < -90, angle+180, angle)
+
+
+# prepare a data frame for base lines
+base_data=data %>% 
+  group_by(feature) %>% 
+  summarize(start=min(id), end=max(id) - empty_bar) %>% 
+  rowwise() %>% 
+  mutate(title=mean(c(start, end)))
+
+# prepare a data frame for grid (scales)
+grid_data = base_data
+grid_data$end = grid_data$end[ c( nrow(grid_data), 1:nrow(grid_data)-1)] + 1
+grid_data$start = grid_data$start - 1
+grid_data=grid_data[-1,]
+
+data$value<-data$value*100
+
+# Make the plot
+p = ggplot(data, aes(x=as.factor(id), y=value, fill=folder)) +    
+  
+  geom_bar(aes(x=as.factor(id), y=value, fill=folder), stat="identity", alpha=0.5) +
+  
+  # Add a val=100/75/50/25 lines. I do it at the beginning to make sur barplots are OVER it.
+  geom_segment(data=grid_data, aes(x = end, y = 80, xend = start, yend = 80), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 60, xend = start, yend = 60), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 40, xend = start, yend = 40), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 20, xend = start, yend = 20), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  
+  # Add text showing the value of each 100/75/50/25 lines
+  annotate("text", x = rep(max(data$id),4), y = c(20, 40, 60, 80), label = c("20", "40", "60", "80") , color="grey", size=3 , angle=0, fontface="bold", hjust=1) +
+  
+  geom_bar(aes(x=as.factor(id), y=value, fill=folder), stat="identity", alpha=0.5) +
+  ylim(-100,120) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    plot.margin = unit(rep(-1,4), "cm") 
+  ) +
+  coord_polar() + 
+  geom_text(data=label_data, aes(x=id, y=value+10, label=folder, hjust=hjust), color="black", fontface="bold",alpha=0.6, size=2.5, angle= label_data$angle, inherit.aes = FALSE ) +
+  
+  geom_segment(data=base_data, aes(x = start, y = -5, xend = end, yend = -5), colour = "black", alpha=0.8, size=0.4 , inherit.aes = FALSE )  +
+  geom_text(data=base_data, aes(x = title, y = -30, label=feature), colour = "black", alpha=0.8, size=3, fontface="bold", inherit.aes = FALSE) #+
+# 
+#   ggtitle("\n \n \nCircular Barplot, for the article with a ranking of 2.") + theme(plot.title = element_text(hjust = 0.5, vjust = 0.8))
+
+p
+```
+
+
+## Circular barplot, for all the articles, stratified by folder
+
+This circular plot display the percentage of articles that have the specified aspects of the material characterisation, for all the articles:
+
+```{r fig.height=8, fig.width=8, warning=FALSE}
+
+data<-quality_evaluation_df
+
+data$Article_name<-NULL
+data$Size_mm_section<-NULL
+data$Ranking<-NULL
+data$In_vitro<-NULL
+data$In_vivo<-NULL
+data$Wavelenght<-NULL
+data$Concentration<-NULL
+
+data<-aggregate(data, by = list(data$Folder), FUN = mean)
+data$Folder<-data$Group.1
+data$Group.1<-NULL
+
+data<-cbind(data$Folder, gather(data[1:5]))
+colnames(data)<-c("folder", "feature", "value")
+
+
+empty_bar=3
+to_add = data.frame( matrix(NA, empty_bar*nlevels(data$folder), ncol(data)) )
+colnames(to_add) = colnames(data)
+to_add$folder=rep(levels(data$folder), each=empty_bar)
+data=rbind(data, to_add)
+data=data %>% arrange(folder)
+
+data$id=seq(1, nrow(data))
+
+# Get the name and the y position of each label
+label_data=data
+number_of_bar=nrow(label_data)
+angle= 90 - 360 * (label_data$id-0.5) /number_of_bar     # I substract 0.5 because the letter must have the angle of the center of the bars. Not extreme right(1) or extreme left (0)
+label_data$hjust<-ifelse( angle < -90, 1, 0)
+label_data$angle<-ifelse(angle < -90, angle+180, angle)
+
+
+# prepare a data frame for base lines
+base_data=data %>% 
+  group_by(folder) %>% 
+  summarize(start=min(id), end=max(id) - empty_bar) %>% 
+  rowwise() %>% 
+  mutate(title=mean(c(start, end)))
+
+# prepare a data frame for grid (scales)
+grid_data = base_data
+grid_data$end = grid_data$end[ c( nrow(grid_data), 1:nrow(grid_data)-1)] + 1
+grid_data$start = grid_data$start - 1
+grid_data=grid_data[-1,]
+
+data$value<-data$value*100
+
+# Make the plot
+p = ggplot(data, aes(x=as.factor(id), y=value, fill=folder)) +    
+
+  geom_bar(aes(x=as.factor(id), y=value, fill=folder), stat="identity", alpha=0.5) +
+  
+  # Add a val=100/75/50/25 lines. I do it at the beginning to make sur barplots are OVER it.
+  geom_segment(data=grid_data, aes(x = end, y = 80, xend = start, yend = 80), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 60, xend = start, yend = 60), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 40, xend = start, yend = 40), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 20, xend = start, yend = 20), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  
+  # Add text showing the value of each 100/75/50/25 lines
+  annotate("text", x = rep(max(data$id),4), y = c(20, 40, 60, 80), label = c("20", "40", "60", "80") , color="grey", size=3 , angle=0, fontface="bold", hjust=1) +
+  
+  geom_bar(aes(x=as.factor(id), y=value, fill=folder), stat="identity", alpha=0.5) +
+  ylim(-100,120) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    plot.margin = unit(rep(-1,4), "cm") 
+  ) +
+  coord_polar() + 
+  geom_text(data=label_data, aes(x=id, y=value+10, label=feature, hjust=hjust), color="black", fontface="bold",alpha=0.6, size=2.5, angle= label_data$angle, inherit.aes = FALSE ) +
+  
+  geom_segment(data=base_data, aes(x = start, y = -5, xend = end, yend = -5), colour = "black", alpha=0.8, size=0.4 , inherit.aes = FALSE )  +
+  geom_text(data=base_data, aes(x = title, y = -20, label=folder), colour = "black", alpha=0.8, size=3, fontface="bold", inherit.aes = FALSE) 
+
+p
+```
+
+## Circular barplot, for all the articles, organized by characteristic
+
+This circular plot display the percentage of articles that have the specified aspects of the material characterisation, for all the articles:
+
+```{r warning=FALSE, fig.height=8, fig.width=8}
+data<-quality_evaluation_df
+
+ data$Article_name<-NULL
+data$Size_mm_section<-NULL
+data$Ranking<-NULL
+data$In_vitro<-NULL
+data$In_vivo<-NULL
+data$Wavelenght<-NULL
+data$Concentration<-NULL
+
+data<-aggregate(data, by = list(data$Folder), FUN = mean)
+data$Folder<-data$Group.1
+data$Group.1<-NULL
+
+data<-cbind(data$Folder, gather(data[1:5]))
+colnames(data)<-c("folder", "feature", "value")
+
+data$feature<-as.factor(data$feature)
+empty_bar=3
+to_add = data.frame( matrix(NA, empty_bar*nlevels(data$feature), ncol(data)) )
+colnames(to_add) = colnames(data)
+to_add$feature=rep(levels(data$feature), each=empty_bar)
+data=rbind(data, to_add)
+data=data %>% arrange(feature)
+
+
+data$id=seq(1, nrow(data))
+
+
+
+# Get the name and the y position of each label
+label_data=data
+number_of_bar=nrow(label_data)
+angle= 90 - 360 * (label_data$id-0.5) /number_of_bar     # I substract 0.5 because the letter must have the angle of the center of the bars. Not extreme right(1) or extreme left (0)
+label_data$hjust<-ifelse( angle < -90, 1, 0)
+label_data$angle<-ifelse(angle < -90, angle+180, angle)
+
+
+# prepare a data frame for base lines
+base_data=data %>% 
+  group_by(feature) %>% 
+  summarize(start=min(id), end=max(id) - empty_bar) %>% 
+  rowwise() %>% 
+  mutate(title=mean(c(start, end)))
+
+# prepare a data frame for grid (scales)
+grid_data = base_data
+grid_data$end = grid_data$end[ c( nrow(grid_data), 1:nrow(grid_data)-1)] + 1
+grid_data$start = grid_data$start - 1
+grid_data=grid_data[-1,]
+
+data$value<-data$value*100
+
+# Make the plot
+p = ggplot(data, aes(x=as.factor(id), y=value, fill=folder)) +    
+  
+  geom_bar(aes(x=as.factor(id), y=value, fill=folder), stat="identity", alpha=0.5) +
+  
+  # Add a val=100/75/50/25 lines. I do it at the beginning to make sur barplots are OVER it.
+  geom_segment(data=grid_data, aes(x = end, y = 80, xend = start, yend = 80), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 60, xend = start, yend = 60), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 40, xend = start, yend = 40), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 20, xend = start, yend = 20), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  
+  # Add text showing the value of each 100/75/50/25 lines
+  annotate("text", x = rep(max(data$id),4), y = c(20, 40, 60, 80), label = c("20", "40", "60", "80") , color="grey", size=3 , angle=0, fontface="bold", hjust=1) +
+  
+  geom_bar(aes(x=as.factor(id), y=value, fill=folder), stat="identity", alpha=0.5) +
+  ylim(-100,120) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    plot.margin = unit(rep(-1,4), "cm") 
+  ) +
+  coord_polar() + 
+  geom_text(data=label_data, aes(x=id, y=value+10, label=folder, hjust=hjust), color="black", fontface="bold",alpha=0.6, size=2.5, angle= label_data$angle, inherit.aes = FALSE ) +
+  
+  geom_segment(data=base_data, aes(x = start, y = -5, xend = end, yend = -5), colour = "black", alpha=0.8, size=0.4 , inherit.aes = FALSE )  +
+  geom_text(data=base_data, aes(x = title, y = -30, label=feature), colour = "black", alpha=0.8, size=3, fontface="bold", inherit.aes = FALSE)
+
+p
+```
+
+## Circular barplot, for all the articles, stratified by folder, of articles, with a minumum score of 2 :
+
+This circular plot display the percentage of articles that have the specified aspects of the material characterisation, for all the articles with a minimum score of two :
+
+```{r fig.height=8, fig.width=8, warning=FALSE}
+
+data<-quality_evaluation_df
+data<-quality_evaluation_df[which(quality_evaluation_df$Ranking>1),]
+
+data$Article_name<-NULL
+data$Size_mm_section<-NULL
+data$Ranking<-NULL
+data$In_vitro<-NULL
+data$In_vivo<-NULL
+data$Wavelenght<-NULL
+data$Concentration<-NULL
+
+data<-aggregate(data, by = list(data$Folder), FUN = mean)
+data$Folder<-data$Group.1
+data$Group.1<-NULL
+
+data<-cbind(data$Folder, gather(data[1:5]))
+colnames(data)<-c("folder", "feature", "value")
+
+
+empty_bar=3
+to_add = data.frame( matrix(NA, empty_bar*nlevels(data$folder), ncol(data)) )
+colnames(to_add) = colnames(data)
+to_add$folder=rep(levels(data$folder), each=empty_bar)
+data=rbind(data, to_add)
+data=data %>% arrange(folder)
+
+data$id=seq(1, nrow(data))
+
+# Get the name and the y position of each label
+label_data=data
+number_of_bar=nrow(label_data)
+angle= 90 - 360 * (label_data$id-0.5) /number_of_bar     # I substract 0.5 because the letter must have the angle of the center of the bars. Not extreme right(1) or extreme left (0)
+label_data$hjust<-ifelse( angle < -90, 1, 0)
+label_data$angle<-ifelse(angle < -90, angle+180, angle)
+
+
+# prepare a data frame for base lines
+base_data=data %>% 
+  group_by(folder) %>% 
+  summarize(start=min(id), end=max(id) - empty_bar) %>% 
+  rowwise() %>% 
+  mutate(title=mean(c(start, end)))
+
+# prepare a data frame for grid (scales)
+grid_data = base_data
+grid_data$end = grid_data$end[ c( nrow(grid_data), 1:nrow(grid_data)-1)] + 1
+grid_data$start = grid_data$start - 1
+grid_data=grid_data[-1,]
+
+data$value<-data$value*100
+
+# Make the plot
+p = ggplot(data, aes(x=as.factor(id), y=value, fill=folder)) +    
+
+  geom_bar(aes(x=as.factor(id), y=value, fill=folder), stat="identity", alpha=0.5) +
+  
+  # Add a val=100/75/50/25 lines. I do it at the beginning to make sur barplots are OVER it.
+  geom_segment(data=grid_data, aes(x = end, y = 80, xend = start, yend = 80), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 60, xend = start, yend = 60), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 40, xend = start, yend = 40), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 20, xend = start, yend = 20), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  
+  # Add text showing the value of each 100/75/50/25 lines
+  annotate("text", x = rep(max(data$id),4), y = c(20, 40, 60, 80), label = c("20", "40", "60", "80") , color="grey", size=3 , angle=0, fontface="bold", hjust=1) +
+  
+  geom_bar(aes(x=as.factor(id), y=value, fill=folder), stat="identity", alpha=0.5) +
+  ylim(-100,120) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    plot.margin = unit(rep(-1,4), "cm") 
+  ) +
+  coord_polar() + 
+  geom_text(data=label_data, aes(x=id, y=value+10, label=feature, hjust=hjust), color="black", fontface="bold",alpha=0.6, size=2.5, angle= label_data$angle, inherit.aes = FALSE ) +
+  
+  geom_segment(data=base_data, aes(x = start, y = -5, xend = end, yend = -5), colour = "black", alpha=0.8, size=0.4 , inherit.aes = FALSE )  +
+  geom_text(data=base_data, aes(x = title, y = -20, label=folder), colour = "black", alpha=0.8, size=3, fontface="bold", inherit.aes = FALSE) 
+
+p
+```
+
+## Circular barplot, for all the articles, stratified by material characteristic, of articles, with a minumum score of 2 :
+
+This circular plot display the percentage of articles that have the specified aspects of the material characterisation, with a minimum score of two :
+
+```{r warning=FALSE, fig.height=8, fig.width=8}
+data<-quality_evaluation_df
+data<-quality_evaluation_df[which(quality_evaluation_df$Ranking>1),]
+
+
+data$Article_name<-NULL
+data$Size_mm_section<-NULL
+data$Ranking<-NULL
+data$In_vitro<-NULL
+data$In_vivo<-NULL
+data$Wavelenght<-NULL
+data$Concentration<-NULL
+
+data<-aggregate(data, by = list(data$Folder), FUN = mean)
+data$Folder<-data$Group.1
+data$Group.1<-NULL
+
+data<-cbind(data$Folder, gather(data[1:5]))
+colnames(data)<-c("folder", "feature", "value")
+
+data$feature<-as.factor(data$feature)
+empty_bar=3
+to_add = data.frame( matrix(NA, empty_bar*nlevels(data$feature), ncol(data)) )
+colnames(to_add) = colnames(data)
+to_add$feature=rep(levels(data$feature), each=empty_bar)
+data=rbind(data, to_add)
+data=data %>% arrange(feature)
+
+
+data$id=seq(1, nrow(data))
+
+
+
+# Get the name and the y position of each label
+label_data=data
+number_of_bar=nrow(label_data)
+angle= 90 - 360 * (label_data$id-0.5) /number_of_bar     # I substract 0.5 because the letter must have the angle of the center of the bars. Not extreme right(1) or extreme left (0)
+label_data$hjust<-ifelse( angle < -90, 1, 0)
+label_data$angle<-ifelse(angle < -90, angle+180, angle)
+
+
+# prepare a data frame for base lines
+base_data=data %>% 
+  group_by(feature) %>% 
+  summarize(start=min(id), end=max(id) - empty_bar) %>% 
+  rowwise() %>% 
+  mutate(title=mean(c(start, end)))
+
+# prepare a data frame for grid (scales)
+grid_data = base_data
+grid_data$end = grid_data$end[ c( nrow(grid_data), 1:nrow(grid_data)-1)] + 1
+grid_data$start = grid_data$start - 1
+grid_data=grid_data[-1,]
+
+data$value<-data$value*100
+
+# Make the plot
+p = ggplot(data, aes(x=as.factor(id), y=value, fill=folder)) +    
+  
+  geom_bar(aes(x=as.factor(id), y=value, fill=folder), stat="identity", alpha=0.5) +
+  
+  # Add a val=100/75/50/25 lines. I do it at the beginning to make sur barplots are OVER it.
+  geom_segment(data=grid_data, aes(x = end, y = 80, xend = start, yend = 80), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 60, xend = start, yend = 60), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 40, xend = start, yend = 40), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  geom_segment(data=grid_data, aes(x = end, y = 20, xend = start, yend = 20), colour = "grey", alpha=1, size=0.3 , inherit.aes = FALSE ) +
+  
+  # Add text showing the value of each 100/75/50/25 lines
+  annotate("text", x = rep(max(data$id),4), y = c(20, 40, 60, 80), label = c("20", "40", "60", "80") , color="grey", size=3 , angle=0, fontface="bold", hjust=1) +
+  
+  geom_bar(aes(x=as.factor(id), y=value, fill=folder), stat="identity", alpha=0.5) +
+  ylim(-100,120) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    plot.margin = unit(rep(-1,4), "cm") 
+  ) +
+  coord_polar() + 
+  geom_text(data=label_data, aes(x=id, y=value+10, label=folder, hjust=hjust), color="black", fontface="bold",alpha=0.6, size=2.5, angle= label_data$angle, inherit.aes = FALSE ) +
+  
+  geom_segment(data=base_data, aes(x = start, y = -5, xend = end, yend = -5), colour = "black", alpha=0.8, size=0.4 , inherit.aes = FALSE )  +
+  geom_text(data=base_data, aes(x = title, y = -30, label=feature), colour = "black", alpha=0.8, size=3, fontface="bold", inherit.aes = FALSE)
+
+p
+```

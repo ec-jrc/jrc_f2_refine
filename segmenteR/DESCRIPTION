@@ -1,0 +1,45 @@
+Package: segmenteR
+Title: Extract A Section From The Pdf Of An Article
+Version: 0.0.0.9000
+Authors@R: 
+    c(person(given = "Etienne",
+           family = "Rolland",
+           role = c("aut", "cre"),
+           email = "etienne.rolland.cdk@gmail.com",
+           comment = c(ORCID = "https://orcid.org/0000-0002-0980-4318")),
+      person(given = "Blanka",
+           family = "Halamoda-Kenzaoui",
+           role = c("aut"),
+           email = "Blanka.HALAMODA-KENZAOUI@ec.europa.eu"),
+      person(given = " Susanne",
+           family = "Bremer-Hoffmann",
+           role = c("aut"),
+           email = "Susanne.BREMER-HOFFMANN@ec.europa.eu"),
+      person(given = "Antonio",
+           family = "Puertas Gallardo",
+           role = c("aut"),
+           email = "Antonio.PUERTAS-GALLARDO@ec.europa.eu",
+           comment = c(ORCID = "https://orcid.org/0000-0003-3457-4777"))
+           )
+Description: segmenteR is a tool to extract a section, such as "material
+    and methods", from the pdf of an article, using the fonts information
+    and natural language processing.
+License: `use_mit_license()`, `use_gpl3_license()` or friends to
+    pick a license
+Imports: udpipe,
+  stringr,
+  readr,
+  dplyr, 
+  tabulizer,
+  pdftools (>= 2.3.1.9000)
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Depends: 
+    R (>= 2.10)
+Suggests: 
+    testthat,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
