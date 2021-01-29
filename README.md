@@ -16,7 +16,7 @@ segmenteR is a tool to segment articles that has been elaborated in the context 
 
 segmenteR has been developped at the Joint Research Centre, Directorate F - Health, Consumers and Reference Materials, Ispra (VA), Italy.
 
-The project aimed to analyse a corpus of 821 articles, obtained from the PubMed MeSH database and related to several toxicity topics (cardiotoxicity, genotoxicity, etc), to evaluate the quality of the reporting of methods of characterization and to parse the articles for specifics toxicity effects and specifics nanoparticules.
+The project aimed to analyse a corpus of 801 articles, obtained from the PubMed MeSH database and related to several toxicity topics (cardiotoxicity, genotoxicity, etc), to evaluate the quality of the reporting of methods of characterization and to parse the articles for specifics toxicity effects and specifics nanoparticules.
 
 In order to evaluate the quality of the reporting inside each articles and parse the texts for specific toxicity effects, we needed to extract both the material and methods section and the results section of each articles, respectively. The tool segmenteR was developed to carry this specific subtask of segmentating the articles into the differents sections.
 
