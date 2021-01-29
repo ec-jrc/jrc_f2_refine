@@ -1,12 +1,19 @@
 # jrc_f2_refine 
 
+This repository is ...
+
+the [Horizon 2020 project REFINE](http://refine-nanomed.com/), a project aiming to develop a regulatory science framework for the risk-benefit assessment of medical products based on nanotechnology.
+
+Joint Research Centre, Directorate F - Health, Consumers and Reference Materials, Ispra (VA), Italy.
+
+
 ## Organisation of the repository
 
+* Analyses_of_corpus
+* DOIs_articles_corpus
+* segmenteR 
 
 ## segmenteR
-
-<!-- badges: start -->
-<!-- badges: end -->
 
 segmenteR is a tool to extract a section, for example, "material and methods", from the pdf of an article, using the fonts information from the pdf and natural language processing.
 
