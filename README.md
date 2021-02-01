@@ -1,6 +1,6 @@
 # jrc_f2_refine 
 
-This repository host the code for project conducted inside the [Horizon 2020 project REFINE](http://refine-nanomed.com/), a project aiming to develop a regulatory science framework for the risk-benefit assessment of medical products based on nanotechnology at the Joint Research Centre, Directorate F - Health, Consumers and Reference Materials, Ispra (VA), Italy.
+This repository hosts the code for project conducted inside the [Horizon 2020 project REFINE](http://refine-nanomed.com/), a project aiming to develop a regulatory science framework for the risk-benefit assessment of medical products based on nanotechnology at the Joint Research Centre, Directorate F - Health, Consumers and Reference Materials, Ispra (VA), Italy.
 
 Please refer to the following publication : *Applying of automatic tools for a systematic review of safety effects of nanomedicines, Blanka Halamoda-Kenzaoui, Etienne Rolland, Jacopo Piovesan, Antonio Puertas Gallardo, Susanne Bremer-Hoffmann*.
 
