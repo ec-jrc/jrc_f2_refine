@@ -6,13 +6,13 @@ Please refer to the following publication : *Applying of automatic tools for a s
 
 ## Organisation of the repository
 
-* **Analyses_of_corpus :**
-* **DOIs_articles_corpus :**
-* **segmenteR :** 
+* **Analyses_of_corpus :** this folder contain all the Rmd files that were used to run the analysis mentionned in the articles and produced the graph, as well as the MD documents that were produced by this Rmd documents.
+* **DOIs_articles_corpus :** this folder contain the DOIs of the articles of the corpus, as well as their titles, when this information was accessible to the tools, in both Csv and RDS format. Some missing DOI are due to : lack of DOI in the original article, article is not an article in pdf but a scan in pdf format, etc.
+* **segmenteR :** the tool used to segment the article. Please see below for a tutorial.
 
 ## About the corpus
 
-The pdf and the rds files ...
+The articles in pdf format that composed the corpus, as well as the rds files used for the analysis and containing the texts of the articles, could not have been added to this repository for copyright reason. Feel free to access the article via their DOI and clone this repository or install the segmentation tool (instruction below) to reproduce part or all of the analaysis.
 
 ## segmenteR
 
@@ -33,13 +33,10 @@ If you use this tool, please cite to the following publication : *Applying of au
 ### Requirement
 
 To extract the information on the fonts inside the pdf we use poppler, a [PDF rendering library](https://poppler.freedesktop.org/) and the cpp API of poppler. 
-The package require a **version of poppler >= 0.89** as well as a recent version of pdftools. 
-segmenteR currently rely on a **dev version of pdftools** that integrate the later updates of poppler and poppler cpp, the cpp API of poppler to read the information about the fonts inside an article.
-
-Currently install the tool you need install both :
+The package require a **version of poppler >= 0.89** as well as a recent version of pdftools. The dev version of pdftools integrate the required change, but you need to install it from github. Currently you need to install :
 
 ``` r
-devtools::install_github("Cdk29/pdftools") #until the PR is integrated into the main package
+devtools::install_github("ropensci/pdftools") 
 devtools::install_github("ec-jrc/jrc_f2_refine", subdir="segmenteR") 
 ```
 
