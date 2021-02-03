@@ -10,7 +10,7 @@ prepare_poppler_output <- function(pdf_name) {
 
   poppler_output <- pdftools::pdf_data(pdf_name)
   poppler_output <- do.call(rbind, poppler_output)
-  poppler_output <- poppler_output[c("text", "font", "font.size")]
+  poppler_output <- poppler_output[c("text", "font_name", "font_size")]
   poppler_output <- as.data.frame(poppler_output)
   colnames(poppler_output) <- c("Word", "Font", "Size")
 
