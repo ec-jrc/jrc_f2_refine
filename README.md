@@ -12,7 +12,7 @@ Please refer to the following publication : *Applying of automatic tools for a s
 
 ## Important : About the corpus and this repository
 
-The corpus used for the research work was composed of articles in pdf formats. For copyright reason, the pdfs and rds files created by the tools for segmentation, containing sections from the articles, could not have been added to this repository. If you want to reproduce part or the totality of the analysis, please use the DOIs to access the articles via their DOI and clone this repository or install the segmentation tool.
+The corpus used for the research work was composed of articles in pdf formats. For copyright reason, the pdfs and rds files created by the tools for segmentation, containing sections from the articles, could not have been added to this repository. If you want to reproduce part or the totality of the analysis, please use the DOIs to access the articles and clone this repository or install the segmentation tool.
 
 ## segmenteR
 
