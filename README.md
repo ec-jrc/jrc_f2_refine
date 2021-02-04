@@ -1,18 +1,18 @@
 # jrc_f2_refine 
 
-This repository hosts the code for project conducted inside the [Horizon 2020 project REFINE](http://refine-nanomed.com/), a project aiming to develop a regulatory science framework for the risk-benefit assessment of medical products based on nanotechnology at the Joint Research Centre, Directorate F - Health, Consumers and Reference Materials, Ispra (VA), Italy.
+This repository hosts the code for a research work conducted inside the [Horizon 2020 project REFINE](http://refine-nanomed.com/), a project aiming to develop a regulatory science framework for the risk-benefit assessment of medical products based on nanotechnology at the Joint Research Centre, Directorate F - Health, Consumers and Reference Materials, Ispra (VA), Italy.
 
 Please refer to the following publication : *Applying of automatic tools for a systematic review of safety effects of nanomedicines, Blanka Halamoda-Kenzaoui, Etienne Rolland, Jacopo Piovesan, Antonio Puertas Gallardo, Susanne Bremer-Hoffmann*.
 
-## Organisation of the repository
+# Organisation of the repository
 
-* **Analyses_of_corpus :** this folder contain all the Rmd files that were used to run the analysis mentionned in the articles and produced the graph, as well as the MD documents that were produced by this Rmd documents.
-* **DOIs_articles_corpus :** this folder contain the DOIs of the articles of the corpus, as well as their titles, when this information was accessible to the tools, in both Csv and RDS format. Some missing DOI are due to : lack of DOI in the original article, article is not an article in pdf but a scan in pdf format, etc.
-* **segmenteR :** the tool used to segment the article. Please see below for a tutorial.
+* **Analyses_of_corpus :** this folder contains all the .Rmd files that were used to produce the analysis mentionned in the article, as well as the .md documents that were produced by this .Rmd files. This folder contain also all the original charts present in the articles.
+* **DOIs_articles_corpus :** this folder contain the DOIs of the articles of the corpus, as well as their titles, when this information was extractible via pdftool. The DOI and the titles are avalaible in CSV and RDS format. Some example of missing DOI are due to : a lack of DOI in the original article (in case the article was not a research article), an article of the corpus that was not an article in pdf format but a scan of article in pdf format, etc.
+* **segmenteR :** this repository contain the tool used to segment the articles of the corpus during the research work, as well as the documentation and the test. This subdirectory is a **R package** that can be install using devtools. Please see below for more details on its installation and utilisation.
 
-## About the corpus
+## Important : About the corpus and this repository
 
-The articles in pdf format that composed the corpus, as well as the rds files used for the analysis and containing the texts of the articles, could not have been added to this repository for copyright reason. Feel free to access the article via their DOI and clone this repository or install the segmentation tool (instruction below) to reproduce part or all of the analaysis.
+The corpus used for the research work was composed of articles in pdf formats. For copyright reason, the pdfs and rds files created by the tools for segmentation, containing sections from the articles, could not have been added to this repository. If you want to reproduce part or the totality of the analysis, please use the DOIs to access the articles via their DOI and clone this repository or install the segmentation tool.
 
 ## segmenteR
 
