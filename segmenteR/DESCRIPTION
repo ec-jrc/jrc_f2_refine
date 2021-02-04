@@ -24,8 +24,7 @@ Authors@R:
 Description: segmenteR is a tool to extract a section, such as "material
     and methods", from the pdf of an article, using the fonts information
     and natural language processing.
-License: `use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license
+License: GPL-3
 Imports: udpipe,
   stringr,
   readr,
