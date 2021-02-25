@@ -1,6 +1,6 @@
 # jrc_f2_refine 
 
-This repository hosts the code for a research project conducted at the Joint Research Centre, Directorate F - Health, Consumers and Reference Materials, Ispra (VA), Italy, in relation to the Horizon 2020 project REFINE, aiming to develop a regulatory science framework for the risk-benefit assessment of medical products based on nanotechnology.
+This repository hosts the code for a research work conducted at the Joint Research Centre, Directorate F - Health, Consumers and Reference Materials, Ispra (VA), Italy, in relation to the Horizon 2020 project REFINE, aiming to develop a regulatory science framework for the risk-benefit assessment of medical products based on nanotechnology.
 
 Please refer to the following publication : *Toxicity effects of nanomaterials for health applications: how automation can support systematic review of the literature ? Blanka Halamoda-Kenzaoui, Etienne Rolland, Jacopo Piovesan, Antonio Puertas Gallardo, Susanne Bremer-Hoffmann*.
 
@@ -20,15 +20,13 @@ segmenteR is a tool to extract a section, for example, "material and methods", f
 
 ### Introduction
 
-segmenteR is a tool to segment articles that has been elaborated in the context of the [Horizon 2020 project REFINE](http://refine-nanomed.com/), a project aiming to develop a regulatory science framework for the risk-benefit assessment of medical products based on nanotechnology.
-
-segmenteR has been developped at the Joint Research Centre, Directorate F - Health, Consumers and Reference Materials, Ispra (VA), Italy.
+segmenteR is a tool to segment articles that has been elaborated in the context of a research work conducted at the Joint Research Centre, Directorate F - Health, Consumers and Reference Materials, Ispra (VA), Italy, in relation to  the Horizon 2020 project REFINE,  aiming to develop a regulatory science framework for the risk-benefit assessment of medical products based on nanotechnology.
 
 The project aimed to analyse a corpus of 801 articles, obtained from the PubMed MeSH database and related to several toxicity topics (cardiotoxicity, genotoxicity, etc), to evaluate the quality of the reporting of methods of characterization and to parse the articles for specifics toxicity effects and specifics nanoparticules.
 
 In order to evaluate the quality of the reporting inside each articles and parse the texts for specific toxicity effects, we needed to extract both the material and methods section and the results section of each articles, respectively. The tool segmenteR was developed to carry this specific subtask of segmentating the articles into the differents sections.
 
-If you use this tool, please cite to the following publication : *Applying of automatic tools for a systematic review of safety effects of nanomedicines, Blanka Halamoda-Kenzaoui, Etienne Rolland, Jacopo Piovesan, Antonio Puertas Gallardo, Susanne Bremer-Hoffmann* .
+If you use this tool, please cite to the following publication : *Toxicity effects of nanomaterials for health applications: how automation can support systematic review of the literature ?, Blanka Halamoda-Kenzaoui, Etienne Rolland, Jacopo Piovesan, Antonio Puertas Gallardo, Susanne Bremer-Hoffmann* .
 
 ### Requirement
 
