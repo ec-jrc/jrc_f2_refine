@@ -1,0 +1,88 @@
+---
+title: "Validation_round2"
+output: 
+  github_document:
+    toc: true
+    
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Validation of the quality evaluation
+
+This rmarkdown document compare the automatic and manual quality evaluation performed on 28 articles of the folder validation. This comparison was reported previously in the double boxplot plot. This rmarkdown document introduce others analysis using different statistical approaches to make the differences between the two ranking methods more easy to apprehend.
+
+
+```{r include=FALSE}
+library(ggplot2)
+```
+
+## Comparison manual vs automatic tool
+
+```{r}
+ranking_manual <- c(4, 3, 3, 3, 3, 3, 2, 2, 2 , 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0)
+
+ranking_auto <- c(3, 3, 3, 3, 3, 2, 4, 4, 3, 3, 2, 2, 1, 1, 0, 0, 2, 2, 2, 2, 3, 2, 2, 2, 1, 1, 0, 0)
+```
+
+Difference between automatic and manual ranking :
+
+```{r}
+difference <- ranking_auto-ranking_manual
+difference
+```
+
+```{r}
+difference_absolue <- abs(difference)
+difference_absolue
+```
+
+```{r}
+summary(difference)
+summary(difference_absolue)
+```
+```{r}
+table(difference)
+table(difference_absolue)
+```
+```{r}
+diff_to_plot <- as.data.frame(table(difference))
+abs_diff_to_plot <- as.data.frame(table(difference_absolue))
+```
+
+## Barplot of the difference between automatic and manual quality evaluation
+
+
+```{r barplot1, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
+p<-ggplot(data=diff_to_plot, aes(x=difference, y=Freq)) +
+  geom_bar(stat="identity", fill="steelblue")+
+  geom_text(aes(label=Freq), vjust=1.6, color="white", size=6)+
+  theme_minimal()
+
+p + ggtitle("Absolute difference between automatic and manual quality evaluation") + xlab("Difference between automatic evaluation and manual evaluation") + ylab("Number of articles")
+```
+## Barplot of the absolute difference between automatic and manual quality evaluation
+
+```{r barplot2, fig.height=10, fig.width=10, dpi=350, dev="jpeg"}
+p<-ggplot(data=abs_diff_to_plot, aes(x=difference_absolue, y=Freq)) +
+  geom_bar(stat="identity", fill="steelblue")+
+  geom_text(aes(label=Freq), vjust=1.6, color="white", size=6)+
+  theme_minimal()
+
+p + ggtitle("Absolute difference between automatic and manual quality evaluation") + xlab("Difference between automatic evaluation and manual evaluation") + ylab("Number of articles")
+```
+
+## Some correlations 
+
+```{r}
+library(Hmisc)
+df<-data.frame("auto"=ranking_auto, "manual"=ranking_manual)
+
+cor(df)
+cor(df, method = "spearman")
+rcorr(as.matrix(df))
+
+```
+
+
