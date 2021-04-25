@@ -14,24 +14,28 @@
 #'
 annotate_txt_pdf <- function(txt_pdf, udpipe_model) {
 
-  # Trying to load the model in case user forgot to provide one :
-  ud_model_gum <- tryCatch(
-    {
-      udpipe::udpipe_load_model(file = udpipe_model)
-    },
-    error = function(cond) {
-      message("Failed to load the model for annotation.")
-      message("Trying to download the model.")
-      # res object to test for res$download_failed
-      res <- udpipe::udpipe_download_model(language = "english-gum")
-      if (res$download_failed == TRUE) {
-        stop("Download of udpipe model failed")
-      }
-      # Use res$file_model that contain the name of the file to load the model
-      ud_model_gum <- udpipe::udpipe_load_model(file = res$file_model)
-      return(ud_model_gum)
-    }
-  ) # endtryCatch
+  # Following line need a refactor with two things :
+  # the try catch does not work properly
+  # the try catch should be in a other function to make it clearer?
+  
+  # # Trying to load the model in case user forgot to provide one :
+  # ud_model_gum <- tryCatch(
+  #   {
+  #     ud_model_gum <- udpipe::udpipe_load_model(file = udpipe_model)
+  #   },
+  #   error = function(cond) {
+  #     message("Failed to load the model for annotation.")
+  #     message("Trying to download the model.")
+  #     # res object to test for res$download_failed
+  #     res <- udpipe::udpipe_download_model(language = "english-gum")
+  #     if (res$download_failed == TRUE) {
+  #       stop("Download of udpipe model failed")
+  #     }
+  #     # Use res$file_model that contain the name of the file to load the model
+  #     ud_model_gum <- udpipe::udpipe_load_model(file = res$file_model)
+  #     return(ud_model_gum)
+  #   }
+  # ) # endtryCatch
 
   # conllu_df is the standard name of the dataframe in the documentation of udpipe
   # annotate the txt file
