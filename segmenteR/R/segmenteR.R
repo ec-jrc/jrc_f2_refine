@@ -39,7 +39,7 @@ annotate_txt_pdf <- function(txt_pdf, udpipe_model) {
 
   # conllu_df is the standard name of the dataframe in the documentation of udpipe
   # annotate the txt file
-  conllu_df <- udpipe::udpipe_annotate(object = ud_model_gum, x = txt_pdf)
+  conllu_df <- udpipe::udpipe_annotate(object = udpipe_model, x = txt_pdf)
   conllu_df <- as.data.frame(conllu_df)
 
   return(conllu_df)
