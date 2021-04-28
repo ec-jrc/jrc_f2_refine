@@ -60,7 +60,7 @@ p<-ggplot(data=diff_to_plot, aes(x=difference, y=Freq)) +
   geom_text(aes(label=Freq), vjust=1.6, color="white", size=6)+
   theme_minimal()
 
-p + ggtitle("Absolute difference between automatic and manual quality evaluation") + xlab("Difference between automatic evaluation and manual evaluation") + ylab("Number of articles")
+p + ggtitle("Difference between automatic and manual quality evaluation") + xlab("Difference between automatic evaluation and manual evaluation") + ylab("Number of articles")
 ```
 ## Barplot of the absolute difference between automatic and manual quality evaluation
 
