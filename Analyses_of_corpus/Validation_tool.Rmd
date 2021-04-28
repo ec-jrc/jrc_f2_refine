@@ -1,0 +1,847 @@
+---
+title: "Validation of the tool"
+author: "Etienne Rolland"
+date: "20/04/2020"
+output: 
+  # html_document :
+  #   toc : true
+  github_document:
+    toc: true
+    
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Checking the corpus of validation
+
+```{r}
+library(segmenteR)
+library(udpipe)
+```
+
+```{r}
+setwd("~/Bureau")
+validation_set<-list.files("Validation Set/")
+```
+
+```{r}
+articles<-c("Ansari, M 2018.pdf",
+"Bai, K J et al 2018.pdf",
+"Blum, J L et al 2014.pdf",
+"Chen et al 2008.pdf",
+"Jamshidzadeh, A et al 2015.pdf",
+"Li, C et al 2009.pdf",
+"Li, J et al 2013.pdf",
+"Li, J G et al 2009.pdf",
+"Li, Y et al 2010.pdf",
+"Liu, Y et al 2014.pdf",
+"Love, S A et al 2012.pdf",
+"Maurizi, L et al 2015.pdf",
+"Nešković, O et al 2013.pdf",
+"Neun, B W et al 2018.pdf",
+"Reddy, A et al 2010.pdf",
+"Richter, AW et al 1983.pdf",
+"Sadaf, A et al 2012.pdf",
+"Tang, J et al 2009.pdf",
+"Vicente, S et al 2017.pdf",
+"Wang, X et al 2010.pdf",
+"Xiaoli, F et al 2017.pdf",
+"Yan, M et al 2011.pdf",
+"Yu, T et al 2011.pdf",
+"Zook, J M et al 2011.pdf",
+"Abbasalipourkabir R et al 2015.pdf",
+"Abe, S et al 2012.pdf",
+"Adedara, I A et al 2018.pdf",
+"Aijie, C et al 2017.pdf",
+"Amrollahi-Sharifabadi et al. 2018.pdf",
+"Aragao-Santiago, L 2016.pdf",
+"AshaRani et al. 2009.pdf",
+"Bendre, V et al 2011.pdf",
+"Cabral, H et al 2005.pdf")
+```
+
+```{r}
+table(articles %in% validation_set)
+table(validation_set %in% articles)
+```
+```{r}
+articles[which(articles %in% validation_set)]
+```
+
+```{r}
+articles[which(!articles %in% validation_set)]
+```
+The three missing articles, 
+[1] "Amrollahi-Sharifabadi et al. 2018.pdf" "Aragao-Santiago, L 2016.pdf"           "Cabral, H et al 2005.pdf"             
+Has been downloaded in the 20 April of 2021.
+They were absent from the repository in pdf.
+
+This may explain why the double box plot only contains 28 points, where the manual ranking contain 33 articles. 3 were missing.
+
+```{r}
+list.files("Missing_validation_set/")
+```
+
+```{r}
+validation_set<-list.files("Validation_set_combined//")
+articles[which(!articles %in% validation_set)]
+table(articles %in% validation_set)
+```
+## Third folder to managed more easily the manual reading of the article in pdf
+
+```{r}
+articles_to_clean <- list.files("Validation_tool_folder/")
+for (article in articles_to_clean) {
+  print(article)
+  file.remove(paste0("Validation_tool_folder/", article))
+}
+print("After cleaning :")
+list.files("Validation_tool_folder/")
+```
+
+
+
+```{r}
+#Validation_tool_folder
+length(articles)
+for (article in articles) {
+  print(article)
+  file.copy(paste0("Validation_set_combined/", article), paste0("Validation_tool_folder/", article))
+}
+```
+
+```{r}
+length(list.files("Validation_tool_folder/"))
+list.files("Validation_tool_folder/")
+```
+
+
+# Extraction of the materials and methods and results sections for comparison
+
+## Automatic extraction via segmenteR
+
+```{r}
+## udpipe got the model for annotation
+dl <- udpipe::udpipe_download_model("english-gum")
+str(dl)
+```
+
+```{r}
+model <- udpipe_load_model(file = dl$file_model)
+model
+```
+```{r}
+library(stringr)
+```
+
+
+```{r}
+for (article in articles) {
+  #do segmentation
+  #from manual extraction :
+  #path = paste0("Validation_tool_folder/", pdf_name)
+  print(article)
+  path = paste0("Validation_tool_folder/", article)
+  section_aliases <- c("material", "method", "experimental", "experiment", "methodology")
+
+  #model definition can be skipped, the function can download it automatically
+  material_and_methods <- data.frame()
+  material_and_methods <- try(segmenteR::extract_section_from_pdf(pdf_name=path,
+                                                             udpipe_model=model, 
+                                                             section_aliases=section_aliases))
+  saveRDS(material_and_methods, file=paste0("Validation_tool_folder/segmenteR_", article, ".rds"))
+
+}
+```
+
+
+## Manual extraction
+
+### Functions
+
+```{r}
+pdf_name<-"Cabral, H et al 2005.pdf"
+```
+
+```{r}
+#function to open the article passed as input and preprocess
+open_pdf_and_annotate <- function(pdf_name, model) {
+  
+  #open the pdf so the user can read it
+  
+  path = paste0("Validation_tool_folder/", pdf_name)
+  fs::file_show(path)
+  
+  remove_bibliography <- TRUE
+
+  txt_pdf <- tabulizer::extract_text(path) # read the text from the pdf
+  txt_pdf <- segmenteR::preprocess_article_txt(txt_pdf)
+  conllu_df <- segmenteR::annotate_txt_pdf(txt_pdf, udpipe_model=model ) # create the dataframe for NLP using udpipe
+  
+  return(conllu_df)
+}
+
+```
+
+```{r}
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+```
+
+```{r}
+head(conllu_df)
+```
+
+```{r}
+word <- "Materials"
+
+display_occurences <- function(word, conllu_df) {
+  idx<-which(conllu_df$token==word)
+  print(idx)
+  conllu_df[idx,]$sentence
+}
+
+display_occurences(word, conllu_df)
+```
+```{r}
+display_occurences("570", conllu_df)
+
+```
+
+
+```{r}
+cut_conllu_df <- function(idx1, idx2, conllu_df) {
+  
+  section <- conllu_df[idx1:idx2,]
+  print(unique(section$sentence))
+  return(section)
+  
+}
+```
+
+
+```{r}
+res<-cut_conllu_df(1504, 2628, conllu_df)
+```
+
+```{r}
+head(res)
+```
+
+```{r}
+#save RDS file
+pdf_name
+saveRDS(res, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+```
+
+### Extraction of the materials and methods section
+
+One block for each article :
+
+```{r}
+pdf_name <- "Ansari, M 2018.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Materials"
+word_end_mm <- "CA"
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(846, 1852, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Bai, K J et al 2018.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Methods"
+word_end_mm <- "05"
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1639, 3893, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Blum, J L et al 2014.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Materials"
+word_end_mm <- "05" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1674, 3478, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Chen et al 2008.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Materials"
+word_end_mm <- "conditions" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(952, 2414, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Jamshidzadeh, A et al 2015.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "MATERIALS"
+word_end_mm <- "05" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(918, 1541, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Li, C et al 2009.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Materials"
+word_end_mm <- "t-test" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(3161, 5965, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Li, J et al 2013.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "2."
+word_end_mm <- "05" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1044, 2693, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+Following article have a material and method section starting by EXPERIMENTAL.
+
+```{r}
+pdf_name <- "Li, J G et al 2009.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "EXPERIMENTAL"
+word_end_mm <- "microscopy" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(493, 1212, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Li, Y et al 2010.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "MATERIALS"
+word_end_mm <- "microscopy" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(895, 1475, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Liu, Y et al 2014.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Materials"
+word_end_mm <- "significant" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1314, 3601, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+Love, S A et al 2012.pdf : no real material and method section
+```{r}
+pdf_name <- "Love, S A et al 2012.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Nanoparticle"
+word_end_mm <- "USA" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1272, 3021, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+
+```{r}
+pdf_name <- "Maurizi, L et al 2015.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "MATERIALS"
+word_end_mm <- "t-test" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1311, 3877, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+Nešković, O et al 2013.pdf : book chapter
+
+```{r}
+pdf_name <- "Nešković, O et al 2013.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Materials"
+word_end_mm <- "ImageJ." 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1231, 3005, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+Neun, B W et al 2018.pdf : book chapter
+
+```{r}
+pdf_name <- "Neun, B W et al 2018.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Materials"
+word_end_mm <- "Doxil" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1283, 3125, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Neun, B W et al 2018.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Materials"
+word_end_mm <- "Doxil" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1283, 3125, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Reddy, A et al 2010.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Materials"
+word_end_mm <- "significant" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1395, 2922, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+"Richter, AW et al 1983.pdf" : it is a scan. 1983.
+
+```{r}
+pdf_name <- "Richter, AW et al 1983.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Materials"
+word_end_mm <- "significant" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1395, 2922, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Sadaf, A et al 2012.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "MATERIALS"
+word_end_mm <- "05" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(889, 2155, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Tang, J et al 2009.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "MATERIALS"
+word_end_mm <- "significant" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(637, 1354, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Vicente, S et al 2017.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "METHODS"
+word_end_mm <- "USA" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1235, 2601, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Wang, X et al 2010.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "MATERIALS"
+word_end_mm <- "05" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1412, 2622, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Xiaoli, F et al 2017.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Materials"
+word_end_mm <- "significant" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(53, 4366, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Yan, M et al 2011.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Materials"
+word_end_mm <- "test" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1713, 4188, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Yu, T et al 2011.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "METHODS"
+word_end_mm <- "software" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(7273, 9242, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Zook, J M et al 2011.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Materials"
+word_end_mm <- "centrifugation" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1739, 4790, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+
+```{r}
+pdf_name <- "Abbasalipourkabir R et al 2015.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Materials"
+word_end_mm <- "less" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1061, 2339, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Abe, S et al 2012.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "EXPERIMENTAL"
+word_end_mm <- "Ref" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1127, 1701, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+
+```{r}
+pdf_name <- "Adedara, I A et al 2018.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Materials"
+word_end_mm <- "significant" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1055, 2583, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Aijie, C et al 2017.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Material"
+word_end_mm <- "significant" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1280, 3030, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Amrollahi-Sharifabadi et al. 2018.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Materials"
+word_end_mm <- "USA" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1790, 3112, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Aragao-Santiago, L 2016.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "Methods"
+word_end_mm <- "lower" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(1113, 3548, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "AshaRani et al. 2009.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "MATERIALS"
+word_end_mm <- "Internet" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(7422, 10247, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+```{r}
+pdf_name <- "Bendre, V et al 2011.pdf"
+conllu_df<-open_pdf_and_annotate(pdf_name, model)
+
+word_start_mm <- "MATERIALS"
+word_end_mm <- "required" 
+
+display_occurences(word_start_mm, conllu_df)
+display_occurences(word_end_mm, conllu_df)
+
+mm_section<-cut_conllu_df(574, 980, conllu_df)
+saveRDS(mm_section, file=paste0("Validation_tool_folder/", pdf_name, ".rds"))
+
+```
+
+
+
+
+
+
+
+
+# Benchmach and performance of the tool
+
+```{r}
+all_sections <-list.files("Validation_tool_folder/", pattern = ".rds")
+all_sections
+```
+
+```{r}
+automatic_extraction<-list.files("Validation_tool_folder/", pattern = "segmenteR")
+automatic_extraction
+```
+```{r}
+manual_extraction<-all_sections[!all_sections %in% automatic_extraction]
+```
+
+```{r}
+benchmarck_df <- data.frame(manual_extraction, automatic_extraction)
+benchmarck_df
+```
+
+Function from this package [this package]https://rdrr.io/cran/qlcMatrix/man/sim.strings.html). More easy to compute than creating a dtm on the whole corpus (i.e., all the material and sections.)
+
+```{r}
+#function to got the cosine similarity
+library(qlcMatrix)
+Manual<-readRDS("Validation_tool_folder/Abbasalipourkabir R et al 2015.pdf.rds")
+Auto<-readRDS("Validation_tool_folder/segmenteR_Abbasalipourkabir R et al 2015.pdf.rds")
+```
+
+```{r}
+Manual_sentences<-unique(Manual$sentence)
+Manual_sentences<-paste0(Manual_sentences, collapse = " ")
+Manual_sentences
+```
+
+```{r}
+Auto_sentences<-unique(Auto$sentence)
+Auto_sentences<-paste0(Auto_sentences, collapse = " ")
+Auto_sentences
+```
+
+
+```{r}
+qlcMatrix::sim.strings(Manual_sentences, Auto_sentences)
+```
+```{r}
+got_cosine_similiarty <- function(benchmarck_df_row) {
+  
+  Manual<-readRDS(paste0("Validation_tool_folder/", benchmarck_df_row$manual_extraction))
+  Auto<-readRDS(paste0("Validation_tool_folder/", benchmarck_df_row$automatic_extraction))
+  
+  Manual_sentences<-unique(Manual$sentence)
+  Manual_sentences<-paste0(Manual_sentences, collapse = " ")
+
+  Auto_sentences<-unique(Auto$sentence)
+  Auto_sentences<-paste0(Auto_sentences, collapse = " ")
+
+  cosine_similarity <- qlcMatrix::sim.strings(Manual_sentences, Auto_sentences)
+  return(cosine_similarity)
+}
+```
+
+```{r}
+benchmarck_df$cosine_similarity <- 0
+head(benchmarck_df)
+```
+```{r}
+for (i in 1:33) {
+  print(i)
+  if (i == 10 |i == 25) {
+    print(benchmarck_df[i,]$manual_extraction)
+    print("Error")
+    #to remove the error message in the benchmarck df due to the failure of try()
+    benchmarck_df[i,]$cosine_similarity <- 0
+    next
+
+  }
+  cosine_sim <-try(got_cosine_similiarty(benchmarck_df[i,]))
+  benchmarck_df[i,]$cosine_similarity <- cosine_sim
+} 
+```
+
+
+```{r}
+benchmarck_df
+```
+
+
+### What about the two articles on which it fails ?
+
+Running the code line by line, on Bendre, V et al 2011.pdf, it appears that clean_title_journal(pdf_name, section_title_df) remove all section title because the article only does 2 pages.
+
+Richter, AW et al 1983.pdf is a pdf, but a pdf of a scan, and has no information regarding or, well, text.
