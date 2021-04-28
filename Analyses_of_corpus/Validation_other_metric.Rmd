@@ -42,6 +42,7 @@ difference_absolue
 summary(difference)
 summary(difference_absolue)
 ```
+
 ```{r}
 table(difference)
 table(difference_absolue)
