@@ -2,7 +2,7 @@
 
 This repository hosts the code for a research work conducted at the Joint Research Centre, Directorate F - Health, Consumers and Reference Materials, Ispra (VA), Italy, in relation to the Horizon 2020 project REFINE, aiming to develop a regulatory science framework for the risk-benefit assessment of medical products based on nanotechnology.
 
-Please refer to the following publication : *Toxicity effects of nanomaterials for health applications: how automation can support systematic review of the literature ? Blanka Halamoda-Kenzaoui, Etienne Rolland, Jacopo Piovesan, Antonio Puertas Gallardo, Susanne Bremer-Hoffmann*.
+Please refer to the following publication : *Toxicity effects of nanomaterials for health applications: how automation can support systematic review of the literature ? Blanka Halamoda-Kenzaoui, Etienne Rolland, Jacopo Piovesan, Antonio Puertas Gallardo, Susanne Bremer-Hoffmann* [doi.org/10.1002/jat.4204 ](https://doi.org/10.1002/jat.4204).
 
 # Organisation of the repository
 
