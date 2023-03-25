@@ -29,7 +29,6 @@ Imports: udpipe,
   stringr,
   readr,
   dplyr, 
-  tabulizer,
   pdftools (>= 2.3.1.9000)
 Encoding: UTF-8
 LazyData: true

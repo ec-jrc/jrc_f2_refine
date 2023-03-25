@@ -238,7 +238,8 @@ clean_title_journal <- function(pdf_name, section_title_df) {
   res <- table(section_title_df$Word)
   res <- as.data.frame(res)
 
-  nb_page <- tabulizer::get_n_pages(pdf_name)
+  # nb_page <- tabulizer::get_n_pages(pdf_name)
+  nb_page <- length(pdftools::pdf_text(pdf_name))
   title_mistaken <- which(res$Freq == nb_page | res$Freq == (nb_page - 1))
 
   if (length(title_mistaken) > 0) { # if exist
@@ -446,7 +447,8 @@ extract_section_from_conllu <- function(conllu_df, positions_sections_df, sectio
 #' Please refer to https://bnosac.github.io/udpipe/en/index.html to know more about this specific format.
 #' @export
 extract_section_from_pdf <- function(pdf_name, udpipe_model, section_aliases, remove_bibliography = TRUE) {
-  txt_pdf <- tabulizer::extract_text(pdf_name) # read the text from the pdf
+  # txt_pdf <- tabulizer::extract_text(pdf_name) # read the text from the pdf
+  txt_pdf <- paste(pdftools::pdf_text(pdf_name))
   txt_pdf <- preprocess_article_txt(txt_pdf)
 
   conllu_df <- annotate_txt_pdf(txt_pdf, udpipe_model) # create the dataframe for NLP using udpipe
