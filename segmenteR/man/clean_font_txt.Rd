@@ -10,9 +10,6 @@ clean_font_txt(poppler_output)
 \item{poppler_output}{A dataframe with the text box (font), name of the font
 and the size of the font, produced by prepare_poppler_output.}
 }
-\value{
-
-}
 \description{
 In "Baker, G L et al 2008.pdf", the word of the section's titles had a smaller
 size than the text of the article. This seems to happened in old articles/for

@@ -10,9 +10,6 @@ clean_section_title(positions_sections_df)
 \item{positions_sections_df}{A dataframe with the positions of the sections
 currently localized inside the conllu_df.}
 }
-\value{
-
-}
 \description{
 This function preprocess the section title to help the extractions functions.
 For example, "aterial" cannot be find in "MATERIAL".

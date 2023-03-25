@@ -14,9 +14,6 @@ Word                         Font                 Size
 293     Introduction VMUQDX+ITCStoneSans-Semibold 10.0
 1321         Results VMUQDX+ITCStoneSans-Semibold 10.0}
 }
-\value{
-
-}
 \description{
 If the position of the section "Acknowledgments" is set before "Conclusion",
 reorder the sections titles to position "Acknowledgments" after "Conclusion".

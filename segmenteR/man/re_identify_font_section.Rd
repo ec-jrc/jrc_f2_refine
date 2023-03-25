@@ -20,9 +20,6 @@ Word                         Font                 Size
 \item{list_of_sections}{A list of vector of string, that contain the sections
 titles we want to localize in the article, if they exist.}
 }
-\value{
-
-}
 \description{
 When Abstract and References has a different font than the other section
 (it happens in some journals). This function check if the section_df is too

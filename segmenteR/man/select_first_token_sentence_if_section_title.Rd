@@ -21,9 +21,6 @@ to it such as : lemma, sentence, head_token, etc.}
 \item{positions_sections_df}{A dataframe with the positions of the sections
 currently localized inside the conllu_df.}
 }
-\value{
-
-}
 \description{
 This function call select_if_firsts_tokens_already_in_section_title() for
 each of the index passed as input.

@@ -86,7 +86,7 @@ capitalize_first_letter <- function(section) {
 #'
 #'
 regex_correction <- function(conllu_df, section) {
-  occurrences <- which(!is.na(str_extract((conllu_df$token), section)))
+  occurrences <- which(!is.na(stringr::str_extract((conllu_df$token), section)))
   if (length(occurrences) > 0) { # send back only if it exist
     return(occurrences)
   }

@@ -10,9 +10,6 @@ preprocess_article_txt(txt_pdf)
 \item{txt_pdf}{The text of the article, into a single string, extracted from
 the pdf using tabulizer}
 }
-\value{
-
-}
 \description{
 This function is a succession of regex to correct/preprocess the text extracted
 from the pdf. Since the raw text is extracted directly from the pdf using

@@ -17,9 +17,6 @@ Word                         Font                 Size
 293     Introduction VMUQDX+ITCStoneSans-Semibold 10.0
 1321         Results VMUQDX+ITCStoneSans-Semibold 10.0}
 }
-\value{
-
-}
 \description{
 An article, Guo, J et al 2014.pdf highlight a the following problem :
 the title of the journal can be written with the same font that the sections

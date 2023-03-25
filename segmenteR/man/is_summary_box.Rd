@@ -23,9 +23,6 @@ Word                         Font                 Size
 293     Introduction VMUQDX+ITCStoneSans-Semibold 10.0
 1321         Results VMUQDX+ITCStoneSans-Semibold 10.0}
 }
-\value{
-
-}
 \description{
 In "Berce, C et al 2016.pdf", but also in many other article, there is short
 summary of the article in a box at the beginning of the article with sections

@@ -12,9 +12,6 @@ the model, in the CoNLL-U format.}
 
 \item{index}{}
 }
-\value{
-
-}
 \description{
 Grep the lemma corresponding to the head_token_id of the token at the entry
 at index in the conllu_df. Function called by eliminate_cf_occurrences().

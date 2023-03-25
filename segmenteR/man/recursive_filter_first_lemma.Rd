@@ -17,9 +17,6 @@ etc. Use here to not create confusion with the variable occurrence.}
 \item{lemma_nb}{Variable used for the recursive call, allow to advance from
 one lemma to the next in the sentence between each call.}
 }
-\value{
-
-}
 \description{
 Called by select_first_lemma_sentence(). Check if the first lemma of the
 sentence is the lemma at the position index. The function is a recursive call,

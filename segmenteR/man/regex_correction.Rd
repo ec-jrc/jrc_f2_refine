@@ -12,9 +12,6 @@ the model, in the CoNLL-U format.}
 
 \item{section}{A string, a section name.}
 }
-\value{
-
-}
 \description{
 Called by handle_typos(). In "Attia, AB et al 2013.pdf", "Acknowledgements"
 became "group.Acknowledgments". This function look for section inside tokens.

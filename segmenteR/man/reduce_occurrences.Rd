@@ -29,9 +29,6 @@ Word                         Font                 Size
 293     Introduction VMUQDX+ITCStoneSans-Semibold 10.0
 1321         Results VMUQDX+ITCStoneSans-Semibold 10.0}
 }
-\value{
-
-}
 \description{
 This function reduce the number of occurrences that can be a localization of
 section titles. This function successively call subset_occurrences(),

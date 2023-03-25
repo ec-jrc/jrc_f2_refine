@@ -19,9 +19,6 @@ the model, in the CoNLL-U format.}
 \item{positions_sections_df}{A dataframe with the positions of the sections
 currently localized inside the conllu_df.}
 }
-\value{
-
-}
 \description{
 This function check if the first token is already in positions_sections_df.
 }

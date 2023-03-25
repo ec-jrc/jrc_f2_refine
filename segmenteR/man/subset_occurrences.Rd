@@ -14,9 +14,6 @@ to it such as : lemma, sentence, head_token, etc.}
 \item{positions_sections_df}{A dataframe with the positions of the sections
 currently localized inside the conllu_df.}
 }
-\value{
-
-}
 \description{
 Simply speaking, it reduce the search of section names to portion of the
 article after the already annotated section titles. In Abrams et al 2010,
