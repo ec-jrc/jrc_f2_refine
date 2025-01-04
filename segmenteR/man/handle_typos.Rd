@@ -28,7 +28,7 @@ in ConLL-U format. This function call :
 \item missing_first_letter_section() (when "Acknowledgements" became
 "cknowledgements", and "Reference", "eference")
 \item capitalize_first_letter() ("MAterIAls"->"Materials", correct strange
-behavior of tabulizer for section title)
+behavior of tabulapdf for section title)
 \item regex_correction() (when "Acknowledgements" became "group.Acknowledgments")
 }
 }

@@ -13,7 +13,7 @@ capitalize_first_letter(section)
 A string with the first letter capitalized and the other one lowered.
 }
 \description{
-Used to correct strange behavior of tabulizer for section title.
+Used to correct strange behavior of tabulapdf for section title.
 For example, "MAterIAls"->"Materials".
 Must be used on must on conllu_df$token.
 }

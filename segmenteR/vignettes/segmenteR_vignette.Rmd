@@ -77,13 +77,13 @@ head(material_and_methods)
 # Step by step explanation :
 
 This part of the vignette shows the internal working of the function extract_section_from_pdf.
-After we set the default parameters of the function extract_section_from_pdf() (such as remove_bibliography), the first step is to extract the text from the pdf, using the function extract_text() from tabulizer. The reason why we choose tabulizer over other library is that it handle better the text of articles write in a two columns style. Repair_txt() apply a collection of regex to preprocess the text for downstream use.
+After we set the default parameters of the function extract_section_from_pdf() (such as remove_bibliography), the first step is to extract the text from the pdf, using the function extract_text() from tabulapdf. The reason why we choose tabulapdf over other library is that it handle better the text of articles write in a two columns style. Repair_txt() apply a collection of regex to preprocess the text for downstream use.
 
 ```{r}
 pdf_name <- "Abrams, M T et al 2010.pdf"
 remove_bibliography <- TRUE
 
-txt_pdf <- tabulizer::extract_text(pdf_name) # read the text from the pdf
+txt_pdf <- tabulapdf::extract_text(pdf_name) # read the text from the pdf
 txt_pdf <- segmenteR::preprocess_article_txt(txt_pdf)
 substr(txt_pdf, 1, 100)
 substr(txt_pdf, 101, 200)

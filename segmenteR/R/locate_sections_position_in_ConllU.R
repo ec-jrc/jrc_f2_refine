@@ -22,7 +22,7 @@ locate_sections_position_in_conllu <- function(conllu_df, section_title_df) {
   # reduce_occurrences() use the order of the sections inside the document and NLP approach to reduce the number
   # of occurrences to one, i.e. to select among the different occurrences of a section title which one
   # correspond to the section title. More description in their documentation.
-  # Update tabulizer : after using tabulizer to read the pdf, some gotchas seem to appear in some section title :
+  # Update tabulapdf : after using tabulapdf to read the pdf, some gotchas seem to appear in some section title :
   # in Abrams et al 2010, "Introduction" became "IntroductIon". Token was impossible to find.
   # Tolower() is added to keep using token. Lemma would require playing with the plurals.
 
@@ -52,7 +52,7 @@ locate_sections_position_in_conllu <- function(conllu_df, section_title_df) {
 
 #' Lower all the letter except the first one
 #'
-#' Correct strange behavior of tabulizer for section titles, by lowering all the
+#' Correct strange behavior of tabulapdf for section titles, by lowering all the
 #' letters except the first one which is left uncorrected.
 #' "MAterIAls" become "Materials". This function allow to find tokens such as
 #' "MAterIAls" when searching for "Material", while avoiding to find token such
@@ -256,7 +256,7 @@ select_if_firsts_tokens_already_in_section_title <- function(conllu_df, index, p
   token_id <- as.numeric(token_id)
   sentence_id <- occurrence$sentence_id
   first_tokens <- conllu_df[which(conllu_df$sentence_id == sentence_id)[1:(token_id - 1)], ]$token
-  # update tabulizer : tolower can lead to unexpected results
+  # update tabulapdf : tolower can lead to unexpected results
   # doubling the if is a quick and safe fix
   for (token in first_tokens) {
     if (token %in% positions_sections_df$section) {

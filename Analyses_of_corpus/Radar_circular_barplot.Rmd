@@ -28,7 +28,7 @@ library(udpipe)
 library(dplyr)
 library(readr)
 library(stringr)
-library(tabulizer)
+library(tabulapdf)
 library(tm)
 
 library(tidyverse)

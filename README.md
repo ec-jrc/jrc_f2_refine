@@ -73,7 +73,7 @@ This example show the inner working of the function extract_section_from_pdf() :
 pdf_name <- "Abrams, M T et al 2010.pdf"
 remove_bibliography <- TRUE
 
-txt_pdf <- tabulizer::extract_text(pdf_name) # read the text from the pdf
+txt_pdf <- tabulapdf::extract_text(pdf_name) # read the text from the pdf
 txt_pdf <- segmenteR::preprocess_article_txt(txt_pdf)
 ```
 

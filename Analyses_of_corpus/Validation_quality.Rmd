@@ -22,7 +22,7 @@ This rmarkdown document report the quality evaluation performed on the pdf of th
 library(dplyr)
 library(readr)
 library(stringr)
-library(tabulizer)
+library(tabulapdf)
 library(tm)
 library(ggplot2)
 library(GGally)

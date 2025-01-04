@@ -175,7 +175,7 @@ open_pdf_and_annotate <- function(pdf_name, model) {
   
   remove_bibliography <- TRUE
 
-  txt_pdf <- tabulizer::extract_text(path) # read the text from the pdf
+  txt_pdf <- tabulapdf::extract_text(path) # read the text from the pdf
   txt_pdf <- segmenteR::preprocess_article_txt(txt_pdf)
   conllu_df <- segmenteR::annotate_txt_pdf(txt_pdf, udpipe_model=model ) # create the dataframe for NLP using udpipe
   

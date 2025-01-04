@@ -14,7 +14,7 @@ dataframe.}
 A string of character corrected.
 }
 \description{
-Correct strange behavior of tabulizer for section titles, by lowering all the
+Correct strange behavior of tabulapdf for section titles, by lowering all the
 letters except the first one which is left uncorrected.
 "MAterIAls" become "Materials". This function allow to find tokens such as
 "MAterIAls" when searching for "Material", while avoiding to find token such

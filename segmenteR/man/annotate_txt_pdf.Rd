@@ -8,7 +8,7 @@ annotate_txt_pdf(txt_pdf, udpipe_model)
 }
 \arguments{
 \item{txt_pdf}{Raw text read from the article in pdf, extracted using the
-tabulizer::extract_text() function.}
+tabulapdf::extract_text() function.}
 
 \item{udpipe_model}{An object of class udpipe_model, as returned by udpipe_load_model()
 from the package udpipe. If left void, the function will download the model

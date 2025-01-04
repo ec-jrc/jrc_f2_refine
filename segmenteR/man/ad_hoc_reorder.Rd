@@ -21,7 +21,7 @@ Word                         Font                 Size
 If the position of the section "Acknowledgments" is set before "Conclusion",
 reorder the sections titles to position "Acknowledgments" after "Conclusion".
 This would otherwise lead to crash downstream since Conclusion is placed
-before for a human reader AND for tabulizer, which handle(s) double column
+before for a human reader AND for tabulapdf, which handle(s) double column
 writing style better than poppler.
 }
 \details{

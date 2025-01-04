@@ -629,7 +629,7 @@ Function to merge synonyms of the not\_specific ontology :
 capitalize_first_letter <- function(section) {
   #https://rstudio-pubs-static.s3.amazonaws.com/408658_512da947714740b99253228f084a08a9.html
   #"MAterIAls"->"Materials" 
-  #use to correct strange behavior of tabulizer for section title
+  #use to correct strange behavior of tabulapdf for section title
   #must be used on x$token !
   section<-paste0(toupper(substring(section, 1,1)), tolower(substring(section, 2)))
   return(section)

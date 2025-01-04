@@ -7,7 +7,7 @@
 #' - missing_first_letter_section() (when "Acknowledgements" became
 #' "cknowledgements", and "Reference", "eference")
 #' - capitalize_first_letter() ("MAterIAls"->"Materials", correct strange
-#' behavior of tabulizer for section title)
+#' behavior of tabulapdf for section title)
 #' - regex_correction() (when "Acknowledgements" became "group.Acknowledgments")
 #'
 #' @inheritParams extract_section_from_conllu
@@ -25,7 +25,7 @@ handle_typos <- function(conllu_df, section, occurrences) {
     occurrences <- missing_first_letter_section(conllu_df, section)
   }
   if (length(occurrences) == 0) {
-    # "MAterIAls"->"Materials", correct strange behavior of tabulizer for section title
+    # "MAterIAls"->"Materials", correct strange behavior of tabulapdf for section title
     occurrences <- which(capitalize_first_letter(conllu_df$token) %in% section)
   }
   if (length(occurrences) == 0) {
@@ -58,7 +58,7 @@ missing_first_letter_section <- function(conllu_df, section) {
 
 #' Capitalize the first letter and lower the other letters
 #'
-#' Used to correct strange behavior of tabulizer for section title.
+#' Used to correct strange behavior of tabulapdf for section title.
 #' For example, "MAterIAls"->"Materials".
 #' Must be used on must on conllu_df$token.
 #' @inheritParams handle_typos
@@ -66,7 +66,7 @@ missing_first_letter_section <- function(conllu_df, section) {
 #' @return A string with the first letter capitalized and the other one lowered.
 capitalize_first_letter <- function(section) {
   # "MAterIAls"->"Materials"
-  # use to correct strange behavior of tabulizer for section title
+  # use to correct strange behavior of tabulapdf for section title
   # must be used on conllu_df$token !
   section <- paste0(toupper(substring(section, 1, 1)), tolower(substring(section, 2)))
   return(section)

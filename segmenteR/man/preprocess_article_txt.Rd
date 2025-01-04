@@ -8,7 +8,7 @@ preprocess_article_txt(txt_pdf)
 }
 \arguments{
 \item{txt_pdf}{The text of the article, into a single string, extracted from
-the pdf using tabulizer}
+the pdf using tabulapdf}
 }
 \value{
 
@@ -16,7 +16,7 @@ the pdf using tabulizer}
 \description{
 This function is a succession of regex to correct/preprocess the text extracted
 from the pdf. Since the raw text is extracted directly from the pdf using
-tabulizer, there is some typos or recurrent character so remove. For example,
+tabulapdf, there is some typos or recurrent character so remove. For example,
 non graphical caracter, or "-\" and newline character in the middle of a word,
 or concatenated at the beginning of the word.
 }

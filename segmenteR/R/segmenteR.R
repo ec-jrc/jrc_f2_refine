@@ -1,7 +1,7 @@
 #' Download the model, Tokenize and make the Dependency Parsing of the extracted text
 #'
 #' @param txt_pdf Raw text read from the article in pdf, extracted using the
-#' tabulizer::extract_text() function.
+#' tabulapdf::extract_text() function.
 #' @param udpipe_model An object of class udpipe_model, as returned by udpipe_load_model()
 #' from the package udpipe. If left void, the function will download the model
 #' english-gum annotation model from the treebanks available at
@@ -154,12 +154,12 @@ clean_font_txt <- function(poppler_output) {
 #'
 #' This function is a succession of regex to correct/preprocess the text extracted
 #' from the pdf. Since the raw text is extracted directly from the pdf using
-#' tabulizer, there is some typos or recurrent character so remove. For example,
+#' tabulapdf, there is some typos or recurrent character so remove. For example,
 #' non graphical caracter, or "-\" and newline character in the middle of a word,
 #' or concatenated at the beginning of the word.
 #'
 #' @param txt_pdf The text of the article, into a single string, extracted from
-#' the pdf using tabulizer
+#' the pdf using tabulapdf
 #' @export
 #'
 #' @return
@@ -238,7 +238,7 @@ clean_title_journal <- function(pdf_name, section_title_df) {
   res <- table(section_title_df$Word)
   res <- as.data.frame(res)
 
-  nb_page <- tabulizer::get_n_pages(pdf_name)
+  nb_page <- tabulapdf::get_n_pages(pdf_name)
   title_mistaken <- which(res$Freq == nb_page | res$Freq == (nb_page - 1))
 
   if (length(title_mistaken) > 0) { # if exist
@@ -282,7 +282,7 @@ grep_head_token <- function(conllu_df, index) {
 #' If the position of the section "Acknowledgments" is set before "Conclusion",
 #' reorder the sections titles to position "Acknowledgments" after "Conclusion".
 #' This would otherwise lead to crash downstream since Conclusion is placed
-#' before for a human reader AND for tabulizer, which handle(s) double column
+#' before for a human reader AND for tabulapdf, which handle(s) double column
 #' writing style better than poppler.
 #'
 #' In "Smulders, S et al 2015.pdf" the problem was encountered :
@@ -446,7 +446,7 @@ extract_section_from_conllu <- function(conllu_df, positions_sections_df, sectio
 #' Please refer to https://bnosac.github.io/udpipe/en/index.html to know more about this specific format.
 #' @export
 extract_section_from_pdf <- function(pdf_name, udpipe_model, section_aliases, remove_bibliography = TRUE) {
-  txt_pdf <- tabulizer::extract_text(pdf_name) # read the text from the pdf
+  txt_pdf <- tabulapdf::extract_text(pdf_name) # read the text from the pdf
   txt_pdf <- preprocess_article_txt(txt_pdf)
 
   conllu_df <- annotate_txt_pdf(txt_pdf, udpipe_model) # create the dataframe for NLP using udpipe
